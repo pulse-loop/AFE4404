@@ -10,3 +10,9 @@
 #![warn(rustdoc::all)]
 
 #![no_std]
+
+// Direct import of main struct.
+pub use afe4404::AFE4404;
+
+mod afe4404;
+mod register;
