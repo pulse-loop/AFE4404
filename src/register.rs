@@ -6,13 +6,13 @@ use embedded_hal::{
 };
 
 /// Represents a register inside the AFE4404.
-struct Register<'a, I2C> {
+struct Register<'a, I2C, BF> {
     reg_addr: u8,
     phy_addr: SevenBitAddress,
     i2c: &'a mut I2C,
 }
 
-impl<'a, I2C> Register<'a, I2C>
+impl<'a, I2C, BF> Register<'a, I2C, BF>
     where I2C: I2c {
     /// Creates a new register from a register address, a physical address and an I2C interface.
     ///

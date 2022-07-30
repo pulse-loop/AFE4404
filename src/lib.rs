@@ -16,3 +16,4 @@ pub use afe4404::AFE4404;
 
 mod afe4404;
 mod register;
+mod register_structs;
