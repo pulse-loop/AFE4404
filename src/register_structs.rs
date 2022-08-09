@@ -3,7 +3,8 @@
 use modular_bitfield::prelude::*;
 
 // pub(crate) everywhere
-// allow
+// !allow
+// __
 
 pub(crate) trait RegisterWritable {
     fn into_reg_bytes(self) -> [u8; 3];
