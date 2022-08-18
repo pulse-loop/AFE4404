@@ -9,7 +9,7 @@ use embedded_hal::{
     }
 };
 
-use crate::register_structs::RegisterWritable;
+use crate::RegisterWritable;
 
 /// Represents a register inside the AFE4404.
 pub(crate) struct Register<I2C, BF> {
@@ -31,8 +31,8 @@ impl<I2C, BF> Register<I2C, BF>
     ///
     /// returns: Register<I2C>
     pub(crate) fn new(reg_addr: u8, phy_addr: SevenBitAddress, i2c: Rc<RefCell<I2C>>) -> Self {
-        Register {
-            _p: Default::default(),
+        Self {
+            _p: std::marker::PhantomData::default(),
             reg_addr,
             phy_addr,
             i2c,

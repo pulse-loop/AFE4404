@@ -1,0 +1,65 @@
+0 20 sw_reset 1 0 1 tm_count_rst 1 reg_read 1
+0 8 led2stc 16
+0 8 led2endc 16
+0 8 led1ledstc 16
+0 8 led1ledendc 16
+0 8 aled2stc_or_led3stc 16
+0 8 aled2endc_or_led3endc 16
+0 8 led1stc 16
+0 8 led1endc 16
+0 8 led2ledstc 16
+0 8 led2ledendc 16
+0 8 aled1stc 16
+0 8 aled1endc 16
+0 8 led2convst 16
+0 8 led2convend 16
+0 8 aled2convst_or_led3convst 16
+0 8 aled2convend_or_led3convend 16
+0 8 led1convst 16
+0 8 led1convend 16
+0 8 aled1convst 16
+0 8 aled1convend 16
+0 8 adcrststct0 16
+0 8 adcrstendct0 16
+0 8 adcrststct1 16
+0 8 adcrstendct1 16
+0 8 adcrststct2 16
+0 8 adcrstendct2 16
+0 8 adcrststct3 16
+0 8 adcrstendct3 16
+0 8 prpct 16
+0 15 timeren 1 0 4 numav 4
+skip
+0 8 ensepgain 1 0 9 tia_cf_sep 3 tia_gain_sep 3
+0 15 prog_tg_en 1 0 2 tia_cf 3 tia_gain 3
+0 6 iled3 6 iled2 6 iled1 6
+0 3 dynamic1 1 0 2 iled_2x 1 0 2 dynamic2 1 0 4 osc_enable 1 0 4 dynamic3 1 dynamic4 1 0 1 pdnrx 1 pdnafe 1
+skip
+skip
+skip
+skip
+0 24
+0 14 enable_clkout 1 0 4 clkdiv_clkout 4 0 1
+led2val 24
+aled2val_or_led3val 24
+led1val 24
+aled1val 24
+led2_minus_aled2val 24
+led1_minus_aled1val 24
+skip
+0 13 pd_disconnect 1 0 4 enable_input_short 1 0 2 clkdiv_extmode 3
+0 8 pdncyclestc 16
+0 8 pdncycleendc 16
+0 8 prog_tg_stc 16
+0 8 prog_tg_endc 16
+0 8 led3ledstc 16
+0 8 led3ledendc 16
+skip
+0 21 clkdiv_prf 3
+0 4 pol_offdac_led2 1 i_offdac_led2 4 pol_offdac_amb1 1 i_offdac_amb1 4 pol_offdac_led1 1 i_offdac_led1 4 pol_offdac_amb2_or_pol_offdac_led3 1 i_offdac_amb2_or_i_offdac_led3 4
+skip
+skip
+0 18 dec_en 1 0 1 dec_factor 3 0 1
+skip
+avg_led2_minus_aled2val 24
+avg_led1_minus_aled1val 24
