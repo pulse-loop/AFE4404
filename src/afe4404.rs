@@ -10,7 +10,7 @@ use embedded_hal::{
     }
 };
 
-use crate::RegisterBlock;
+use crate::{R00h, RegisterBlock};
 
 pub struct AFE4404<I2C> {
     address: SevenBitAddress,
@@ -24,5 +24,8 @@ impl<I2C> AFE4404<I2C>
             address,
             registers: RegisterBlock::new(address, i2c),
         }
+    }
+    fn test(&mut self) {
+        self.registers.r00h.write(R00h::init(true, true, false));
     }
 }

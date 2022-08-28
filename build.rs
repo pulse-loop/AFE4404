@@ -5,7 +5,7 @@ use std::{
     vec::Vec,
 };
 
-use codegen::{Function, Impl, Module, Scope, Struct, Trait};
+use codegen::{Field, Function, Impl, Module, Scope, Struct, Trait};
 
 struct RegisterData {
     addr: u8,
@@ -59,14 +59,14 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
     let mut scope = Scope::new();
 
     // Trait.
-    let mut my_trait = Trait::new("RegisterWritable");
-    my_trait.new_fn("into_reg_bytes")
+    let mut registers_trait = Trait::new("RegisterWritable");
+    registers_trait.new_fn("into_reg_bytes")
         .arg_self()
         .ret("[u8; 3]");
-    my_trait.new_fn("from_reg_bytes")
+    registers_trait.new_fn("from_reg_bytes")
         .arg("bytes", "[u8; 3]")
         .ret("Self");
-    scope.push_trait(my_trait);
+    scope.push_trait(registers_trait);
 
     let mut registers_module = Module::new("registers");
     registers_module.import("modular_bitfield::prelude", "*");
@@ -75,36 +75,57 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
     for register in register_array {
 
         // Struct.
-        let mut my_struct = Struct::new(format!("R{:02X}h", register.addr).as_str());
+        let mut current_struct = Struct::new(format!("R{:02X}h", register.addr).as_str());
 
         // A workaround for declaring bitfields inside a module.
-        my_struct.vis("#[bitfield]\npub(crate)")
+        current_struct.vis("#[bitfield]\npub(crate)")
             .derive("Copy, Clone");
         for (name, length) in register.data.iter() {
             if name == "0" {
-                my_struct.field("#[skip] __", format!("B{}", length));
+                current_struct.field("#[skip] __", format!("B{}", length));
             } else {
+                // let name = String::from("pub(crate) ") + name;
                 match length {
-                    1 => my_struct.field(name, "bool"),
-                    8 | 16 | 32 | 64 => my_struct.field(name, format!("u{}", length)),
-                    _ => my_struct.field(name, format!("B{}", length)),
+                    1 => current_struct.field(name.as_str(), "bool"),
+                    8 | 16 | 32 | 64 => current_struct.field(name.as_str(), format!("u{}", length)),
+                    _ => current_struct.field(name.as_str(), format!("B{}", length)),
                 };
             }
         }
-        registers_module.push_struct(my_struct);
+        registers_module.push_struct(current_struct);
 
-        // Impl.
-        let mut my_impl = Impl::new(format!("R{:02X}h", register.addr));
-        my_impl.impl_trait("RegisterWritable");
-        my_impl.new_fn("into_reg_bytes")
+        // Struct impl (init function).
+        let mut init_function = Function::new("init");
+        init_function.vis("pub(crate)")
+            .ret("Self")
+            .line("Self {");
+        for (name, length) in register.data.iter() {
+            if name != "0" {
+                match length {
+                    1 => init_function.arg(name.as_str(), "bool"), /*current_struct.field(name.as_str(), "bool"),*/
+                    8 | 16 | 32 | 64 => init_function.arg(name.as_str(), format!("u{}", length)),
+                    _ => init_function.arg(name.as_str(), format!("B{}", length)),
+                };
+                init_function.line(format!("{},", name));
+            }
+        }
+        init_function.line("..Default::default()")
+            .line("}");
+        registers_module.new_impl(format!("R{:02X}h", register.addr).as_str())
+            .push_fn(init_function);
+
+        // Trait impl.
+        let mut current_trait_impl = Impl::new(format!("R{:02X}h", register.addr));
+        current_trait_impl.impl_trait("RegisterWritable");
+        current_trait_impl.new_fn("into_reg_bytes")
             .arg_self()
             .ret("[u8; 3]")
             .line("self.into_bytes()");
-        my_impl.new_fn("from_reg_bytes")
+        current_trait_impl.new_fn("from_reg_bytes")
             .arg("bytes", "[u8; 3]")
             .ret("Self")
             .line("Self::from_bytes(bytes)");
-        registers_module.push_impl(my_impl);
+        registers_module.push_impl(current_trait_impl);
     }
 
     scope.push_module(registers_module);
