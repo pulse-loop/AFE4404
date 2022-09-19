@@ -25,7 +25,8 @@ impl<I2C> AFE4404<I2C>
             registers: RegisterBlock::new(address, i2c),
         }
     }
+
     fn test(&mut self) {
-        self.registers.r00h.write(R00h::init(true, true, false));
+        self.registers.r00h.write(R00h::init(false, true, true)).unwrap();
     }
 }

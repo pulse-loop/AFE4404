@@ -84,7 +84,6 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
             if name == "0" {
                 current_struct.field("#[skip] __", format!("B{}", length));
             } else {
-                // let name = String::from("pub(crate) ") + name;
                 match length {
                     1 => current_struct.field(name.as_str(), "bool"),
                     8 | 16 | 32 | 64 => current_struct.field(name.as_str(), format!("u{}", length)),
@@ -94,23 +93,21 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
         }
         registers_module.push_struct(current_struct);
 
-        // Struct impl (init function).
+       // Struct impl (init function).
         let mut init_function = Function::new("init");
         init_function.vis("pub(crate)")
             .ret("Self")
-            .line("Self {");
+            .line(format!("R{:02X}h::new()", register.addr));
         for (name, length) in register.data.iter() {
             if name != "0" {
                 match length {
-                    1 => init_function.arg(name.as_str(), "bool"), /*current_struct.field(name.as_str(), "bool"),*/
+                    1 => init_function.arg(name.as_str(), "bool"),
                     8 | 16 | 32 | 64 => init_function.arg(name.as_str(), format!("u{}", length)),
-                    _ => init_function.arg(name.as_str(), format!("B{}", length)),
+                    _ => init_function.arg(name.as_str(), format!("u{}", (length / 8 + 1) * 8)), // Rounding to next multiple of 8.
                 };
-                init_function.line(format!("{},", name));
+                init_function.line(format!("\t.with_{}({})", name, name));
             }
         }
-        init_function.line("..Default::default()")
-            .line("}");
         registers_module.new_impl(format!("R{:02X}h", register.addr).as_str())
             .push_fn(init_function);
 
