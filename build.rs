@@ -22,7 +22,7 @@ impl RegisterData {
 
     fn from_string(addr: u8, s: String) -> Result<Self, ()> {
         let mut names = Vec::<String>::new();
-        let mut lenghts = Vec::<u32>::new();
+        let mut lengths = Vec::<u32>::new();
         for (index, field) in s.split_whitespace().enumerate() {
             if index == 0 && field == "skip" {
                 return Err(());
@@ -31,12 +31,12 @@ impl RegisterData {
             if index % 2 == 0 {
                 names.push(field.parse().expect("Cannot parse register name."));
             } else {
-                lenghts.push(field.parse().expect("Cannot parse register length."));
+                lengths.push(field.parse().expect("Cannot parse register length."));
             }
         }
 
         let zipped = names.iter()
-            .zip(lenghts.iter())
+            .zip(lengths.iter())
             .map(|item| {
                 (item.0.clone(), *item.1)
             })
@@ -71,6 +71,8 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
     let mut registers_module = Module::new("registers");
     registers_module.import("modular_bitfield::prelude", "*");
     registers_module.import("super", "RegisterWritable");
+    registers_module.attr("allow(clippy::too_many_arguments)");
+    registers_module.attr("allow(clippy::fn_params_excessive_bools)");
 
     for register in register_array {
 
@@ -78,11 +80,14 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
         let mut current_struct = Struct::new(format!("R{:02X}h", register.addr).as_str());
 
         // A workaround for declaring bitfields inside a module.
-        current_struct.vis("#[bitfield]\npub(crate)")
+        current_struct
+            .attr("bitfield")
+            .vis("pub(crate)")
             .derive("Copy, Clone");
         for (name, length) in register.data.iter() {
             if name == "0" {
-                current_struct.field("#[skip] __", format!("B{}", length));
+                let field = Field::new("__", format!("B{}", length)).annotation("#[skip]").to_owned();
+                current_struct.push_field(field);
             } else {
                 match length {
                     1 => current_struct.field(name.as_str(), "bool"),
@@ -93,11 +98,11 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
         }
         registers_module.push_struct(current_struct);
 
-       // Struct impl (init function).
+        // Struct impl (init function).
         let mut init_function = Function::new("init");
         init_function.vis("pub(crate)")
             .ret("Self")
-            .line(format!("R{:02X}h::new()", register.addr));
+            .line("Self::new()");
         for (name, length) in register.data.iter() {
             if name != "0" {
                 match length {
@@ -143,13 +148,24 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
     scope.raw("use registers::*;");
 
     // Struct.
-    let mut my_struct = Struct::new("RegisterBlock");
-    my_struct.generic("I2C");
-    my_struct.allow("dead_code").allow("non_snake_case");
+    let mut register_block_struct = Struct::new("RegisterBlock")
+        .generic("I2C")
+        .allow("dead_code")
+        .allow("non_snake_case")
+        .vis("pub(crate)")
+        .to_owned();
+
     for register in register_array {
-        my_struct.field(format!("r{:02X}h", register.addr).as_str(), format!("Register<I2C, R{:02X}h>", register.addr));
+        let field = Field::new(
+            format!("r{:02X}h", register.addr).as_str(),
+            format!("Register<I2C, R{:02X}h>", register.addr),
+        )
+            .vis("pub(crate)")
+            .to_owned();
+
+        register_block_struct.push_field(field);
     }
-    scope.push_struct(my_struct);
+    scope.push_struct(register_block_struct);
 
     // Impl.
     let mut my_fn = Function::new("new");
