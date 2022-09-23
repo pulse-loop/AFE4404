@@ -73,27 +73,33 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
     registers_module.import("super", "RegisterWritable");
     registers_module.attr("allow(clippy::too_many_arguments)");
     registers_module.attr("allow(clippy::fn_params_excessive_bools)");
+    registers_module.vis("pub(crate)");
 
     for register in register_array {
 
         // Struct.
         let mut current_struct = Struct::new(format!("R{:02X}h", register.addr).as_str());
 
-        // A workaround for declaring bitfields inside a module.
         current_struct
             .attr("bitfield")
             .vis("pub(crate)")
             .derive("Copy, Clone");
+
+        let mut skips: u8 = 0;
+
         for (name, length) in register.data.iter() {
             if name == "0" {
-                let field = Field::new("__", format!("B{}", length)).annotation("#[skip]").to_owned();
+                let field = Field::new(&*format!("__{}", skips), format!("B{}", length)).annotation("#[skip]").to_owned();
+                skips += 1;
                 current_struct.push_field(field);
             } else {
-                match length {
-                    1 => current_struct.field(name.as_str(), "bool"),
-                    8 | 16 | 32 | 64 => current_struct.field(name.as_str(), format!("u{}", length)),
-                    _ => current_struct.field(name.as_str(), format!("B{}", length)),
+                let mut field = match length {
+                    1 => Field::new(name.as_str(), "bool"),
+                    8 | 16 | 32 | 64 => Field::new(name.as_str(), format!("u{}", length)),
+                    _ => Field::new(name.as_str(), format!("B{}", length)),
                 };
+
+                current_struct.push_field(field.vis("pub(crate)").to_owned());
             }
         }
         registers_module.push_struct(current_struct);
