@@ -11,6 +11,9 @@
 // #![no_std]
 // TODO: Migrate to no_std.
 
+// Direct import of main struct.
+pub use afe4404::AFE4404;
+
 include!(concat!(env!("OUT_DIR"), "/register_block.rs"));
 
 /// A driver for the AFE4404 pulse oximeter analog frontend.
@@ -18,7 +21,5 @@ include!(concat!(env!("OUT_DIR"), "/register_block.rs"));
 mod afe4404;
 mod register;
 mod led_current;
-
-// Direct import of main struct.
-pub use afe4404::AFE4404;
+mod tia;
 

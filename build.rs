@@ -174,17 +174,17 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
     scope.push_struct(register_block_struct);
 
     // Impl.
-    let mut my_fn = Function::new("new");
-    my_fn.vis("pub")
+    let mut new_function = Function::new("new");
+    new_function.vis("pub")
         .arg("phy_addr", "SevenBitAddress")
         .arg("i2c", "&Rc<RefCell<I2C>>")
         .ret("Self")
         .line("Self {");
     for register in register_array {
-        my_fn.line(format!("r{:02X}h: Register::new({:#04X}, phy_addr, Rc::clone(i2c)),", register.addr, register.addr));
+        new_function.line(format!("r{:02X}h: Register::new({:#04X}, phy_addr, Rc::clone(i2c)),", register.addr, register.addr));
     }
-    my_fn.line("}");
-    scope.new_impl("RegisterBlock<I2C>").generic("I2C").bound("I2C", "I2c").push_fn(my_fn);
+    new_function.line("}");
+    scope.new_impl("RegisterBlock<I2C>").generic("I2C").bound("I2C", "I2c").push_fn(new_function);
 
     scope
 }

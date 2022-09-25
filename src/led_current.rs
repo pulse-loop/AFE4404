@@ -1,25 +1,26 @@
-use crate::{R22h, AFE4404};
 use embedded_hal::i2c::blocking::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 
+use crate::{AFE4404, R22h};
+
 impl<I2C> AFE4404<I2C>
-where
-    I2C: I2c<SevenBitAddress>,
+    where
+        I2C: I2c<SevenBitAddress>,
 {
 
     // TODO: Implement custom errors otherwise clippy fucking complains in the next function.
 
     /// Set the LED current.
-    /// 
+    ///
     /// The current is expressed in milliamperes.
-    /// 
+    ///
     /// # Notes
-    /// 
+    ///
     /// This function automatically expands the current range to 0-100 mA if any of the three currents is above 50 mA.
-    /// When the tange is expanded to 0-100 mA, the unit step is doubled from 0.8 to 1.6 mA.
-    /// 
+    /// When the range is expanded to 0-100 mA, the unit step is doubled from 0.8 to 1.6 mA.
+    ///
     /// # Errors
-    /// 
+    ///
     /// This function returns an error if the I2C bus encounters an error.
     /// Setting a current value outside the range 0-100mA will result in an error.
     pub fn set_leds_current(&mut self, led1: f32, led2: f32, led3: f32) -> Result<[f32; 3], ()> {
