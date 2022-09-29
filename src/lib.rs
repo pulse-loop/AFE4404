@@ -22,4 +22,5 @@ mod afe4404;
 mod register;
 mod led_current;
 mod tia;
+mod timing_window;
 

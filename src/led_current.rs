@@ -5,8 +5,7 @@ use crate::{AFE4404, R22h};
 
 impl<I2C> AFE4404<I2C>
     where
-        I2C: I2c<SevenBitAddress>,
-{
+        I2C: I2c<SevenBitAddress>, {
 
     // TODO: Implement custom errors otherwise clippy fucking complains in the next function.
 
