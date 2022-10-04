@@ -26,8 +26,7 @@ impl<I2C> AFE4404<I2C>
         let r23h_prev = self
             .registers
             .r23h
-            .read()
-            .expect("Failed to read register 23h.");
+            .read()?;
 
         let high_current: bool = led1 > 50.0 || led2 > 50.0 || led3 > 50.0;
         let range = if high_current { 100.0 } else { 50.0 };
@@ -51,12 +50,11 @@ impl<I2C> AFE4404<I2C>
                     .with_iled1(values[0])
                     .with_iled2(values[1])
                     .with_iled3(values[2]),
-            )
-            .expect("Failed to write register 22h.");
+            )?;
+
         self.registers
             .r23h
-            .write(r23h_prev.with_iled_2x(high_current))
-            .expect("Failed to write register 23h.");
+            .write(r23h_prev.with_iled_2x(high_current))?;
 
         Ok(values.map(|v| f32::from(v) * quantisation))
     }
