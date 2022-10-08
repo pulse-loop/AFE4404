@@ -2,6 +2,7 @@
 
 use std::cell::RefCell;
 use std::rc::Rc;
+
 use embedded_hal::{
     i2c::{
         blocking::I2c,
@@ -9,7 +10,7 @@ use embedded_hal::{
     }
 };
 
-use crate::{R00h, RegisterBlock};
+use crate::RegisterBlock;
 
 pub struct AFE4404<I2C> {
     address: SevenBitAddress,
