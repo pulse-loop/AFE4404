@@ -2,12 +2,10 @@ use core::marker::PhantomData;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use embedded_hal::{
-    i2c::{
+use embedded_hal::i2c::{
         blocking::I2c,
         SevenBitAddress,
-    }
-};
+    };
 
 use crate::RegisterWritable;
 

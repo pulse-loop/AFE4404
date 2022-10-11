@@ -3,7 +3,7 @@ use embedded_hal::i2c::SevenBitAddress;
 use uom::si::electric_potential::volt;
 use uom::si::f32::ElectricPotential;
 
-use crate::{AFE4404, R00h};
+use crate::{R00h, AFE4404};
 
 pub enum ReadingMode {
     ThreeLeds,
@@ -29,8 +29,9 @@ pub enum Readings {
 }
 
 impl<I2C> AFE4404<I2C>
-    where
-        I2C: I2c<SevenBitAddress>, {
+where
+    I2C: I2c<SevenBitAddress>,
+{
     ///
     ///
     /// # Notes
@@ -47,36 +48,27 @@ impl<I2C> AFE4404<I2C>
             result
         }
 
-        let r2Ah_prev = self
-            .registers
-            .r2Ah
-            .read()?;
-        let r2Bh_prev = self
-            .registers
-            .r2Bh
-            .read()?;
-        let r2Ch_prev = self
-            .registers
-            .r2Ch
-            .read()?;
-        let r2Dh_prev = self
-            .registers
-            .r2Dh
-            .read()?;
-        let r2Eh_prev = self
-            .registers
-            .r2Eh
-            .read()?;
-        let r2Fh_prev = self
-            .registers
-            .r2Fh
-            .read()?;
+        let r2ah_prev = self.registers.r2Ah.read()?;
+        let r2bh_prev = self.registers.r2Bh.read()?;
+        let r2ch_prev = self.registers.r2Ch.read()?;
+        let r2dh_prev = self.registers.r2Dh.read()?;
+        let r2eh_prev = self.registers.r2Eh.read()?;
+        let r2fh_prev = self.registers.r2Fh.read()?;
 
         let quantisation: ElectricPotential = ElectricPotential::new::<volt>(1.2) / 2_097_151.0;
 
         let mut values: [ElectricPotential; 6] = Default::default();
-        for (i, &register_value) in [r2Ah_prev.led2val(), r2Bh_prev.aled2val_or_led3val(), r2Ch_prev.led1val(), r2Dh_prev.aled1val(), r2Eh_prev.led2_minus_aled2val(), r2Fh_prev.led1_minus_aled1val()]
-            .iter().enumerate() {
+        for (i, &register_value) in [
+            r2ah_prev.led2val(),
+            r2bh_prev.aled2val_or_led3val(),
+            r2ch_prev.led1val(),
+            r2dh_prev.aled1val(),
+            r2eh_prev.led2_minus_aled2val(),
+            r2fh_prev.led1_minus_aled1val(),
+        ]
+        .iter()
+        .enumerate()
+        {
             let signed_value = extend_sign(register_value);
             if signed_value < -0x0020_0000 {
                 return Err(()); // Lower than negative full-scale.
@@ -87,45 +79,35 @@ impl<I2C> AFE4404<I2C>
         }
 
         Ok(match mode {
-            ReadingMode::ThreeLeds => {
-                Readings::ThreeLeds {
-                    led2: values[0],
-                    led3: values[1],
-                    led1: values[2],
-                    ambient: values[3],
-                    led1_minus_ambient: values[5],
-                }
-            }
-            ReadingMode::TwoLeds => {
-                Readings::TwoLeds {
-                    led2: values[0],
-                    ambient2: values[1],
-                    led1: values[2],
-                    ambient1: values[3],
-                    led2_minus_ambient2: values[4],
-                    led1_minus_ambient1: values[5],
-                }
-            }
+            ReadingMode::ThreeLeds => Readings::ThreeLeds {
+                led2: values[0],
+                led3: values[1],
+                led1: values[2],
+                ambient: values[3],
+                led1_minus_ambient: values[5],
+            },
+            ReadingMode::TwoLeds => Readings::TwoLeds {
+                led2: values[0],
+                ambient2: values[1],
+                led1: values[2],
+                ambient1: values[3],
+                led2_minus_ambient2: values[4],
+                led1_minus_ambient1: values[5],
+            },
         })
     }
 
     pub fn reset(&mut self) {
         self.registers
             .r00h
-            .write(
-                R00h::new()
-                    .with_sw_reset(true)
-            )
+            .write(R00h::new().with_sw_reset(true))
             .expect("Failed to write register 00h.");
     }
 
     pub fn enable_register_reading(&mut self) {
         self.registers
             .r00h
-            .write(
-                R00h::new()
-                    .with_reg_read(true)
-            )
+            .write(R00h::new().with_reg_read(true))
             .expect("Failed to write register 00h.");
     }
 
@@ -138,9 +120,7 @@ impl<I2C> AFE4404<I2C>
 
         self.registers
             .r00h
-            .write(
-                r00h_prev.with_reg_read(false)
-            )
+            .write(r00h_prev.with_reg_read(false))
             .expect("Failed to write register 00h.");
     }
 

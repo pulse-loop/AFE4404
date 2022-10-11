@@ -1,9 +1,4 @@
-use std::{
-    env,
-    fs,
-    path::Path,
-    vec::Vec,
-};
+use std::{env, fs, path::Path, vec::Vec};
 
 use codegen::{Field, Function, Impl, Module, Scope, Struct, Trait};
 
@@ -14,10 +9,7 @@ struct RegisterData {
 
 impl RegisterData {
     fn new(addr: u8, data: Vec<(String, u32)>) -> Self {
-        RegisterData {
-            addr,
-            data,
-        }
+        RegisterData { addr, data }
     }
 
     fn from_string(addr: u8, s: String) -> Result<Self, ()> {
@@ -35,11 +27,10 @@ impl RegisterData {
             }
         }
 
-        let zipped = names.iter()
+        let zipped = names
+            .iter()
             .zip(lengths.iter())
-            .map(|item| {
-                (item.0.clone(), *item.1)
-            })
+            .map(|item| (item.0.clone(), *item.1))
             .collect::<Vec<(String, u32)>>();
 
         Ok(RegisterData::new(addr, zipped))
@@ -47,10 +38,13 @@ impl RegisterData {
 }
 
 fn read_from_file(file_name: &str) -> Vec<RegisterData> {
-    let file_data = fs::read_to_string(file_name).unwrap_or_else(|_| panic!("Cannot read {}.", file_name));
+    let file_data =
+        fs::read_to_string(file_name).unwrap_or_else(|_| panic!("Cannot read {}.", file_name));
     let mut register_array = Vec::<RegisterData>::new();
     for (i, line) in file_data.lines().enumerate() {
-        if let Ok(reg) = RegisterData::from_string(i as u8, line.to_string()) { register_array.push(reg) }
+        if let Ok(reg) = RegisterData::from_string(i as u8, line.to_string()) {
+            register_array.push(reg)
+        }
     }
     register_array
 }
@@ -60,10 +54,12 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
 
     // Trait.
     let mut registers_trait = Trait::new("RegisterWritable");
-    registers_trait.new_fn("into_reg_bytes")
+    registers_trait
+        .new_fn("into_reg_bytes")
         .arg_self()
         .ret("[u8; 3]");
-    registers_trait.new_fn("from_reg_bytes")
+    registers_trait
+        .new_fn("from_reg_bytes")
         .arg("bytes", "[u8; 3]")
         .ret("Self");
     scope.push_trait(registers_trait);
@@ -73,10 +69,10 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
     registers_module.import("super", "RegisterWritable");
     registers_module.attr("allow(clippy::too_many_arguments)");
     registers_module.attr("allow(clippy::fn_params_excessive_bools)");
+    registers_module.attr("allow(dead_code)");
     registers_module.vis("pub(crate)");
 
     for register in register_array {
-
         // Struct.
         let mut current_struct = Struct::new(format!("R{:02X}h", register.addr).as_str());
 
@@ -89,7 +85,9 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
 
         for (name, length) in register.data.iter() {
             if name == "0" {
-                let field = Field::new(&*format!("__{}", skips), format!("B{}", length)).annotation("#[skip]").to_owned();
+                let field = Field::new(&*format!("__{}", skips), format!("B{}", length))
+                    .annotation("#[skip]")
+                    .to_owned();
                 skips += 1;
                 current_struct.push_field(field);
             } else {
@@ -107,11 +105,13 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
         // Trait impl.
         let mut current_trait_impl = Impl::new(format!("R{:02X}h", register.addr));
         current_trait_impl.impl_trait("RegisterWritable");
-        current_trait_impl.new_fn("into_reg_bytes")
+        current_trait_impl
+            .new_fn("into_reg_bytes")
             .arg_self()
             .ret("[u8; 3]")
             .line("self.into_bytes()");
-        current_trait_impl.new_fn("from_reg_bytes")
+        current_trait_impl
+            .new_fn("from_reg_bytes")
             .arg("bytes", "[u8; 3]")
             .ret("Self")
             .line("Self::from_bytes(bytes)");
@@ -148,8 +148,8 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
             format!("r{:02X}h", register.addr).as_str(),
             format!("Register<I2C, R{:02X}h>", register.addr),
         )
-            .vis("pub(crate)")
-            .to_owned();
+        .vis("pub(crate)")
+        .to_owned();
 
         register_block_struct.push_field(field);
     }
@@ -157,16 +157,24 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
 
     // Impl.
     let mut new_function = Function::new("new");
-    new_function.vis("pub")
+    new_function
+        .vis("pub")
         .arg("phy_addr", "SevenBitAddress")
         .arg("i2c", "&Rc<RefCell<I2C>>")
         .ret("Self")
         .line("Self {");
     for register in register_array {
-        new_function.line(format!("r{:02X}h: Register::new({:#04X}, phy_addr, Rc::clone(i2c)),", register.addr, register.addr));
+        new_function.line(format!(
+            "r{:02X}h: Register::new({:#04X}, phy_addr, Rc::clone(i2c)),",
+            register.addr, register.addr
+        ));
     }
     new_function.line("}");
-    scope.new_impl("RegisterBlock<I2C>").generic("I2C").bound("I2C", "I2c").push_fn(new_function);
+    scope
+        .new_impl("RegisterBlock<I2C>")
+        .generic("I2C")
+        .bound("I2C", "I2c")
+        .push_fn(new_function);
 
     scope
 }

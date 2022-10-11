@@ -1,8 +1,16 @@
 use embedded_hal::i2c::blocking::I2c;
 use embedded_hal::i2c::SevenBitAddress;
-use uom::si::{f32::{Frequency, Time}, frequency::megahertz, time::second};
+use uom::si::{
+    f32::{Frequency, Time},
+    frequency::megahertz,
+    time::second,
+};
 
-use crate::{AFE4404, R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh, R0Eh, R0Fh, R10h, R11h, R12h, R13h, R14h, R15h, R16h, R17h, R18h, R19h, R1Ah, R1Bh, R1Ch, R1Dh, R32h, R33h, R36h, R37h, R39h};
+use crate::{
+    R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh, R0Eh, R0Fh, R10h,
+    R11h, R12h, R13h, R14h, R15h, R16h, R17h, R18h, R19h, R1Ah, R1Bh, R1Ch, R1Dh, R32h, R33h, R36h,
+    R37h, R39h, AFE4404,
+};
 
 pub struct MeasurementWindowConfiguration {
     period: Time,
@@ -45,17 +53,17 @@ pub struct AmbientTiming {
     conv_end: Time,
 }
 
-impl Into<LedTiming> for AmbientTiming {
-    fn into(self) -> LedTiming {
-        LedTiming {
+impl From<AmbientTiming> for LedTiming {
+    fn from(other: AmbientTiming) -> Self {
+        Self {
             led_st: Time::new::<second>(0.0),
             led_end: Time::new::<second>(0.0),
-            sample_st: self.sample_st,
-            sample_end: self.sample_end,
-            reset_st: self.reset_st,
-            reset_end: self.reset_end,
-            conv_st: self.conv_st,
-            conv_end: self.conv_end,
+            sample_st: other.sample_st,
+            sample_end: other.sample_end,
+            reset_st: other.reset_st,
+            reset_end: other.reset_end,
+            conv_st: other.conv_st,
+            conv_end: other.conv_end,
         }
     }
 }
@@ -66,15 +74,15 @@ pub struct PowerDownTiming {
 }
 
 impl<I2C> AFE4404<I2C>
-    where
-        I2C: I2c<SevenBitAddress>,
+where
+    I2C: I2c<SevenBitAddress>,
 {
     #![allow(
-    clippy::cast_precision_loss,
-    clippy::cast_sign_loss,
-    clippy::cast_possible_truncation,
-    clippy::cast_lossless,
-    clippy::too_many_lines
+        clippy::cast_precision_loss,
+        clippy::cast_sign_loss,
+        clippy::cast_possible_truncation,
+        clippy::cast_lossless,
+        clippy::too_many_lines
     )]
 
     /// Set the LEDs timings.
@@ -85,7 +93,10 @@ impl<I2C> AFE4404<I2C>
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error.
-    pub fn set_timing_window(&mut self, configuration: MeasurementWindowConfiguration) -> Result<(), ()> {
+    pub fn set_timing_window(
+        &mut self,
+        configuration: MeasurementWindowConfiguration,
+    ) -> Result<(), ()> {
         struct QuantisedValues {
             led_st: u16,
             led_end: u16,
@@ -97,10 +108,7 @@ impl<I2C> AFE4404<I2C>
             reset_end: u16,
         }
 
-        let r1Eh_prev = self
-            .registers
-            .r1Eh
-            .read()?;
+        let r1eh_prev = self.registers.r1Eh.read()?;
 
         // TODO: manage external clock.
         let clk = Frequency::new::<megahertz>(4.0);
@@ -121,33 +129,43 @@ impl<I2C> AFE4404<I2C>
         let quantisation: Time = configuration.period / counter;
 
         let values: Vec<QuantisedValues> = match configuration.active_timing_configuration {
-            ActiveTimingConfiguration::ThreeLeds { led1, led2, led3, ambient } => {
-                [led2, led3, led1, ambient.into()]
-            }
-            ActiveTimingConfiguration::TwoLeds { led1, led2, ambient1, ambient2 } => {
-                [led2, ambient2.into(), led1, ambient1.into()]
-            }
-        }.iter().map(|timing| {
-            QuantisedValues {
-                led_st: (timing.led_st / quantisation).value.round() as u16,
-                led_end: (timing.led_end / quantisation).value.round() as u16,
-                sample_st: (timing.sample_st / quantisation).value.round() as u16,
-                sample_end: (timing.sample_end / quantisation).value.round() as u16,
-                conv_st: (timing.conv_st / quantisation).value.round() as u16,
-                conv_end: (timing.conv_end / quantisation).value.round() as u16,
-                reset_st: (timing.reset_st / quantisation).value.round() as u16,
-                reset_end: (timing.reset_end / quantisation).value.round() as u16,
-            }
+            ActiveTimingConfiguration::ThreeLeds {
+                led1,
+                led2,
+                led3,
+                ambient,
+            } => [led2, led3, led1, ambient.into()],
+            ActiveTimingConfiguration::TwoLeds {
+                led1,
+                led2,
+                ambient1,
+                ambient2,
+            } => [led2, ambient2.into(), led1, ambient1.into()],
         }
-        ).collect();
+        .iter()
+        .map(|timing| QuantisedValues {
+            led_st: (timing.led_st / quantisation).value.round() as u16,
+            led_end: (timing.led_end / quantisation).value.round() as u16,
+            sample_st: (timing.sample_st / quantisation).value.round() as u16,
+            sample_end: (timing.sample_end / quantisation).value.round() as u16,
+            conv_st: (timing.conv_st / quantisation).value.round() as u16,
+            conv_end: (timing.conv_end / quantisation).value.round() as u16,
+            reset_st: (timing.reset_st / quantisation).value.round() as u16,
+            reset_end: (timing.reset_end / quantisation).value.round() as u16,
+        })
+        .collect();
 
         let power_down_values = [
-            (configuration.inactive_timing.power_down_st / quantisation).value.round() as u16,
-            (configuration.inactive_timing.power_down_end / quantisation).value.round() as u16
+            (configuration.inactive_timing.power_down_st / quantisation)
+                .value
+                .round() as u16,
+            (configuration.inactive_timing.power_down_end / quantisation)
+                .value
+                .round() as u16,
         ];
 
         // Enable timer engine.
-        self.registers.r1Eh.write(r1Eh_prev.with_timeren(true))?;
+        self.registers.r1Eh.write(r1eh_prev.with_timeren(true))?;
         self.registers
             .r1Dh
             .write(R1Dh::new().with_prpct(counter_max_value))?;
