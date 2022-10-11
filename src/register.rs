@@ -2,14 +2,9 @@ use core::marker::PhantomData;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use embedded_hal::{
-    i2c::{
-        blocking::I2c,
-        SevenBitAddress,
-    }
-};
+use embedded_hal::i2c::{blocking::I2c, SevenBitAddress};
 
-use crate::RegisterWritable;
+use crate::{errors::AfeError, RegisterWritable};
 
 /// Represents a register inside the AFE4404.
 pub(crate) struct Register<I2C, BF> {
@@ -20,7 +15,10 @@ pub(crate) struct Register<I2C, BF> {
 }
 
 impl<I2C, BF> Register<I2C, BF>
-    where I2C: I2c, BF: RegisterWritable {
+where
+    I2C: I2c,
+    BF: RegisterWritable,
+{
     /// Creates a new register from a register address, a physical address and an I2C interface.
     ///
     /// # Arguments
@@ -42,22 +40,42 @@ impl<I2C, BF> Register<I2C, BF>
     /// Reads the content of the register.
     ///
     /// returns: Result<[u8; 3], ()>
-    pub(crate) fn read(&mut self) -> Result<BF, ()> {
+    pub(crate) fn read(&mut self) -> Result<BF, AfeError<I2C>> {
         // TODO: Error types.
         let output_buffer = [self.reg_addr];
         let receive_buffer: &mut [u8] = &mut [];
 
-        if self.i2c.borrow_mut().write_read(self.phy_addr, &output_buffer, receive_buffer).is_err() {
-            Err(())
-        } else if receive_buffer.len() == 3 {
-            let mut value: [u8; 3] = [0, 0, 0];
-            value.copy_from_slice(&(receive_buffer[0..2]));
-            Ok(BF::from_reg_bytes(value))
-        } else {
-            Err(())
-        }
-    }
+        self.i2c
+            .borrow_mut()
+            .write_read(self.phy_addr, &output_buffer, receive_buffer)
+            .map_err(|e| AfeError::I2CError(e))?;
 
+        if receive_buffer.len() != 3 {
+            Err(AfeError::IncorrectAnswerLength {
+                expected: (),
+                received: (),
+            })
+        }
+
+        let mut value: [u8; 3] = [0, 0, 0];
+        value.copy_from_slice(&(receive_buffer[0..2]));
+        Ok(BF::from_reg_bytes(value))
+
+        // if self
+        //     .i2c
+        //     .borrow_mut()
+        //     .write_read(self.phy_addr, &output_buffer, receive_buffer)
+        //     .is_err()
+        // {
+        //     Err(())
+        // } else if receive_buffer.len() == 3 {
+        //     let mut value: [u8; 3] = [0, 0, 0];
+        //     value.copy_from_slice(&(receive_buffer[0..2]));
+        //     Ok(BF::from_reg_bytes(value))
+        // } else {
+        //     Err(())
+        // }
+    }
 
     /// Writes a 24 bit value in the register.
     ///
@@ -70,7 +88,12 @@ impl<I2C, BF> Register<I2C, BF>
         // TODO: Error and Ok types.
         let mut buffer: [u8; 4] = [self.reg_addr, 0, 0, 0];
         buffer[1..3].copy_from_slice(&value.into_reg_bytes());
-        if self.i2c.borrow_mut().write(self.phy_addr, buffer.as_slice()).is_err() {
+        if self
+            .i2c
+            .borrow_mut()
+            .write(self.phy_addr, buffer.as_slice())
+            .is_err()
+        {
             Err(())
         } else {
             Ok(())

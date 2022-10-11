@@ -17,6 +17,6 @@ include!(concat!(env!("OUT_DIR"), "/register_block.rs"));
 
 /// A driver for the AFE4404 pulse oximeter analog frontend.
 mod afe4404;
-mod register;
-
+mod errors;
 mod high_level;
+mod register;
