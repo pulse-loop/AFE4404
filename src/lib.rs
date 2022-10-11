@@ -2,7 +2,6 @@
 #![warn(clippy::pedantic)]
 #![warn(clippy::nursery)]
 #![warn(clippy::cargo)]
-
 // Documentation lints
 // #![warn(clippy::missing_docs_in_private_items)]
 #![warn(invalid_doc_attributes)]
@@ -17,11 +16,7 @@ pub use afe4404::AFE4404;
 include!(concat!(env!("OUT_DIR"), "/register_block.rs"));
 
 /// A driver for the AFE4404 pulse oximeter analog frontend.
-
 mod afe4404;
 mod register;
-mod led_current;
-mod tia;
-mod timing_window;
-mod value_reading;
 
+mod high_level;
