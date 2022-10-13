@@ -40,7 +40,7 @@ where
     /// Reads the content of the register.
     ///
     /// returns: Result<[u8; 3], ()>
-    pub(crate) fn read(&mut self) -> Result<BF, AfeError<I2C>> {
+    pub(crate) fn read(&mut self) -> Result<BF, AfeError<I2C::Error>> {
         // TODO: Error types.
         let output_buffer = [self.reg_addr];
         let receive_buffer: &mut [u8] = &mut [];
@@ -51,31 +51,18 @@ where
             .map_err(|e| AfeError::I2CError(e))?;
 
         if receive_buffer.len() != 3 {
-            Err(AfeError::IncorrectAnswerLength {
-                expected: (),
-                received: (),
-            })
+            return Err(AfeError::IncorrectAnswerLength {
+                expected: 3,
+                received: receive_buffer.len(),
+            });
         }
 
         let mut value: [u8; 3] = [0, 0, 0];
         value.copy_from_slice(&(receive_buffer[0..2]));
         Ok(BF::from_reg_bytes(value))
-
-        // if self
-        //     .i2c
-        //     .borrow_mut()
-        //     .write_read(self.phy_addr, &output_buffer, receive_buffer)
-        //     .is_err()
-        // {
-        //     Err(())
-        // } else if receive_buffer.len() == 3 {
-        //     let mut value: [u8; 3] = [0, 0, 0];
-        //     value.copy_from_slice(&(receive_buffer[0..2]));
-        //     Ok(BF::from_reg_bytes(value))
-        // } else {
-        //     Err(())
-        // }
     }
+    
+    // TODO: Check all documentation for correct types.
 
     /// Writes a 24 bit value in the register.
     ///
@@ -84,19 +71,15 @@ where
     /// * `value`: The value to be written.
     ///
     /// returns: Result<(), ()>
-    pub(crate) fn write(&mut self, value: BF) -> Result<(), ()> {
+    pub(crate) fn write(&mut self, value: BF) -> Result<(), AfeError<I2C::Error>> {
         // TODO: Error and Ok types.
         let mut buffer: [u8; 4] = [self.reg_addr, 0, 0, 0];
         buffer[1..3].copy_from_slice(&value.into_reg_bytes());
-        if self
+        self
             .i2c
             .borrow_mut()
-            .write(self.phy_addr, buffer.as_slice())
-            .is_err()
-        {
-            Err(())
-        } else {
-            Ok(())
-        }
+            .write(self.phy_addr, buffer.as_slice())?;
+        
+        Ok(())
     }
 }

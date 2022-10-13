@@ -3,14 +3,12 @@ use embedded_hal::i2c::SevenBitAddress;
 use uom::si::electric_current::milliampere;
 use uom::si::f32::ElectricCurrent;
 
-use crate::{R22h, AFE4404};
+use crate::{errors::AfeError, R22h, AFE4404};
 
 impl<I2C> AFE4404<I2C>
 where
     I2C: I2c<SevenBitAddress>,
 {
-    // TODO: Implement custom errors otherwise clippy fucking complains in the next function.
-
     /// Set the LED current.
     ///
     /// The current is expressed in milliamperes.
@@ -29,17 +27,19 @@ where
         led1: ElectricCurrent,
         led2: ElectricCurrent,
         led3: ElectricCurrent,
-    ) -> Result<[ElectricCurrent; 3], ()> {
+    ) -> Result<[ElectricCurrent; 3], AfeError<I2C::Error>> {
         let r23h_prev = self.registers.r23h.read()?;
 
         let high_current: bool = led1.get::<milliampere>() > 50.0
             || led2.get::<milliampere>() > 50.0
             || led3.get::<milliampere>() > 50.0;
+        
         let range = if high_current {
             ElectricCurrent::new::<milliampere>(100.0)
         } else {
             ElectricCurrent::new::<milliampere>(50.0)
         };
+
         let quantisation = range / 64.0;
 
         if led1 > range
@@ -49,7 +49,7 @@ where
             || led2.get::<milliampere>() < 0.0
             || led3.get::<milliampere>() < 0.0
         {
-            return Err(());
+            return Err(AfeError::LedCurrentOutsideAllowedRange);
         }
 
         #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]

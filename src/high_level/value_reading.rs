@@ -3,7 +3,7 @@ use embedded_hal::i2c::SevenBitAddress;
 use uom::si::electric_potential::volt;
 use uom::si::f32::ElectricPotential;
 
-use crate::{R00h, AFE4404};
+use crate::{R00h, AFE4404, errors::AfeError};
 
 pub enum ReadingMode {
     ThreeLeds,
@@ -39,7 +39,7 @@ where
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error.
-    pub fn read(&mut self, mode: ReadingMode) -> Result<Readings, ()> {
+    pub fn read(&mut self, mode: ReadingMode) -> Result<Readings, AfeError<I2C::Error>> {
         const fn extend_sign(n: u32) -> i32 {
             let mut result = n as i32;
             if (result & 0x0080_0000) != 0 {
@@ -70,10 +70,12 @@ where
         .enumerate()
         {
             let signed_value = extend_sign(register_value);
+            
+            // TODO: Check values.
             if signed_value < -0x0020_0000 {
-                return Err(()); // Lower than negative full-scale.
+                return Err(AfeError::AdcReadingOutsideAllowedRange); // Lower than negative full-scale.
             } else if signed_value > 0x001F_FFFF {
-                return Err(()); // Higher than positive full-scale.
+                return Err(AfeError::AdcReadingOutsideAllowedRange); // Higher than positive full-scale.
             }
             values[i] = signed_value as f32 * quantisation;
         }
@@ -97,31 +99,27 @@ where
         })
     }
 
-    pub fn reset(&mut self) {
+    pub fn reset(&mut self) -> Result<(), AfeError<I2C::Error>> {
         self.registers
             .r00h
             .write(R00h::new().with_sw_reset(true))
-            .expect("Failed to write register 00h.");
     }
 
-    pub fn enable_register_reading(&mut self) {
+    pub fn enable_register_reading(&mut self) -> Result<(), AfeError<I2C::Error>> {
         self.registers
             .r00h
             .write(R00h::new().with_reg_read(true))
-            .expect("Failed to write register 00h.");
     }
 
-    pub fn disable_register_reading(&mut self) {
+    pub fn disable_register_reading(&mut self) -> Result<(), AfeError<I2C::Error>> {
         let r00h_prev = self
             .registers
             .r00h
-            .read()
-            .expect("Failed to read register 00h.");
+            .read()?;
 
         self.registers
             .r00h
             .write(r00h_prev.with_reg_read(false))
-            .expect("Failed to write register 00h.");
     }
 
     pub fn start_sampling(&mut self) {}

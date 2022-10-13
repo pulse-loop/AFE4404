@@ -9,7 +9,7 @@ use uom::si::{
 use crate::{
     R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh, R0Eh, R0Fh, R10h,
     R11h, R12h, R13h, R14h, R15h, R16h, R17h, R18h, R19h, R1Ah, R1Bh, R1Ch, R1Dh, R32h, R33h, R36h,
-    R37h, R39h, AFE4404,
+    R37h, R39h, AFE4404, errors::AfeError,
 };
 
 pub struct MeasurementWindowConfiguration {
@@ -96,7 +96,7 @@ where
     pub fn set_timing_window(
         &mut self,
         configuration: MeasurementWindowConfiguration,
-    ) -> Result<(), ()> {
+    ) -> Result<(), AfeError<I2C::Error>> {
         struct QuantisedValues {
             led_st: u16,
             led_end: u16,
@@ -120,7 +120,7 @@ where
             d if d <= 4 => (4.0, 5),
             d if d <= 8 => (8.0, 6),
             d if d <= 16 => (16.0, 7),
-            _ => return Err(()),
+            _ => return Err(AfeError::WindowPeriodTooLong),
         };
         let period_clk: Time = 1.0 / clk;
         let period_clk_div: Time = period_clk * clk_div.0;
