@@ -6,8 +6,8 @@ use uom::si::f32::ElectricCurrent;
 use crate::{errors::AfeError, R22h, AFE4404};
 
 impl<I2C> AFE4404<I2C>
-where
-    I2C: I2c<SevenBitAddress>,
+    where
+        I2C: I2c<SevenBitAddress>,
 {
     /// Set the LED current.
     ///
@@ -28,12 +28,15 @@ where
         led2: ElectricCurrent,
         led3: ElectricCurrent,
     ) -> Result<[ElectricCurrent; 3], AfeError<I2C::Error>> {
+        println!("PIMPEROS");
         let r23h_prev = self.registers.r23h.read()?;
 
         let high_current: bool = led1.get::<milliampere>() > 50.0
             || led2.get::<milliampere>() > 50.0
             || led3.get::<milliampere>() > 50.0;
-        
+
+        println!("PIPPINO");
+
         let range = if high_current {
             ElectricCurrent::new::<milliampere>(100.0)
         } else {
@@ -52,8 +55,10 @@ where
             return Err(AfeError::LedCurrentOutsideAllowedRange);
         }
 
+        println!("PIPPERO");
+
         #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-        let values = [
+            let values = [
             (led1 / quantisation).value.round() as u8,
             (led2 / quantisation).value.round() as u8,
             (led3 / quantisation).value.round() as u8,

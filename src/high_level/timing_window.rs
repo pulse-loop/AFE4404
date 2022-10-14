@@ -13,9 +13,9 @@ use crate::{
 };
 
 pub struct MeasurementWindowConfiguration {
-    period: Time,
-    active_timing_configuration: ActiveTimingConfiguration,
-    inactive_timing: PowerDownTiming,
+    pub period: Time,
+    pub active_timing_configuration: ActiveTimingConfiguration,
+    pub inactive_timing: PowerDownTiming,
 }
 
 pub enum ActiveTimingConfiguration {
@@ -34,23 +34,23 @@ pub enum ActiveTimingConfiguration {
 }
 
 pub struct LedTiming {
-    led_st: Time,
-    led_end: Time,
-    sample_st: Time,
-    sample_end: Time,
-    reset_st: Time,
-    reset_end: Time,
-    conv_st: Time,
-    conv_end: Time,
+    pub led_st: Time,
+    pub led_end: Time,
+    pub sample_st: Time,
+    pub sample_end: Time,
+    pub reset_st: Time,
+    pub reset_end: Time,
+    pub conv_st: Time,
+    pub conv_end: Time,
 }
 
 pub struct AmbientTiming {
-    sample_st: Time,
-    sample_end: Time,
-    reset_st: Time,
-    reset_end: Time,
-    conv_st: Time,
-    conv_end: Time,
+    pub sample_st: Time,
+    pub sample_end: Time,
+    pub reset_st: Time,
+    pub reset_end: Time,
+    pub conv_st: Time,
+    pub conv_end: Time,
 }
 
 impl From<AmbientTiming> for LedTiming {
@@ -69,8 +69,8 @@ impl From<AmbientTiming> for LedTiming {
 }
 
 pub struct PowerDownTiming {
-    power_down_st: Time,
-    power_down_end: Time,
+    pub power_down_st: Time,
+    pub power_down_end: Time,
 }
 
 impl<I2C> AFE4404<I2C>

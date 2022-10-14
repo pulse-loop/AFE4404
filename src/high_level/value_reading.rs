@@ -40,14 +40,6 @@ where
     ///
     /// This function returns an error if the I2C bus encounters an error.
     pub fn read(&mut self, mode: ReadingMode) -> Result<Readings, AfeError<I2C::Error>> {
-        const fn extend_sign(n: u32) -> i32 {
-            let mut result = n as i32;
-            if (result & 0x0080_0000) != 0 {
-                result = !((result ^ 0x00FF_FFFF) + 1) + 1;
-            }
-            result
-        }
-
         let r2Ah_prev = self.registers.r2Ah.read()?;
         let r2Bh_prev = self.registers.r2Bh.read()?;
         let r2Ch_prev = self.registers.r2Ch.read()?;
@@ -69,14 +61,12 @@ where
         .iter()
         .enumerate()
         {
-            let signed_value = extend_sign(register_value);
-            
-            // TODO: Check values.
-            // TODO: Use bit-wise operations instead of comparisons.
-            compile_error!("Fabio vedi di sta roba.");
-            if signed_value < -0x0020_0000 || signed_value > 0x001F_FFFF {
-                return Err(AfeError::AdcReadingOutsideAllowedRange); // Higher than positive full-scale.
-            }
+            let sign_extension_bits = ((register_value & 0x00FF_FFFF) >> 21) as u8;
+            let signed_value = match sign_extension_bits {
+                0b000 => register_value as i32, // The value is positive.
+                0b111 => (register_value | 0xFF00_0000) as i32, // Extend the sign of the negative value.
+                _ => return Err(AfeError::AdcReadingOutsideAllowedRange),
+            };
             values[i] = signed_value as f32 * quantisation;
         }
 

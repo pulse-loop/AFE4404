@@ -1,5 +1,23 @@
-use AFE4404::AFE4404;
 use esp_idf_hal::{prelude::*, peripherals::Peripherals, i2c::{Master, MasterPins, config::MasterConfig}};
+
+use AFE4404::{
+    high_level::timing_window::*,
+    uom::{
+        si::{
+            f32::{
+                Time,
+                Capacitance,
+                ElectricCurrent,
+                ElectricalResistance,
+            },
+            electrical_resistance::kiloohm,
+            electric_current::milliampere,
+            time::microsecond,
+            capacitance::picofarad,
+        },
+    },
+    high_level::timing_window::{ActiveTimingConfiguration, LedTiming, MeasurementWindowConfiguration}
+};
 
 fn main() {
     esp_idf_sys::link_patches();
@@ -18,7 +36,79 @@ fn main() {
         config,
     ).expect("Failed to initialize I2C bus.");
 
-    let frontend = AFE4404::new(i2c, 0x58u8.into());
+    let mut frontend = AFE4404::AFE4404::new(i2c, 0x58u8.into());
+
+    frontend.reset().expect("Cannot reset the afe");
+
+    frontend.enable_register_reading().expect("Cannot enable register reading mode");
+
+    frontend.set_leds_current(
+        ElectricCurrent::new::<milliampere>(12.5),
+        ElectricCurrent::new::<milliampere>(25.0),
+        ElectricCurrent::new::<milliampere>(50.0),
+    ).expect("Cannot set leds current");
+
+    // frontend.set_tia_resistors(
+    //     ElectricalResistance::new::<kiloohm>(100.0),
+    //     ElectricalResistance::new::<kiloohm>(100.0),
+    // ).expect("Cannot set tia resistors");
+    //
+    // frontend.set_tia_capacitors(
+    //     Capacitance::new::<picofarad>(5.0),
+    //     Capacitance::new::<picofarad>(5.0),
+    // ).expect("Cannot set tia capacitors");
+    //
+    // frontend.set_timing_window(
+    //     MeasurementWindowConfiguration {
+    //         period: AFE4404::uom::si::f32::Time::new::<microsecond>(10_000.0),
+    //         active_timing_configuration: ActiveTimingConfiguration::ThreeLeds {
+    //             led2: LedTiming {
+    //                 led_st: AFE4404::uom::si::f32::Time::new::<microsecond>(0.0),
+    //                 led_end: AFE4404::uom::si::f32::Time::new::<microsecond>(100.0),
+    //                 sample_st: AFE4404::uom::si::f32::Time::new::<microsecond>(25.0),
+    //                 sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(100.0),
+    //                 reset_st: AFE4404::uom::si::f32::Time::new::<microsecond>(100.25),
+    //                 reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(102.0),
+    //                 conv_st: AFE4404::uom::si::f32::Time::new::<microsecond>(102.25),
+    //                 conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(367.25),
+    //             },
+    //             led3: LedTiming {
+    //                 led_st: AFE4404::uom::si::f32::Time::new::<microsecond>(100.25),
+    //                 led_end: AFE4404::uom::si::f32::Time::new::<microsecond>(200.25),
+    //                 sample_st: AFE4404::uom::si::f32::Time::new::<microsecond>(125.25),
+    //                 sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(200.25),
+    //                 reset_st: AFE4404::uom::si::f32::Time::new::<microsecond>(367.5),
+    //                 reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(369.25),
+    //                 conv_st: AFE4404::uom::si::f32::Time::new::<microsecond>(369.5),
+    //                 conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(634.5),
+    //             },
+    //             led1: LedTiming {
+    //                 led_st: AFE4404::uom::si::f32::Time::new::<microsecond>(200.5),
+    //                 led_end: AFE4404::uom::si::f32::Time::new::<microsecond>(300.5),
+    //                 sample_st: AFE4404::uom::si::f32::Time::new::<microsecond>(225.5),
+    //                 sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(300.5),
+    //                 reset_st: AFE4404::uom::si::f32::Time::new::<microsecond>(634.75),
+    //                 reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(636.5),
+    //                 conv_st: AFE4404::uom::si::f32::Time::new::<microsecond>(636.75),
+    //                 conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(901.75),
+    //             },
+    //             ambient: AmbientTiming {
+    //                 sample_st: AFE4404::uom::si::f32::Time::new::<microsecond>(325.75),
+    //                 sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(400.75),
+    //                 reset_st: AFE4404::uom::si::f32::Time::new::<microsecond>(902.0),
+    //                 reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(903.75),
+    //                 conv_st: AFE4404::uom::si::f32::Time::new::<microsecond>(904.0),
+    //                 conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(1169.0),
+    //             },
+    //         },
+    //         inactive_timing: PowerDownTiming {
+    //             power_down_st: AFE4404::uom::si::f32::Time::new::<microsecond>(1368.75),
+    //             power_down_end: AFE4404::uom::si::f32::Time::new::<microsecond>(9800.0),
+    //         },
+    //     }
+    // ).expect("Cannot set timing window");
+    //
+    // frontend.disable_register_reading().expect("Cannot disable register reading mode");
 
     println!("Hello, world!");
 }

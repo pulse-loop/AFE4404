@@ -13,10 +13,12 @@
 // Direct import of main struct.
 pub use afe4404::AFE4404;
 
+pub use uom;
+
 include!(concat!(env!("OUT_DIR"), "/register_block.rs"));
 
 /// A driver for the AFE4404 pulse oximeter analog frontend.
 mod afe4404;
 mod errors;
-mod high_level;
+pub mod high_level;
 mod register;
