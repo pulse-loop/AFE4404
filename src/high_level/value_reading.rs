@@ -72,9 +72,9 @@ where
             let signed_value = extend_sign(register_value);
             
             // TODO: Check values.
-            if signed_value < -0x0020_0000 {
-                return Err(AfeError::AdcReadingOutsideAllowedRange); // Lower than negative full-scale.
-            } else if signed_value > 0x001F_FFFF {
+            // TODO: Use bit-wise operations instead of comparisons.
+            compile_error!("Fabio vedi di sta roba.");
+            if signed_value < -0x0020_0000 || signed_value > 0x001F_FFFF {
                 return Err(AfeError::AdcReadingOutsideAllowedRange); // Higher than positive full-scale.
             }
             values[i] = signed_value as f32 * quantisation;

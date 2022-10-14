@@ -47,8 +47,7 @@ where
 
         self.i2c
             .borrow_mut()
-            .write_read(self.phy_addr, &output_buffer, receive_buffer)
-            .map_err(|e| AfeError::I2CError(e))?;
+            .write_read(self.phy_addr, &output_buffer, receive_buffer)?;
 
         if receive_buffer.len() != 3 {
             return Err(AfeError::IncorrectAnswerLength {

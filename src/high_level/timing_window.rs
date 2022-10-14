@@ -7,9 +7,9 @@ use uom::si::{
 };
 
 use crate::{
-    R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh, R0Eh, R0Fh, R10h,
-    R11h, R12h, R13h, R14h, R15h, R16h, R17h, R18h, R19h, R1Ah, R1Bh, R1Ch, R1Dh, R32h, R33h, R36h,
-    R37h, R39h, AFE4404, errors::AfeError,
+    errors::AfeError, R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh,
+    R0Eh, R0Fh, R10h, R11h, R12h, R13h, R14h, R15h, R16h, R17h, R18h, R19h, R1Ah, R1Bh, R1Ch, R1Dh,
+    R32h, R33h, R36h, R37h, R39h, AFE4404,
 };
 
 pub struct MeasurementWindowConfiguration {
@@ -53,17 +53,17 @@ pub struct AmbientTiming {
     conv_end: Time,
 }
 
-impl Into<LedTiming> for AmbientTiming {
-    fn into(self) -> LedTiming {
-        LedTiming {
+impl From<AmbientTiming> for LedTiming {
+    fn from(other: AmbientTiming) -> Self {
+        Self {
             led_st: Time::new::<second>(0.0),
             led_end: Time::new::<second>(0.0),
-            sample_st: self.sample_st,
-            sample_end: self.sample_end,
-            reset_st: self.reset_st,
-            reset_end: self.reset_end,
-            conv_st: self.conv_st,
-            conv_end: self.conv_end,
+            sample_st: other.sample_st,
+            sample_end: other.sample_end,
+            reset_st: other.reset_st,
+            reset_end: other.reset_end,
+            conv_st: other.conv_st,
+            conv_end: other.conv_end,
         }
     }
 }
