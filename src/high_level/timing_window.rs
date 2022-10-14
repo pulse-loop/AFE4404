@@ -7,15 +7,15 @@ use uom::si::{
 };
 
 use crate::{
-    R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh, R0Eh, R0Fh, R10h,
-    R11h, R12h, R13h, R14h, R15h, R16h, R17h, R18h, R19h, R1Ah, R1Bh, R1Ch, R1Dh, R32h, R33h, R36h,
-    R37h, R39h, AFE4404,
+    errors::AfeError, R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh,
+    R0Eh, R0Fh, R10h, R11h, R12h, R13h, R14h, R15h, R16h, R17h, R18h, R19h, R1Ah, R1Bh, R1Ch, R1Dh,
+    R32h, R33h, R36h, R37h, R39h, AFE4404,
 };
 
 pub struct MeasurementWindowConfiguration {
-    period: Time,
-    active_timing_configuration: ActiveTimingConfiguration,
-    inactive_timing: PowerDownTiming,
+    pub period: Time,
+    pub active_timing_configuration: ActiveTimingConfiguration,
+    pub inactive_timing: PowerDownTiming,
 }
 
 pub enum ActiveTimingConfiguration {
@@ -34,23 +34,23 @@ pub enum ActiveTimingConfiguration {
 }
 
 pub struct LedTiming {
-    led_st: Time,
-    led_end: Time,
-    sample_st: Time,
-    sample_end: Time,
-    reset_st: Time,
-    reset_end: Time,
-    conv_st: Time,
-    conv_end: Time,
+    pub led_st: Time,
+    pub led_end: Time,
+    pub sample_st: Time,
+    pub sample_end: Time,
+    pub reset_st: Time,
+    pub reset_end: Time,
+    pub conv_st: Time,
+    pub conv_end: Time,
 }
 
 pub struct AmbientTiming {
-    sample_st: Time,
-    sample_end: Time,
-    reset_st: Time,
-    reset_end: Time,
-    conv_st: Time,
-    conv_end: Time,
+    pub sample_st: Time,
+    pub sample_end: Time,
+    pub reset_st: Time,
+    pub reset_end: Time,
+    pub conv_st: Time,
+    pub conv_end: Time,
 }
 
 impl From<AmbientTiming> for LedTiming {
@@ -69,8 +69,8 @@ impl From<AmbientTiming> for LedTiming {
 }
 
 pub struct PowerDownTiming {
-    power_down_st: Time,
-    power_down_end: Time,
+    pub power_down_st: Time,
+    pub power_down_end: Time,
 }
 
 impl<I2C> AFE4404<I2C>
@@ -96,7 +96,7 @@ where
     pub fn set_timing_window(
         &mut self,
         configuration: MeasurementWindowConfiguration,
-    ) -> Result<(), ()> {
+    ) -> Result<(), AfeError<I2C::Error>> {
         struct QuantisedValues {
             led_st: u16,
             led_end: u16,
@@ -108,7 +108,7 @@ where
             reset_end: u16,
         }
 
-        let r1eh_prev = self.registers.r1Eh.read()?;
+        let r1Eh_prev = self.registers.r1Eh.read()?;
 
         // TODO: manage external clock.
         let clk = Frequency::new::<megahertz>(4.0);
@@ -120,7 +120,7 @@ where
             d if d <= 4 => (4.0, 5),
             d if d <= 8 => (8.0, 6),
             d if d <= 16 => (16.0, 7),
-            _ => return Err(()),
+            _ => return Err(AfeError::WindowPeriodTooLong),
         };
         let period_clk: Time = 1.0 / clk;
         let period_clk_div: Time = period_clk * clk_div.0;

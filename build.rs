@@ -64,14 +64,15 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
         .ret("Self");
     scope.push_trait(registers_trait);
 
-    let mut registers_module = Module::new("registers");
-    registers_module.import("modular_bitfield::prelude", "*");
-    registers_module.import("super", "RegisterWritable");
-    registers_module.attr("allow(clippy::too_many_arguments)");
-    registers_module.attr("allow(clippy::fn_params_excessive_bools)");
-    registers_module.attr("allow(dead_code)");
-    registers_module.vis("pub(crate)");
-
+    let mut registers_module = Module::new("registers")
+        .import("modular_bitfield::prelude", "*")
+        .import("super", "RegisterWritable")
+        .attr("allow(clippy::too_many_arguments)")
+        .attr("allow(clippy::fn_params_excessive_bools)")
+        .attr("allow(dead_code)")
+        .vis("pub(crate)")
+        .to_owned();
+        
     for register in register_array {
         // Struct.
         let mut current_struct = Struct::new(format!("R{:02X}h", register.addr).as_str());

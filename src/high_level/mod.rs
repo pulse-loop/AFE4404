@@ -1,4 +1,4 @@
-mod led_current;
-mod tia;
-mod timing_window;
-mod value_reading;
+pub mod led_current;
+pub mod tia;
+pub mod timing_window;
+pub mod value_reading;
