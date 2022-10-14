@@ -44,30 +44,15 @@ where
     ///
     /// returns: Result<[u8; 3], ()>
     pub(crate) fn read(&mut self) -> Result<BF, AfeError<I2C::Error>> {
-        let mut output_buffer = [self.reg_addr, 0, 0, 0];
-        let receive_buffer: &mut [u8; 32] = &mut Default::default();
-
-        println!("a");
+        let output_buffer = [self.reg_addr];
+        let receive_buffer: &mut [u8; 3] = &mut Default::default();
 
         self.i2c
             .borrow_mut()
-            .write(self.phy_addr, output_buffer.as_slice())?;
-        
-        println!("b");
-
-        self.i2c.borrow_mut().read(self.phy_addr, receive_buffer)?;
-
-        println!("c");
-        if receive_buffer.len() != 3 {
-            return Err(AfeError::IncorrectAnswerLength {
-                expected: 3,
-                received: receive_buffer.len(),
-            });
-        }
+            .write_read(self.phy_addr, &output_buffer, receive_buffer)?;
 
         let mut value: [u8; 3] = [0, 0, 0];
         value.copy_from_slice(&(receive_buffer[0..=2]));
-        println!("d");
         Ok(BF::from_reg_bytes(value))
     }
     
@@ -82,7 +67,8 @@ where
     /// returns: Result<(), ()>
     pub(crate) fn write(&mut self, value: BF) -> Result<(), AfeError<I2C::Error>> {
         let mut buffer: [u8; 4] = [self.reg_addr, 0, 0, 0];
-        buffer[1..=3].copy_from_slice(&value.into_reg_bytes());
+        buffer[1..=3].copy_from_slice(&value.into_reg_bytes().iter().map(|byte| byte.reverse_bits()).collect::<Vec<u8>>()[..]);
+        println!("Writing: {:?}", buffer);
         self
             .i2c
             .borrow_mut()

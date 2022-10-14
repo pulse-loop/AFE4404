@@ -40,23 +40,23 @@ where
     ///
     /// This function returns an error if the I2C bus encounters an error.
     pub fn read(&mut self, mode: ReadingMode) -> Result<Readings, AfeError<I2C::Error>> {
-        let r2Ah_prev = self.registers.r2Ah.read()?;
-        let r2Bh_prev = self.registers.r2Bh.read()?;
-        let r2Ch_prev = self.registers.r2Ch.read()?;
-        let r2Dh_prev = self.registers.r2Dh.read()?;
-        let r2Eh_prev = self.registers.r2Eh.read()?;
-        let r2Fh_prev = self.registers.r2Fh.read()?;
+        let r2ah_prev = self.registers.r2Ah.read()?;
+        let r2bh_prev = self.registers.r2Bh.read()?;
+        let r2ch_prev = self.registers.r2Ch.read()?;
+        let r2dh_prev = self.registers.r2Dh.read()?;
+        let r2eh_prev = self.registers.r2Eh.read()?;
+        let r2fh_prev = self.registers.r2Fh.read()?;
 
         let quantisation: ElectricPotential = ElectricPotential::new::<volt>(1.2) / 2_097_151.0;
 
         let mut values: [ElectricPotential; 6] = Default::default();
         for (i, &register_value) in [
-            r2Ah_prev.led2val(),
-            r2Bh_prev.aled2val_or_led3val(),
-            r2Ch_prev.led1val(),
-            r2Dh_prev.aled1val(),
-            r2Eh_prev.led2_minus_aled2val(),
-            r2Fh_prev.led1_minus_aled1val(),
+            r2ah_prev.led2val(),
+            r2bh_prev.aled2val_or_led3val(),
+            r2ch_prev.led1val(),
+            r2dh_prev.aled1val(),
+            r2eh_prev.led2_minus_aled2val(),
+            r2fh_prev.led1_minus_aled1val(),
         ]
         .iter()
         .enumerate()
@@ -110,6 +110,17 @@ where
         self.registers
             .r00h
             .write(r00h_prev.with_reg_read(false))
+    }
+
+    pub fn set_clock_source(&mut self, internal: bool) -> Result<(), AfeError<I2C::Error>> {
+        let r23h_prev = self
+            .registers
+            .r23h
+            .read()?;
+
+        self.registers.r23h.write(r23h_prev.with_osc_enable(internal))?;
+
+        Ok(())
     }
 
     pub fn start_sampling(&mut self) {}

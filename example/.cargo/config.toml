@@ -18,6 +18,9 @@ rustflags = ["-C", "default-linker-libraries"]
 ESP_IDF_SDKCONFIG_DEFAULTS = "sdkconfig.defaults"
 ESP_IDF_VERSION = { value = "tag:v4.4.2" }
 
+ESP_IDF_GLOB_CONFIG_FILES_BASE = { value = ".", relative = true }
+ESP_IDF_GLOB_CONFIG_FILES_1 = { value = "/partitions.csv" }
+
 [unstable]
 build-std = ["std", "panic_abort"]
 

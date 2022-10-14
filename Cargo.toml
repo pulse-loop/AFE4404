@@ -3,10 +3,10 @@ name = "AFE4404"
 version = "0.1.0"
 edition = "2021"
 
-[workspace]
-members = [
-    "example",
-]
+# [workspace]
+# members = [
+#     "example",
+# ]
 
 [build-dependencies]
 codegen = { version = "0.2.0" }

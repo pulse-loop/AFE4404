@@ -108,7 +108,7 @@ where
             reset_end: u16,
         }
 
-        let r1Eh_prev = self.registers.r1Eh.read()?;
+        let r1eh_prev = self.registers.r1Eh.read()?;
 
         // TODO: manage external clock.
         let clk = Frequency::new::<megahertz>(4.0);
