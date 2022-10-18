@@ -39,7 +39,7 @@ fn main() {
     let mut frontend = AFE4404::AFE4404::new(i2c, 0x58u8);
 
     frontend.reset().expect("Cannot reset the afe");
-    frontend.set_clock_source(true).expect("Cannot set clock source.");
+
     frontend.enable_clock_out().expect("Cannot enable clock out");
 
     frontend.set_leds_current(
@@ -109,7 +109,7 @@ fn main() {
         }
     ).expect("Cannot set timing window");
 
-
+    frontend.set_clock_source(true).expect("Cannot set clock source.");
 
     frontend.start_sampling().expect("Cannot start sampling.");
     
