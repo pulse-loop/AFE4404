@@ -131,7 +131,7 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
     // Import.
     scope.import("std::cell", "RefCell");
     scope.import("std::rc", "Rc");
-    scope.import("embedded_hal::i2c", "I2c");
+    scope.import("embedded_hal::i2c::blocking", "I2c");
     scope.import("embedded_hal::i2c", "SevenBitAddress");
     scope.import("crate::register", "Register");
     scope.raw("include!(concat!(env!(\"OUT_DIR\"), \"/register_structs.rs\"));");

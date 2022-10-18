@@ -39,14 +39,14 @@ fn main() {
     let mut frontend = AFE4404::AFE4404::new(i2c, 0x58u8);
 
     frontend.reset().expect("Cannot reset the afe");
-
-    frontend.enable_register_reading().expect("Cannot enable register reading mode");
+    frontend.set_clock_source(true).expect("Cannot set clock source.");
+    frontend.enable_clock_out().expect("Cannot enable clock out");
 
     frontend.set_leds_current(
-        ElectricCurrent::new::<milliampere>(12.5),
+        ElectricCurrent::new::<milliampere>(25.0),
         ElectricCurrent::new::<milliampere>(25.0),
         // TODO: Make function accept 50mA.
-        ElectricCurrent::new::<milliampere>(49.0),
+        ElectricCurrent::new::<milliampere>(25.0),
     ).expect("Cannot set leds current");
 
     frontend.set_tia_resistors(
@@ -109,9 +109,9 @@ fn main() {
         }
     ).expect("Cannot set timing window");
 
-    frontend.set_clock_source(true).expect("Cannot set clock source.");
+
+
     frontend.start_sampling().expect("Cannot start sampling.");
-    frontend.disable_register_reading().expect("Cannot disable register reading mode.");
     
     loop {
         let readings = frontend.read(ReadingMode::ThreeLeds).expect("Cannot read.");

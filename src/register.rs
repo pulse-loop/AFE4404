@@ -15,9 +15,9 @@ pub(crate) struct Register<I2C, BF> {
 }
 
 impl<I2C, BF> Register<I2C, BF>
-where
-    I2C: I2c,
-    BF: RegisterWritable,
+    where
+        I2C: I2c,
+        BF: RegisterWritable,
 {
     /// Creates a new register from a register address, a physical address and an I2C interface.
     ///
@@ -41,6 +41,11 @@ where
     ///
     /// returns: Result<[u8; 3], ()>
     pub(crate) fn read(&mut self) -> Result<BF, AfeError<I2C::Error>> {
+        // Enable register reading for configuration registers.
+        if self.reg_addr < 0x2a || self.reg_addr > 0x2f {
+            self.i2c.borrow_mut().write(self.phy_addr, [0, 0, 1].as_slice())?;
+        }
+
         let output_buffer = [self.reg_addr];
         let mut receive_buffer: [u8; 3] = [0, 0, 0];
 
@@ -49,6 +54,12 @@ where
             .write_read(self.phy_addr, &output_buffer, &mut receive_buffer)?;
 
         println!("Reading: {:?} from register {:#02x}", receive_buffer, self.reg_addr);
+
+        // Disable register reading for configuration registers.
+        if self.reg_addr < 0x2a || self.reg_addr > 0x2f {
+            self.i2c.borrow_mut().write(self.phy_addr, [0, 0, 0].as_slice())?;
+        }
+
         Ok(BF::from_reg_bytes(receive_buffer))
     }
 
@@ -70,7 +81,7 @@ where
                 .map(|byte| byte.reverse_bits())
                 .collect::<Vec<u8>>()[..],
         );
-        
+
         println!("Writing: {:?} to register {:#02x}", buffer, self.reg_addr);
         self.i2c
             .borrow_mut()
