@@ -1,11 +1,11 @@
 use esp_idf_hal::{prelude::*, peripherals::Peripherals, i2c::{Master, MasterPins, config::MasterConfig}};
+use embedded_hal::delay::{blocking::DelayUs};
 
 use AFE4404::{
     high_level::timing_window::*,
     uom::{
         si::{
             f32::{
-                Time,
                 Capacitance,
                 ElectricCurrent,
                 ElectricalResistance,
@@ -16,7 +16,7 @@ use AFE4404::{
             capacitance::picofarad,
         },
     },
-    high_level::timing_window::{ActiveTimingConfiguration, LedTiming, MeasurementWindowConfiguration}
+    high_level::{timing_window::{ActiveTimingConfiguration, LedTiming, MeasurementWindowConfiguration}, value_reading::ReadingMode}
 };
 
 fn main() {
@@ -36,7 +36,7 @@ fn main() {
     )
     .expect("Failed to initialize I2C bus.");
 
-    let mut frontend = AFE4404::AFE4404::new(i2c, 0x58u8.into());
+    let mut frontend = AFE4404::AFE4404::new(i2c, 0x58u8);
 
     frontend.reset().expect("Cannot reset the afe");
 
@@ -109,9 +109,17 @@ fn main() {
         }
     ).expect("Cannot set timing window");
 
-    frontend.set_clock_source(true);
+    frontend.set_clock_source(true).expect("Cannot set clock source.");
+    frontend.start_sampling().expect("Cannot start sampling.");
+    frontend.disable_register_reading().expect("Cannot disable register reading mode.");
     
-    frontend.disable_register_reading().expect("Cannot disable register reading mode");
+    loop {
+        let readings = frontend.read(ReadingMode::ThreeLeds).expect("Cannot read.");
+        println!("Readings: {:?}", readings);
 
-    println!("Hello, world!");
+        let mut delay = esp_idf_hal::delay::FreeRtos;
+        delay.delay_ms(100).unwrap();
+
+        // TODO: Check ready pin.
+    }
 }

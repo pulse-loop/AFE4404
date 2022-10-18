@@ -3,13 +3,14 @@ use embedded_hal::i2c::SevenBitAddress;
 use uom::si::electric_potential::volt;
 use uom::si::f32::ElectricPotential;
 
-use crate::{R00h, AFE4404, errors::AfeError};
+use crate::{errors::AfeError, R00h, AFE4404};
 
 pub enum ReadingMode {
     ThreeLeds,
     TwoLeds,
 }
 
+#[derive(Debug)]
 pub enum Readings {
     ThreeLeds {
         led2: ElectricPotential,
@@ -90,40 +91,96 @@ where
     }
 
     pub fn reset(&mut self) -> Result<(), AfeError<I2C::Error>> {
-        self.registers
-            .r00h
-            .write(R00h::new().with_sw_reset(true))
+        self.registers.r00h.write(R00h::new().with_sw_reset(true))
     }
 
     pub fn enable_register_reading(&mut self) -> Result<(), AfeError<I2C::Error>> {
-        self.registers
-            .r00h
-            .write(R00h::new().with_reg_read(true))
+        self.registers.r00h.write(R00h::new().with_reg_read(true))
     }
 
     pub fn disable_register_reading(&mut self) -> Result<(), AfeError<I2C::Error>> {
-        let r00h_prev = self
-            .registers
-            .r00h
-            .read()?;
+        println!("Printing configuration registers.");
+        // println!("R00h: {:?}", self.registers.r00h.read()?.into_bytes());
+        println!("R01h: {:?}", self.registers.r01h.read()?.into_bytes());
+        println!("R02h: {:?}", self.registers.r02h.read()?.into_bytes());
+        println!("R03h: {:?}", self.registers.r03h.read()?.into_bytes());
+        println!("R04h: {:?}", self.registers.r04h.read()?.into_bytes());
+        println!("R05h: {:?}", self.registers.r05h.read()?.into_bytes());
+        println!("R06h: {:?}", self.registers.r06h.read()?.into_bytes());
+        println!("R07h: {:?}", self.registers.r07h.read()?.into_bytes());
+        println!("R08h: {:?}", self.registers.r08h.read()?.into_bytes());
+        println!("R09h: {:?}", self.registers.r09h.read()?.into_bytes());
+        println!("R0Ah: {:?}", self.registers.r0Ah.read()?.into_bytes());
+        println!("R0Bh: {:?}", self.registers.r0Bh.read()?.into_bytes());
+        println!("R0Ch: {:?}", self.registers.r0Ch.read()?.into_bytes());
+        println!("R0Dh: {:?}", self.registers.r0Dh.read()?.into_bytes());
+        println!("R0Eh: {:?}", self.registers.r0Eh.read()?.into_bytes());
+        println!("R0Fh: {:?}", self.registers.r0Fh.read()?.into_bytes());
+        println!("R10h: {:?}", self.registers.r10h.read()?.into_bytes());
+        println!("R11h: {:?}", self.registers.r11h.read()?.into_bytes());
+        println!("R12h: {:?}", self.registers.r12h.read()?.into_bytes());
+        println!("R13h: {:?}", self.registers.r13h.read()?.into_bytes());
+        println!("R14h: {:?}", self.registers.r14h.read()?.into_bytes());
+        println!("R15h: {:?}", self.registers.r15h.read()?.into_bytes());
+        println!("R16h: {:?}", self.registers.r16h.read()?.into_bytes());
+        println!("R17h: {:?}", self.registers.r17h.read()?.into_bytes());
+        println!("R18h: {:?}", self.registers.r18h.read()?.into_bytes());
+        println!("R19h: {:?}", self.registers.r19h.read()?.into_bytes());
+        println!("R1Ah: {:?}", self.registers.r1Ah.read()?.into_bytes());
+        println!("R1Bh: {:?}", self.registers.r1Bh.read()?.into_bytes());
+        println!("R1Ch: {:?}", self.registers.r1Ch.read()?.into_bytes());
+        println!("R1Dh: {:?}", self.registers.r1Dh.read()?.into_bytes());
+        println!("R1Eh: {:?}", self.registers.r1Eh.read()?.into_bytes());
+        println!("R20h: {:?}", self.registers.r20h.read()?.into_bytes());
+        println!("R21h: {:?}", self.registers.r21h.read()?.into_bytes());
+        println!("R22h: {:?}", self.registers.r22h.read()?.into_bytes());
+        println!("R23h: {:?}", self.registers.r23h.read()?.into_bytes());
+        println!("R28h: {:?}", self.registers.r28h.read()?.into_bytes());
+        println!("R29h: {:?}", self.registers.r29h.read()?.into_bytes());
+        println!("R2Ah: {:?}", self.registers.r2Ah.read()?.into_bytes());
+        println!("R2Bh: {:?}", self.registers.r2Bh.read()?.into_bytes());
+        println!("R2Ch: {:?}", self.registers.r2Ch.read()?.into_bytes());
+        println!("R2Dh: {:?}", self.registers.r2Dh.read()?.into_bytes());
+        println!("R2Eh: {:?}", self.registers.r2Eh.read()?.into_bytes());
+        println!("R2Fh: {:?}", self.registers.r2Fh.read()?.into_bytes());
+        println!("R31h: {:?}", self.registers.r31h.read()?.into_bytes());
+        println!("R32h: {:?}", self.registers.r32h.read()?.into_bytes());
+        println!("R33h: {:?}", self.registers.r33h.read()?.into_bytes());
+        println!("R34h: {:?}", self.registers.r34h.read()?.into_bytes());
+        println!("R35h: {:?}", self.registers.r35h.read()?.into_bytes());
+        println!("R36h: {:?}", self.registers.r36h.read()?.into_bytes());
+        println!("R37h: {:?}", self.registers.r37h.read()?.into_bytes());
+        println!("R39h: {:?}", self.registers.r39h.read()?.into_bytes());
+        println!("R3Ah: {:?}", self.registers.r3Ah.read()?.into_bytes());
+        println!("R3Dh: {:?}", self.registers.r3Dh.read()?.into_bytes());
+        println!("R3Fh: {:?}", self.registers.r3Fh.read()?.into_bytes());
+        println!("R40h: {:?}", self.registers.r40h.read()?.into_bytes());
 
-        self.registers
-            .r00h
-            .write(r00h_prev.with_reg_read(false))
+        self.registers.r00h.write(R00h::new().with_reg_read(false))
     }
 
     pub fn set_clock_source(&mut self, internal: bool) -> Result<(), AfeError<I2C::Error>> {
-        let r23h_prev = self
-            .registers
-            .r23h
-            .read()?;
+        let r23h_prev = self.registers.r23h.read()?;
 
-        self.registers.r23h.write(r23h_prev.with_osc_enable(internal))?;
+        self.registers
+            .r23h
+            .write(r23h_prev.with_osc_enable(internal))?;
 
         Ok(())
     }
 
-    pub fn start_sampling(&mut self) {}
+    pub fn start_sampling(&mut self) -> Result<(), AfeError<I2C::Error>> {
+        let r1eh_prev = self.registers.r1Eh.read()?;
+        self.registers.r1Eh.write(r1eh_prev.with_timeren(true))?;
 
-    pub fn stop_sampling(&mut self) {}
+        Ok(())
+    }
+
+    pub fn stop_sampling(&mut self) -> Result<(), AfeError<I2C::Error>> {
+        let r1eh_prev = self.registers.r1Eh.read()?;
+
+        self.registers.r1Eh.write(r1eh_prev.with_timeren(false))?;
+
+        Ok(())
+    }
 }

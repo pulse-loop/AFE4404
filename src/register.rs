@@ -2,10 +2,7 @@ use core::marker::PhantomData;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use embedded_hal::i2c::{
-        blocking::I2c,
-        SevenBitAddress,
-    };
+use embedded_hal::i2c::{blocking::I2c, SevenBitAddress};
 
 use crate::{errors::AfeError, RegisterWritable};
 
@@ -45,17 +42,16 @@ where
     /// returns: Result<[u8; 3], ()>
     pub(crate) fn read(&mut self) -> Result<BF, AfeError<I2C::Error>> {
         let output_buffer = [self.reg_addr];
-        let receive_buffer: &mut [u8; 3] = &mut Default::default();
+        let mut receive_buffer: [u8; 3] = [0, 0, 0];
 
         self.i2c
             .borrow_mut()
-            .write_read(self.phy_addr, &output_buffer, receive_buffer)?;
+            .write_read(self.phy_addr, &output_buffer, &mut receive_buffer)?;
 
-        let mut value: [u8; 3] = [0, 0, 0];
-        value.copy_from_slice(&(receive_buffer[0..=2]));
-        Ok(BF::from_reg_bytes(value))
+        println!("Reading: {:?} from register {:#02x}", receive_buffer, self.reg_addr);
+        Ok(BF::from_reg_bytes(receive_buffer))
     }
-    
+
     // TODO: Check all documentation for correct types.
 
     /// Writes a 24 bit value in the register.
@@ -67,13 +63,19 @@ where
     /// returns: Result<(), ()>
     pub(crate) fn write(&mut self, value: BF) -> Result<(), AfeError<I2C::Error>> {
         let mut buffer: [u8; 4] = [self.reg_addr, 0, 0, 0];
-        buffer[1..=3].copy_from_slice(&value.into_reg_bytes().iter().map(|byte| byte.reverse_bits()).collect::<Vec<u8>>()[..]);
-        println!("Writing: {:?}", buffer);
-        self
-            .i2c
+        buffer[1..=3].copy_from_slice(
+            &value
+                .into_reg_bytes()
+                .iter()
+                .map(|byte| byte.reverse_bits())
+                .collect::<Vec<u8>>()[..],
+        );
+        
+        println!("Writing: {:?} to register {:#02x}", buffer, self.reg_addr);
+        self.i2c
             .borrow_mut()
             .write(self.phy_addr, buffer.as_slice())?;
-        
+
         Ok(())
     }
 }

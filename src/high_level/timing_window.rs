@@ -277,7 +277,7 @@ where
             .write(R32h::new().with_pdncyclestc(power_down_values[0]))?;
         self.registers
             .r33h
-            .write(R33h::new().with_pdncycleendc(power_down_values[0]))?;
+            .write(R33h::new().with_pdncycleendc(power_down_values[1]))?;
 
         Ok(())
     }
