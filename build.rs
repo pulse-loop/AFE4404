@@ -27,11 +27,12 @@ impl RegisterData {
             }
         }
 
-        let zipped = names
+        let mut zipped = names
             .iter()
             .zip(lengths.iter())
             .map(|item| (item.0.clone(), *item.1))
             .collect::<Vec<(String, u32)>>();
+        zipped.reverse(); // Fields are saved in reversed order due to bitfield endianness.
 
         Ok(RegisterData::new(addr, zipped))
     }
@@ -111,12 +112,16 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
             .new_fn("into_reg_bytes")
             .arg_self()
             .ret("[u8; 3]")
-            .line("self.into_bytes()");
+            .line("let mut reversed = self.into_bytes();")
+            .line("reversed.reverse();")
+            .line("reversed");
         current_trait_impl
             .new_fn("from_reg_bytes")
             .arg("bytes", "[u8; 3]")
             .ret("Self")
-            .line("Self::from_bytes(bytes)");
+            .line("let mut reversed = bytes;")
+            .line("reversed.reverse();")
+            .line("Self::from_bytes(reversed)");
         registers_module.push_impl(current_trait_impl);
     }
 

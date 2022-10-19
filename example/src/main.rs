@@ -43,20 +43,20 @@ fn main() {
     frontend.enable_clock_out().expect("Cannot enable clock out");
 
     frontend.set_leds_current(
-        ElectricCurrent::new::<milliampere>(25.0),
-        ElectricCurrent::new::<milliampere>(25.0),
+        ElectricCurrent::new::<milliampere>(30.0), // Green led.
+        ElectricCurrent::new::<milliampere>(30.0), // Red led.
         // TODO: Make function accept 50mA.
-        ElectricCurrent::new::<milliampere>(25.0),
+        ElectricCurrent::new::<milliampere>(30.0), // Infrared led.
     ).expect("Cannot set leds current");
 
     frontend.set_tia_resistors(
         ElectricalResistance::new::<kiloohm>(100.0),
-        ElectricalResistance::new::<kiloohm>(100.0),
+        ElectricalResistance::new::<kiloohm>(50.0),
     ).expect("Cannot set tia resistors");
     
     frontend.set_tia_capacitors(
-        Capacitance::new::<picofarad>(5.0),
-        Capacitance::new::<picofarad>(5.0),
+        Capacitance::new::<picofarad>(20.0),
+        Capacitance::new::<picofarad>(20.0),
     ).expect("Cannot set tia capacitors");
     
     frontend.set_timing_window(
@@ -107,11 +107,13 @@ fn main() {
                 power_down_end: AFE4404::uom::si::f32::Time::new::<microsecond>(9800.0),
             },
         }
-    ).expect("Cannot set timing window");
+        ).expect("Cannot set timing window.");
 
-    frontend.set_clock_source(true).expect("Cannot set clock source.");
-
-    frontend.start_sampling().expect("Cannot start sampling.");
+        frontend.set_clock_source(true).expect("Cannot set clock source.");
+        
+        frontend.start_sampling().expect("Cannot start sampling.");
+        
+        frontend.read_all_registers().expect("Cannot print registers.");    
     
     loop {
         let readings = frontend.read(ReadingMode::ThreeLeds).expect("Cannot read.");
