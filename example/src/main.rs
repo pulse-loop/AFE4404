@@ -1,5 +1,6 @@
 use esp_idf_hal::{prelude::*, peripherals::Peripherals, i2c::{Master, MasterPins, config::MasterConfig}};
 use embedded_hal::delay::{blocking::DelayUs};
+use embedded_hal::digital::blocking::OutputPin;
 
 use AFE4404::{
     high_level::timing_window::*,
@@ -38,9 +39,20 @@ fn main() {
 
     let mut frontend = AFE4404::AFE4404::new(i2c, 0x58u8);
 
-    frontend.reset().expect("Cannot reset the afe");
+    let mut delay = esp_idf_hal::delay::FreeRtos;    
+    let mut reset_pin = peripherals.pins.gpio4.into_output().unwrap();
+    reset_pin.set_high();
+    delay.delay_ms(1000);
+    reset_pin.set_low();
+    delay.delay_ms(1000);
+    reset_pin.set_high();
+    delay.delay_ms(1000);
+    reset_pin.set_low();
+    delay.delay_us(150);
+    reset_pin.set_high();
+    delay.delay_ms(10);
 
-    frontend.enable_clock_out().expect("Cannot enable clock out");
+    // frontend.reset().expect("Cannot reset the afe");
 
     frontend.set_leds_current(
         ElectricCurrent::new::<milliampere>(30.0), // Green led.
@@ -50,8 +62,8 @@ fn main() {
     ).expect("Cannot set leds current");
 
     frontend.set_tia_resistors(
-        ElectricalResistance::new::<kiloohm>(100.0),
-        ElectricalResistance::new::<kiloohm>(50.0),
+        ElectricalResistance::new::<kiloohm>(2000.0),
+        ElectricalResistance::new::<kiloohm>(2000.0),
     ).expect("Cannot set tia resistors");
     
     frontend.set_tia_capacitors(
@@ -65,51 +77,53 @@ fn main() {
             active_timing_configuration: ActiveTimingConfiguration::ThreeLeds {
                 led2: LedTiming {
                     led_st: AFE4404::uom::si::f32::Time::new::<microsecond>(0.0),
-                    led_end: AFE4404::uom::si::f32::Time::new::<microsecond>(100.0),
+                    led_end: AFE4404::uom::si::f32::Time::new::<microsecond>(99.75),
                     sample_st: AFE4404::uom::si::f32::Time::new::<microsecond>(25.0),
-                    sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(100.0),
+                    sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(99.75),
                     reset_st: AFE4404::uom::si::f32::Time::new::<microsecond>(100.25),
-                    reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(102.0),
+                    reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(101.75),
                     conv_st: AFE4404::uom::si::f32::Time::new::<microsecond>(102.25),
-                    conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(367.25),
+                    conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(367.0),
                 },
                 led3: LedTiming {
                     led_st: AFE4404::uom::si::f32::Time::new::<microsecond>(100.25),
-                    led_end: AFE4404::uom::si::f32::Time::new::<microsecond>(200.25),
+                    led_end: AFE4404::uom::si::f32::Time::new::<microsecond>(200.0),
                     sample_st: AFE4404::uom::si::f32::Time::new::<microsecond>(125.25),
-                    sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(200.25),
+                    sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(200.0),
                     reset_st: AFE4404::uom::si::f32::Time::new::<microsecond>(367.5),
-                    reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(369.25),
+                    reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(369.0),
                     conv_st: AFE4404::uom::si::f32::Time::new::<microsecond>(369.5),
-                    conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(634.5),
+                    conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(634.25),
                 },
                 led1: LedTiming {
                     led_st: AFE4404::uom::si::f32::Time::new::<microsecond>(200.5),
-                    led_end: AFE4404::uom::si::f32::Time::new::<microsecond>(300.5),
+                    led_end: AFE4404::uom::si::f32::Time::new::<microsecond>(300.25),
                     sample_st: AFE4404::uom::si::f32::Time::new::<microsecond>(225.5),
-                    sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(300.5),
+                    sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(300.25),
                     reset_st: AFE4404::uom::si::f32::Time::new::<microsecond>(634.75),
-                    reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(636.5),
+                    reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(636.25),
                     conv_st: AFE4404::uom::si::f32::Time::new::<microsecond>(636.75),
-                    conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(901.75),
+                    conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(901.5),
                 },
                 ambient: AmbientTiming {
                     sample_st: AFE4404::uom::si::f32::Time::new::<microsecond>(325.75),
-                    sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(400.75),
+                    sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(400.5),
                     reset_st: AFE4404::uom::si::f32::Time::new::<microsecond>(902.0),
-                    reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(903.75),
+                    reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(903.5),
                     conv_st: AFE4404::uom::si::f32::Time::new::<microsecond>(904.0),
-                    conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(1169.0),
+                    conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(1168.75),
                 },
             },
             inactive_timing: PowerDownTiming {
                 power_down_st: AFE4404::uom::si::f32::Time::new::<microsecond>(1368.75),
-                power_down_end: AFE4404::uom::si::f32::Time::new::<microsecond>(9800.0),
+                power_down_end: AFE4404::uom::si::f32::Time::new::<microsecond>(9799.75),
             },
         }
         ).expect("Cannot set timing window.");
 
         frontend.set_clock_source(true).expect("Cannot set clock source.");
+
+        frontend.enable_clock_out().expect("Cannot enable clock out");
         
         frontend.start_sampling().expect("Cannot start sampling.");
         
@@ -119,7 +133,6 @@ fn main() {
         let readings = frontend.read(ReadingMode::ThreeLeds).expect("Cannot read.");
         println!("Readings: {:?}", readings);
 
-        let mut delay = esp_idf_hal::delay::FreeRtos;
         delay.delay_ms(100).unwrap();
 
         // TODO: Check ready pin.
