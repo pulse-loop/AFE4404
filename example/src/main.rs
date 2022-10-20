@@ -39,7 +39,7 @@ fn main() {
 
     let mut frontend = AFE4404::AFE4404::new(i2c, 0x58u8);
 
-    let mut delay = esp_idf_hal::delay::FreeRtos;    
+    let mut delay = esp_idf_hal::delay::Ets;
     let mut reset_pin = peripherals.pins.gpio4.into_output().unwrap();
     reset_pin.set_high();
     delay.delay_ms(1000);
@@ -48,7 +48,7 @@ fn main() {
     reset_pin.set_high();
     delay.delay_ms(1000);
     reset_pin.set_low();
-    delay.delay_us(150);
+    delay.delay_us(40);
     reset_pin.set_high();
     delay.delay_ms(10);
 
@@ -127,7 +127,7 @@ fn main() {
         
         frontend.start_sampling().expect("Cannot start sampling.");
         
-        frontend.read_all_registers().expect("Cannot print registers.");    
+        // frontend.read_all_registers().expect("Cannot print registers.");
     
     loop {
         let readings = frontend.read(ReadingMode::ThreeLeds).expect("Cannot read.");

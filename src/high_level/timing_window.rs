@@ -165,7 +165,7 @@ where
         ];
 
         // Enable timer engine.
-        self.registers.r1Eh.write(r1eh_prev.with_timeren(true))?;
+        // self.registers.r1Eh.write(r1eh_prev.with_timeren(true))?;
         self.registers
             .r1Dh
             .write(R1Dh::new().with_prpct(counter_max_value))?;
