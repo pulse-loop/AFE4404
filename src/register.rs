@@ -51,11 +51,13 @@ impl<I2C, BF> Register<I2C, BF>
 
         self.i2c
             .borrow_mut()
-            .write_read(self.phy_addr, &output_buffer, &mut receive_buffer)?;
+            .write(self.phy_addr, &output_buffer)?;
+            
+        self.i2c
+        .borrow_mut().read(self.phy_addr, &mut receive_buffer)?;
 
-        // println!("Reading: {:?} from register {:#02x}", receive_buffer, self.reg_addr);
         let content = ((receive_buffer[0] as u32) << 16) + ((receive_buffer[1] as u32) << 8) + (receive_buffer[2] as u32);
-        println!("Reading from register {:02X}h: {:08b}_{:08b}_{:08b} = {}", self.reg_addr, receive_buffer[0], receive_buffer[1], receive_buffer[2], content);
+        println!("Reading from register {:02X}h: {:08b}_{:08b}_{:08b} = 0x{:06X} =  {}", self.reg_addr, receive_buffer[0], receive_buffer[1], receive_buffer[2], content, content);
 
         // Disable register reading flag for configuration registers.
         if self.reg_addr < 0x2a || self.reg_addr > 0x2f {
@@ -80,9 +82,8 @@ impl<I2C, BF> Register<I2C, BF>
             &value.into_reg_bytes()       
         );
 
-        // println!("Writing: {:?} to register {:#02x}", buffer, self.reg_addr);
         let content = ((buffer[1] as u32) << 16) + ((buffer[2] as u32) << 8) + (buffer[3] as u32);
-        println!("Writing to register {:02X}h: {:08b}_{:08b}_{:08b} = {}", self.reg_addr, buffer[1], buffer[2], buffer[3], content);
+        println!("Writing to register {:02X}h: {:08b}_{:08b}_{:08b} = 0x{:06X} = {}", self.reg_addr, buffer[1], buffer[2], buffer[3], content, content);
 
         self.i2c
             .borrow_mut()

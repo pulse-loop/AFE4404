@@ -127,6 +127,22 @@ impl<I2C> AFE4404<I2C>
 
         Ok(())
     }
+
+    pub fn set_dynamic(&mut self, dynamic: [bool; 4]) -> Result<(), AfeError<I2C::Error>> {
+        let r23h_prev = self.registers.r23h.read()?;
+
+        self.registers.r23h.write(r23h_prev.with_dynamic1(dynamic[0]).with_dynamic2(dynamic[1]).with_dynamic3(dynamic[2]).with_dynamic4(dynamic[3]))?;
+
+        Ok(())
+    }
+
+    pub fn set_averages(&mut self, averages: u8) -> Result<(), AfeError<I2C::Error>> {
+        let r1eh_prev = self.registers.r1Eh.read()?;
+
+        self.registers.r1Eh.write(r1eh_prev.with_numav(averages - 1))?;
+
+        Ok(())
+    }
     
     pub fn read_all_registers(&mut self) -> Result<(), AfeError<I2C::Error>> {
         self.registers.r01h.read()?;

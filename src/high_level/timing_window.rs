@@ -108,7 +108,7 @@ where
             reset_end: u16,
         }
 
-        let r1eh_prev = self.registers.r1Eh.read()?;
+        // let r1eh_prev = self.registers.r1Eh.read()?;
 
         // TODO: manage external clock.
         let clk = Frequency::new::<megahertz>(4.0);
@@ -254,22 +254,22 @@ where
         // Write ambient1 registers.
         self.registers
             .r0Bh
-            .write(R0Bh::new().with_aled1stc(values[1].sample_st))?;
+            .write(R0Bh::new().with_aled1stc(values[3].sample_st))?;
         self.registers
             .r0Ch
-            .write(R0Ch::new().with_aled1endc(values[1].sample_end))?;
+            .write(R0Ch::new().with_aled1endc(values[3].sample_end))?;
         self.registers
             .r13h
-            .write(R13h::new().with_aled1convst(values[1].conv_st))?;
+            .write(R13h::new().with_aled1convst(values[3].conv_st))?;
         self.registers
             .r14h
-            .write(R14h::new().with_aled1convend(values[1].conv_end))?;
+            .write(R14h::new().with_aled1convend(values[3].conv_end))?;
         self.registers
             .r1Bh
-            .write(R1Bh::new().with_adcrststct3(values[1].reset_st))?;
+            .write(R1Bh::new().with_adcrststct3(values[3].reset_st))?;
         self.registers
             .r1Ch
-            .write(R1Ch::new().with_adcrstendct3(values[1].reset_end))?;
+            .write(R1Ch::new().with_adcrstendct3(values[3].reset_end))?;
 
         // Write dynamic power down registers.
         self.registers
