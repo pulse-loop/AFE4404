@@ -68,7 +68,6 @@ where
                 .with_iled2(values[1])
                 .with_iled3(values[2]),
         )?;
-
         self.registers
             .r23h
             .write(r23h_prev.with_iled_2x(high_current))?;

@@ -10,6 +10,7 @@ use AFE4404::{
     high_level::timing_window::*,
     high_level::{
         led_current::LedConfiguration,
+        tia::{CapacitorConfiguration, ResistorConfiguration},
         timing_window::{ActiveTimingConfiguration, LedTiming, MeasurementWindowConfiguration},
         value_reading::ReadingMode,
     },
@@ -44,17 +45,43 @@ fn main() {
     frontend.reset().expect("Cannot reset the afe");
 
     println!(
-        "Setting: {:?}\nReading: {:?}",
+        "Setting: {:?}\nGetting: {:?}",
         frontend
             .set_leds_current(&LedConfiguration {
                 led1_current: ElectricCurrent::new::<milliampere>(30.0), // Green led.
                 led2_current: ElectricCurrent::new::<milliampere>(30.0), // Red led.
                 led3_current: ElectricCurrent::new::<milliampere>(30.0), // Infrared led.
             })
-            .expect("Cannot set leds current."),
+            .expect("Cannot set leds current"),
         frontend
             .get_leds_current()
-            .expect("Cannot get leds current.")
+            .expect("Cannot get leds current")
+    );
+
+    println!(
+        "Setting: {:?}\nGetting: {:?}",
+        frontend
+            .set_tia_resistors(&ResistorConfiguration {
+                resistor1: ElectricalResistance::new::<kiloohm>(50.0),
+                resistor2: ElectricalResistance::new::<kiloohm>(100.0),
+            })
+            .expect("Cannot set tia resistors"),
+        frontend
+            .get_tia_resistors()
+            .expect("Cannot get tia resistors")
+    );
+
+    println!(
+        "Setting: {:?}\nGetting: {:?}",
+        frontend
+            .set_tia_capacitors(&CapacitorConfiguration {
+                capacitor1: Capacitance::new::<picofarad>(5.0),
+                capacitor2: Capacitance::new::<picofarad>(12.0),
+            })
+            .expect("Cannot set tia capacitors"),
+        frontend
+            .get_tia_capacitors()
+            .expect("Cannot get tia capacitors")
     );
 
     frontend.set_dynamic([false, true, true, false]).unwrap();
@@ -161,20 +188,6 @@ fn main() {
 
     frontend.start_sampling().expect("Cannot start sampling.");
     frontend.set_averages(4).unwrap();
-
-    frontend
-        .set_tia_resistors(
-            ElectricalResistance::new::<kiloohm>(50.0),
-            ElectricalResistance::new::<kiloohm>(25.0),
-        )
-        .expect("Cannot set tia resistors");
-
-    frontend
-        .set_tia_capacitors(
-            Capacitance::new::<picofarad>(5.0),
-            Capacitance::new::<picofarad>(5.0),
-        )
-        .expect("Cannot set tia capacitors");
 
     frontend
         .read_all_registers()
