@@ -3,7 +3,7 @@ use embedded_hal::i2c::SevenBitAddress;
 use uom::si::electric_potential::volt;
 use uom::si::f32::ElectricPotential;
 
-use crate::{errors::AfeError, R00h, AFE4404};
+use crate::{errors::AfeError, AFE4404};
 
 pub enum ReadingMode {
     ThreeLeds,
@@ -33,14 +33,16 @@ impl<I2C> AFE4404<I2C>
     where
         I2C: I2c<SevenBitAddress>,
 {
-    ///
+    /// Read the sampled values.
     ///
     /// # Notes
+    /// 
+    /// Call this function after an ADC_RDY pulse, data will remain valid untill next ADC_RDY pulse.
     ///
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error.
-    pub fn read(&mut self, mode: ReadingMode) -> Result<Readings, AfeError<I2C::Error>> {
+    pub fn read(&mut self, mode: &ReadingMode) -> Result<Readings, AfeError<I2C::Error>> {
         let r2ah_prev = self.registers.r2Ah.read()?;
         let r2bh_prev = self.registers.r2Bh.read()?;
         let r2ch_prev = self.registers.r2Ch.read()?;
@@ -88,118 +90,5 @@ impl<I2C> AFE4404<I2C>
                 led1_minus_ambient1: values[5],
             },
         })
-    }
-
-    pub fn reset(&mut self) -> Result<(), AfeError<I2C::Error>> {
-        self.registers.r00h.write(R00h::new().with_sw_reset(true))
-    }
-
-    pub fn set_clock_source(&mut self, internal: bool) -> Result<(), AfeError<I2C::Error>> {
-        let r23h_prev = self.registers.r23h.read()?;
-
-        self.registers
-            .r23h
-            .write(r23h_prev.with_osc_enable(internal))?;
-
-        Ok(())
-    }
-
-    pub fn start_sampling(&mut self) -> Result<(), AfeError<I2C::Error>> {
-        let r1eh_prev = self.registers.r1Eh.read()?;
-
-        self.registers.r1Eh.write(r1eh_prev.with_timeren(true))?;
-
-        Ok(())
-    }
-
-    pub fn stop_sampling(&mut self) -> Result<(), AfeError<I2C::Error>> {
-        let r1eh_prev = self.registers.r1Eh.read()?;
-
-        self.registers.r1Eh.write(r1eh_prev.with_timeren(false))?;
-
-        Ok(())
-    }
-
-    pub fn enable_clock_out(&mut self) -> Result<(), AfeError<I2C::Error>> {
-        let r29h_prev = self.registers.r29h.read()?;
-
-        self.registers.r29h.write(r29h_prev.with_enable_clkout(true))?;
-
-        Ok(())
-    }
-
-    pub fn set_dynamic(&mut self, dynamic: [bool; 4]) -> Result<(), AfeError<I2C::Error>> {
-        let r23h_prev = self.registers.r23h.read()?;
-
-        self.registers.r23h.write(r23h_prev.with_dynamic1(dynamic[0]).with_dynamic2(dynamic[1]).with_dynamic3(dynamic[2]).with_dynamic4(dynamic[3]))?;
-
-        Ok(())
-    }
-
-    pub fn set_averages(&mut self, averages: u8) -> Result<(), AfeError<I2C::Error>> {
-        let r1eh_prev = self.registers.r1Eh.read()?;
-
-        self.registers.r1Eh.write(r1eh_prev.with_numav(averages - 1))?;
-
-        Ok(())
-    }
-    
-    pub fn read_all_registers(&mut self) -> Result<(), AfeError<I2C::Error>> {
-        self.registers.r01h.read()?;
-        self.registers.r02h.read()?;
-        self.registers.r03h.read()?;
-        self.registers.r04h.read()?;
-        self.registers.r05h.read()?;
-        self.registers.r06h.read()?;
-        self.registers.r07h.read()?;
-        self.registers.r08h.read()?;
-        self.registers.r09h.read()?;
-        self.registers.r0Ah.read()?;
-        self.registers.r0Bh.read()?;
-        self.registers.r0Ch.read()?;
-        self.registers.r0Dh.read()?;
-        self.registers.r0Eh.read()?;
-        self.registers.r0Fh.read()?;
-        self.registers.r10h.read()?;
-        self.registers.r11h.read()?;
-        self.registers.r12h.read()?;
-        self.registers.r13h.read()?;
-        self.registers.r14h.read()?;
-        self.registers.r15h.read()?;
-        self.registers.r16h.read()?;
-        self.registers.r17h.read()?;
-        self.registers.r18h.read()?;
-        self.registers.r19h.read()?;
-        self.registers.r1Ah.read()?;
-        self.registers.r1Bh.read()?;
-        self.registers.r1Ch.read()?;
-        self.registers.r1Dh.read()?;
-        self.registers.r1Eh.read()?;
-        self.registers.r20h.read()?;
-        self.registers.r21h.read()?;
-        self.registers.r22h.read()?;
-        self.registers.r23h.read()?;
-        self.registers.r28h.read()?;
-        self.registers.r29h.read()?;
-        self.registers.r2Ah.read()?;
-        self.registers.r2Bh.read()?;
-        self.registers.r2Ch.read()?;
-        self.registers.r2Dh.read()?;
-        self.registers.r2Eh.read()?;
-        self.registers.r2Fh.read()?;
-        self.registers.r31h.read()?;
-        self.registers.r32h.read()?;
-        self.registers.r33h.read()?;
-        self.registers.r34h.read()?;
-        self.registers.r35h.read()?;
-        self.registers.r36h.read()?;
-        self.registers.r37h.read()?;
-        self.registers.r39h.read()?;
-        self.registers.r3Ah.read()?;
-        self.registers.r3Dh.read()?;
-        self.registers.r3Fh.read()?;
-        self.registers.r40h.read()?;
-
-        Ok(())
     }
 }

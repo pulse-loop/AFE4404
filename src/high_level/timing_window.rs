@@ -1,6 +1,9 @@
 use embedded_hal::i2c::blocking::I2c;
 use embedded_hal::i2c::SevenBitAddress;
-use uom::si::{f32::Time, time::{second, microsecond}};
+use uom::si::{
+    f32::Time,
+    time::{microsecond, second},
+};
 
 use crate::{
     errors::AfeError, R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh,
@@ -111,6 +114,7 @@ impl From<AmbientTiming> for LedTiming {
             led_st: Time::new::<second>(0.0),
             led_end: Time::new::<second>(0.0),
             sample_st: other.sample_st,
+       
             sample_end: other.sample_end,
             reset_st: other.reset_st,
             reset_end: other.reset_end,
@@ -140,12 +144,15 @@ where
 
     /// Set the LEDs timings.
     ///
-    ///
     /// # Notes
-    ///
+    /// 
+    /// This function automatically enables the timer engine.
+    /// After calling this function, a wait time of tCHANNEL should be applied before high-accuracy readings.
+    /// 
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error.
+    /// Setting a window periond too long for the current clock frequency will result in an error.
     pub fn set_timing_window(
         &mut self,
         configuration: &MeasurementWindowConfiguration,
@@ -160,6 +167,8 @@ where
             conv_st: u16,
             conv_end: u16,
         }
+
+        let r1eh_prev = self.registers.r1Eh.read()?;
 
         let clk_div = ((configuration.period * self.clock).value / 65536.0).ceil() as u8;
         let clk_div: (f32, u8) = match clk_div {
@@ -212,12 +221,14 @@ where
                 .round() as u16,
         ];
 
+        // Enable timer engine.
         self.registers
             .r1Dh
             .write(R1Dh::new().with_prpct(counter_max_value))?;
         self.registers
             .r39h
             .write(R39h::new().with_clkdiv_prf(clk_div.1))?;
+        self.registers.r1Eh.write(r1eh_prev.with_timeren(true))?;
 
         // Write led2 registers.
         self.registers
@@ -415,6 +426,11 @@ where
         })
     }
 
+    /// Get the LEDs timings.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
     pub fn get_timing_window(
         &mut self,
     ) -> Result<MeasurementWindowConfiguration, AfeError<I2C::Error>> {

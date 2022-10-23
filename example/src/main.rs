@@ -6,10 +6,11 @@ use esp_idf_hal::{
 };
 
 use AFE4404::{
-    high_level::timing_window::*,
     high_level::{
+        clock::ClockConfiguration,
         led_current::LedConfiguration,
         tia::{CapacitorConfiguration, ResistorConfiguration},
+        timing_window::*,
         timing_window::{ActiveTimingConfiguration, LedTiming, MeasurementWindowConfiguration},
         value_reading::ReadingMode,
     },
@@ -18,7 +19,8 @@ use AFE4404::{
         electric_current::milliampere,
         electrical_resistance::kiloohm,
         f32::{Capacitance, ElectricCurrent, ElectricalResistance, Frequency},
-        time::microsecond, frequency::megahertz,
+        frequency::megahertz,
+        time::microsecond,
     },
 };
 
@@ -41,7 +43,7 @@ fn main() {
 
     let mut frontend = AFE4404::AFE4404::new(i2c, 0x58u8, Frequency::new::<megahertz>(4.0));
 
-    frontend.reset().expect("Cannot reset the afe");
+    frontend.sw_reset().expect("Cannot reset the afe");
 
     println!(
         "Setting: {:?}\nGetting: {:?}",
@@ -139,20 +141,18 @@ fn main() {
             .expect("Cannot get timing window")
     );
 
-    frontend.set_dynamic([false, true, true, false]).unwrap();
-    frontend.set_clock_source(true).unwrap();
-    frontend
-        .enable_clock_out()
-        .expect("Cannot enable clock out");
-    frontend.start_sampling().expect("Cannot start sampling.");
-    frontend.set_averages(4).unwrap();
-
-    frontend
-        .read_all_registers()
-        .expect("Cannot print registers.");
+    println!(
+        "Setting: {:?}\nGetting: {:?}",
+        frontend
+            .set_clock_source(&ClockConfiguration::Internal)
+            .expect("Cannot set clock source"),
+        frontend
+            .get_clock_source()
+            .expect("Cannot get clock source")
+    );
 
     loop {
-        let readings = frontend.read(ReadingMode::ThreeLeds).expect("Cannot read.");
+        let readings = frontend.read(&ReadingMode::ThreeLeds).expect("Cannot read.");
         println!("Readings: {:?}", readings);
         let mut delay = esp_idf_hal::delay::Ets;
         delay.delay_ms(100).unwrap();
