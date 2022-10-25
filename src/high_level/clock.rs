@@ -56,22 +56,13 @@ where
         })
     }
 
-    // TODO: Rearrange functions.
+    // TODO: Rearrange function.
     pub fn enable_clock_out(&mut self) -> Result<(), AfeError<I2C::Error>> {
         let r29h_prev = self.registers.r29h.read()?;
 
         self.registers
             .r29h
             .write(r29h_prev.with_enable_clkout(true))?;
-
-        Ok(())
-    }
-    pub fn set_averages(&mut self, averages: u8) -> Result<(), AfeError<I2C::Error>> {
-        let r1eh_prev = self.registers.r1Eh.read()?;
-
-        self.registers
-            .r1Eh
-            .write(r1eh_prev.with_numav(averages - 1))?;
 
         Ok(())
     }

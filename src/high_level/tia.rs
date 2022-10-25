@@ -106,7 +106,11 @@ where
                 0 => ElectricalResistance::new::<kiloohm>(500.0),
                 6 => ElectricalResistance::new::<megaohm>(1.0),
                 7 => ElectricalResistance::new::<megaohm>(2.0),
-                _ => Default::default(),
+                _ => {
+                    return Err(AfeError::InvalidRegisterValue {
+                        reg_addr: if i == 0 { 0x21 } else { 0x20 },
+                    })
+                }
             }
         }
 
@@ -198,7 +202,11 @@ where
                 4 => Capacitance::new::<picofarad>(20.0),
                 7 => Capacitance::new::<picofarad>(22.5),
                 6 => Capacitance::new::<picofarad>(25.0),
-                _ => Default::default(),
+                _ => {
+                    return Err(AfeError::InvalidRegisterValue {
+                        reg_addr: if i == 0 { 0x21 } else { 0x20 },
+                    })
+                }
             }
         }
 

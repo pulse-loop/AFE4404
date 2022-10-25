@@ -114,7 +114,7 @@ impl From<AmbientTiming> for LedTiming {
             led_st: Time::new::<second>(0.0),
             led_end: Time::new::<second>(0.0),
             sample_st: other.sample_st,
-       
+
             sample_end: other.sample_end,
             reset_st: other.reset_st,
             reset_end: other.reset_end,
@@ -145,10 +145,10 @@ where
     /// Set the LEDs timings.
     ///
     /// # Notes
-    /// 
+    ///
     /// This function automatically enables the timer engine.
     /// After calling this function, a wait time of tCHANNEL should be applied before high-accuracy readings.
-    /// 
+    ///
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error.
@@ -475,7 +475,7 @@ where
             5 => 4.0,
             6 => 8.0,
             7 => 16.0,
-            _ => Default::default(),
+            _ => return Err(AfeError::InvalidRegisterValue { reg_addr: 0x39 }),
         };
         let period_clk_div = clk_div / self.clock;
         let period = (r1dh_prev.prpct() + 1) as f32 * period_clk_div;

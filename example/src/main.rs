@@ -152,7 +152,9 @@ fn main() {
     );
 
     loop {
-        let readings = frontend.read(&ReadingMode::ThreeLeds).expect("Cannot read.");
+        let readings = frontend
+            .read(&ReadingMode::ThreeLeds)
+            .expect("Cannot read.");
         println!("Readings: {:?}", readings);
         let mut delay = esp_idf_hal::delay::Ets;
         delay.delay_ms(100).unwrap();
