@@ -15,7 +15,7 @@ use crate::{
 pub struct MeasurementWindowConfiguration {
     pub period: Time,
     pub active_timing_configuration: ActiveTimingConfiguration,
-    pub inactive_timing: PowerDownTiming,
+    pub inactive_timing_configuration: PowerDownTiming,
 }
 
 impl Default for MeasurementWindowConfiguration {
@@ -62,7 +62,7 @@ impl Default for MeasurementWindowConfiguration {
                     conv_end: Time::new::<microsecond>(1168.75),
                 },
             },
-            inactive_timing: PowerDownTiming {
+            inactive_timing_configuration: PowerDownTiming {
                 power_down_st: Time::new::<microsecond>(1368.75),
                 power_down_end: Time::new::<microsecond>(9799.75),
             },
@@ -213,10 +213,10 @@ where
         .collect();
 
         let power_down_values = [
-            (configuration.inactive_timing.power_down_st / quantisation)
+            (configuration.inactive_timing_configuration.power_down_st / quantisation)
                 .value
                 .round() as u16,
-            (configuration.inactive_timing.power_down_end / quantisation)
+            (configuration.inactive_timing_configuration.power_down_end / quantisation)
                 .value
                 .round() as u16,
         ];
@@ -419,7 +419,7 @@ where
                     },
                 }
             },
-            inactive_timing: PowerDownTiming {
+            inactive_timing_configuration: PowerDownTiming {
                 power_down_st: power_down_values[0] as f32 * quantisation,
                 power_down_end: power_down_values[1] as f32 * quantisation,
             },
@@ -566,7 +566,7 @@ where
                     },
                 }
             },
-            inactive_timing: PowerDownTiming {
+            inactive_timing_configuration: PowerDownTiming {
                 power_down_st: r32h_prev.pdncyclestc() as f32 * quantisation,
                 power_down_end: r33h_prev.pdncycleendc() as f32 * quantisation,
             },

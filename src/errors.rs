@@ -8,6 +8,8 @@ pub enum AfeError<I2CError: embedded_hal::i2c::Error> {
     IncorrectAnswerLength { expected: usize, received: usize },
     #[error("the requested LED current falls outside the allowed range")]
     LedCurrentOutsideAllowedRange,
+    #[error("the requested offset current falls outside the allowed range")]
+    OffsetCurrentOutsideAllowedRange,
     #[error("the requested resistor value falls outside the allowed range")]
     ResistorValueOutsideAllowedRange,
     #[error("the requested capacitor value falls outside the allowed range")]

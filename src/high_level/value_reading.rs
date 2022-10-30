@@ -13,19 +13,19 @@ pub enum ReadingMode {
 #[derive(Debug)]
 pub enum Readings {
     ThreeLeds {
+        led1: ElectricPotential,
         led2: ElectricPotential,
         led3: ElectricPotential,
-        led1: ElectricPotential,
         ambient: ElectricPotential,
         led1_minus_ambient: ElectricPotential,
     },
     TwoLeds {
-        led2: ElectricPotential,
-        ambient2: ElectricPotential,
         led1: ElectricPotential,
+        led2: ElectricPotential,
         ambient1: ElectricPotential,
-        led2_minus_ambient2: ElectricPotential,
+        ambient2: ElectricPotential,
         led1_minus_ambient1: ElectricPotential,
+        led2_minus_ambient2: ElectricPotential,
     },
 }
 
@@ -75,19 +75,19 @@ impl<I2C> AFE4404<I2C>
 
         Ok(match mode {
             ReadingMode::ThreeLeds => Readings::ThreeLeds {
+                led1: values[2],
                 led2: values[0],
                 led3: values[1],
-                led1: values[2],
                 ambient: values[3],
                 led1_minus_ambient: values[5],
             },
             ReadingMode::TwoLeds => Readings::TwoLeds {
-                led2: values[0],
-                ambient2: values[1],
                 led1: values[2],
+                led2: values[0],
                 ambient1: values[3],
-                led2_minus_ambient2: values[4],
+                ambient2: values[1],
                 led1_minus_ambient1: values[5],
+                led2_minus_ambient2: values[4],
             },
         })
     }
