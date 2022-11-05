@@ -1,27 +1,27 @@
-use embedded_hal::delay::blocking::DelayUs;
+use embedded_hal::{delay::blocking::DelayUs, digital::blocking::OutputPin};
 use esp_idf_hal::{
     i2c::{config::MasterConfig, Master, MasterPins},
     peripherals::Peripherals,
     prelude::*,
 };
 
-use AFE4404::{
+use afe4404::{
+    afe4404::ThreeLedsMode,
     high_level::{
         clock::ClockConfiguration,
-        led_current::LedConfiguration,
+        led_current::{LedCurrentConfiguration, OffsetCurrentConfiguration},
         tia::{CapacitorConfiguration, ResistorConfiguration},
-        timing_window::*,
-        timing_window::{ActiveTimingConfiguration, LedTiming, MeasurementWindowConfiguration},
-        value_reading::ReadingMode,
+        timing_window::{ActiveTiming, LedTiming, MeasurementWindowConfiguration, AmbientTiming, PowerDownTiming},
     },
     uom::si::{
         capacitance::picofarad,
-        electric_current::milliampere,
+        electric_current::{microampere, milliampere},
         electrical_resistance::kiloohm,
-        f32::{Capacitance, ElectricCurrent, ElectricalResistance, Frequency},
+        f32::{Capacitance, ElectricCurrent, ElectricalResistance, Frequency, Time},
         frequency::megahertz,
         time::microsecond,
     },
+    AFE4404,
 };
 
 fn main() {
@@ -41,121 +41,107 @@ fn main() {
     )
     .expect("Failed to initialize I2C bus.");
 
-    let mut frontend = AFE4404::AFE4404::new(i2c, 0x58u8, Frequency::new::<megahertz>(4.0));
+    let mut frontend = AFE4404::with_three_leds(i2c, 0x58u8, Frequency::new::<megahertz>(4.0));
 
     frontend.sw_reset().expect("Cannot reset the afe");
 
-    println!(
-        "Setting: {:?}\nGetting: {:?}",
-        frontend
-            .set_leds_current(&LedConfiguration {
-                led1_current: ElectricCurrent::new::<milliampere>(30.0), // Green led.
-                led2_current: ElectricCurrent::new::<milliampere>(30.0), // Red led.
-                led3_current: ElectricCurrent::new::<milliampere>(30.0), // Infrared led.
-            })
-            .expect("Cannot set leds current"),
-        frontend
-            .get_leds_current()
-            .expect("Cannot get leds current")
-    );
+    frontend
+        .set_leds_current(&LedCurrentConfiguration::<ThreeLedsMode>::new(
+            ElectricCurrent::new::<milliampere>(30.0), // Green led.
+            ElectricCurrent::new::<milliampere>(30.0), // Red led.
+            ElectricCurrent::new::<milliampere>(30.0), // Infrared led.
+        ))
+        .expect("Cannot set leds current");
 
-    println!(
-        "Setting: {:?}\nGetting: {:?}",
-        frontend
-            .set_tia_resistors(&ResistorConfiguration {
-                resistor1: ElectricalResistance::new::<kiloohm>(50.0),
-                resistor2: ElectricalResistance::new::<kiloohm>(100.0),
-            })
-            .expect("Cannot set tia resistors"),
-        frontend
-            .get_tia_resistors()
-            .expect("Cannot get tia resistors")
-    );
+    frontend
+        .set_offset_current(&OffsetCurrentConfiguration::<ThreeLedsMode>::new(
+            ElectricCurrent::new::<microampere>(-1.5),
+            ElectricCurrent::new::<microampere>(-3.0),
+            ElectricCurrent::new::<microampere>(-3.0),
+            ElectricCurrent::new::<microampere>(0.0),
+        ))
+        .expect("Cannot set offset current");
 
-    println!(
-        "Setting: {:?}\nGetting: {:?}",
-        frontend
-            .set_tia_capacitors(&CapacitorConfiguration {
-                capacitor1: Capacitance::new::<picofarad>(5.0),
-                capacitor2: Capacitance::new::<picofarad>(12.0),
-            })
-            .expect("Cannot set tia capacitors"),
-        frontend
-            .get_tia_capacitors()
-            .expect("Cannot get tia capacitors")
-    );
+    frontend
+        .set_tia_resistors(&ResistorConfiguration {
+            resistor1: ElectricalResistance::new::<kiloohm>(50.0),
+            resistor2: ElectricalResistance::new::<kiloohm>(50.0),
+        })
+        .expect("Cannot set tia resistors");
 
-    println!(
-        "Setting: {:?}\nGetting: {:?}",
-        frontend
-            .set_timing_window(&MeasurementWindowConfiguration {
-                period: AFE4404::uom::si::f32::Time::new::<microsecond>(10_000.0),
-                active_timing_configuration: ActiveTimingConfiguration::ThreeLeds {
-                    led2: LedTiming {
-                        led_st: AFE4404::uom::si::f32::Time::new::<microsecond>(0.0),
-                        led_end: AFE4404::uom::si::f32::Time::new::<microsecond>(99.75),
-                        sample_st: AFE4404::uom::si::f32::Time::new::<microsecond>(25.0),
-                        sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(99.75),
-                        reset_st: AFE4404::uom::si::f32::Time::new::<microsecond>(100.25),
-                        reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(101.75),
-                        conv_st: AFE4404::uom::si::f32::Time::new::<microsecond>(102.25),
-                        conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(367.0),
-                    },
-                    led3: LedTiming {
-                        led_st: AFE4404::uom::si::f32::Time::new::<microsecond>(100.25),
-                        led_end: AFE4404::uom::si::f32::Time::new::<microsecond>(200.0),
-                        sample_st: AFE4404::uom::si::f32::Time::new::<microsecond>(125.25),
-                        sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(200.0),
-                        reset_st: AFE4404::uom::si::f32::Time::new::<microsecond>(367.5),
-                        reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(369.0),
-                        conv_st: AFE4404::uom::si::f32::Time::new::<microsecond>(369.5),
-                        conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(634.25),
-                    },
-                    led1: LedTiming {
-                        led_st: AFE4404::uom::si::f32::Time::new::<microsecond>(200.5),
-                        led_end: AFE4404::uom::si::f32::Time::new::<microsecond>(300.25),
-                        sample_st: AFE4404::uom::si::f32::Time::new::<microsecond>(225.5),
-                        sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(300.25),
-                        reset_st: AFE4404::uom::si::f32::Time::new::<microsecond>(634.75),
-                        reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(636.25),
-                        conv_st: AFE4404::uom::si::f32::Time::new::<microsecond>(636.75),
-                        conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(901.5),
-                    },
-                    ambient: AmbientTiming {
-                        sample_st: AFE4404::uom::si::f32::Time::new::<microsecond>(325.75),
-                        sample_end: AFE4404::uom::si::f32::Time::new::<microsecond>(400.5),
-                        reset_st: AFE4404::uom::si::f32::Time::new::<microsecond>(902.0),
-                        reset_end: AFE4404::uom::si::f32::Time::new::<microsecond>(903.5),
-                        conv_st: AFE4404::uom::si::f32::Time::new::<microsecond>(904.0),
-                        conv_end: AFE4404::uom::si::f32::Time::new::<microsecond>(1168.75),
-                    },
+    frontend
+        .set_tia_capacitors(&CapacitorConfiguration {
+            capacitor1: Capacitance::new::<picofarad>(5.0),
+            capacitor2: Capacitance::new::<picofarad>(5.0),
+        })
+        .expect("Cannot set tia capacitors");
+
+    frontend
+        .set_timing_window(&MeasurementWindowConfiguration::<ThreeLedsMode>::new(
+            Time::new::<microsecond>(10_000.0),
+            ActiveTiming::<ThreeLedsMode>::new(
+                LedTiming {
+                    led_st: Time::new::<microsecond>(200.5),
+                    led_end: Time::new::<microsecond>(300.25),
+                    sample_st: Time::new::<microsecond>(225.5),
+                    sample_end: Time::new::<microsecond>(300.25),
+                    reset_st: Time::new::<microsecond>(634.75),
+                    reset_end: Time::new::<microsecond>(636.25),
+                    conv_st: Time::new::<microsecond>(636.75),
+                    conv_end: Time::new::<microsecond>(901.5),
                 },
-                inactive_timing: PowerDownTiming {
-                    power_down_st: AFE4404::uom::si::f32::Time::new::<microsecond>(1368.75),
-                    power_down_end: AFE4404::uom::si::f32::Time::new::<microsecond>(9799.75),
+                LedTiming {
+                    led_st: Time::new::<microsecond>(0.0),
+                    led_end: Time::new::<microsecond>(99.75),
+                    sample_st: Time::new::<microsecond>(25.0),
+                    sample_end: Time::new::<microsecond>(99.75),
+                    reset_st: Time::new::<microsecond>(100.25),
+                    reset_end: Time::new::<microsecond>(101.75),
+                    conv_st: Time::new::<microsecond>(102.25),
+                    conv_end: Time::new::<microsecond>(367.0),
                 },
-            })
-            .expect("Cannot set timing window"),
-        frontend
-            .get_timing_window()
-            .expect("Cannot get timing window")
-    );
+                LedTiming {
+                    led_st: Time::new::<microsecond>(100.25),
+                    led_end: Time::new::<microsecond>(200.0),
+                    sample_st: Time::new::<microsecond>(125.25),
+                    sample_end: Time::new::<microsecond>(200.0),
+                    reset_st: Time::new::<microsecond>(367.5),
+                    reset_end: Time::new::<microsecond>(369.0),
+                    conv_st: Time::new::<microsecond>(369.5),
+                    conv_end: Time::new::<microsecond>(634.25),
+                },
+                AmbientTiming {
+                    sample_st: Time::new::<microsecond>(325.75),
+                    sample_end: Time::new::<microsecond>(400.5),
+                    reset_st: Time::new::<microsecond>(902.0),
+                    reset_end: Time::new::<microsecond>(903.5),
+                    conv_st: Time::new::<microsecond>(904.0),
+                    conv_end: Time::new::<microsecond>(1168.75),
+                },
+            ),
+            PowerDownTiming {
+                power_down_st: Time::new::<microsecond>(1368.75),
+                power_down_end: Time::new::<microsecond>(9799.75),
+            },
+        ))
+        .expect("Cannot set timing window");
 
-    println!(
-        "Setting: {:?}\nGetting: {:?}",
-        frontend
-            .set_clock_source(&ClockConfiguration::Internal)
-            .expect("Cannot set clock source"),
-        frontend
-            .get_clock_source()
-            .expect("Cannot get clock source")
-    );
+    frontend
+        .set_clock_source(&ClockConfiguration::Internal)
+        .expect("Cannot set clock source");
 
     loop {
-        let readings = frontend
-            .read(&ReadingMode::ThreeLeds)
-            .expect("Cannot read.");
-        println!("Readings: {:?}", readings);
+        let readings = frontend.read();
+        match readings {
+            Ok(readings) => {
+                println!("Green: {}", readings.led1().value);
+                println!("Red: {}", readings.led2().value);
+                println!("Infrared: {}", readings.led3().value);
+                println!("Ambient: {}", readings.ambient().value);
+            }
+            Err(e) => println!("Error: {:?}", e),
+        }
+
         let mut delay = esp_idf_hal::delay::Ets;
         delay.delay_ms(100).unwrap();
 

@@ -8,19 +8,41 @@ use uom::si::f32::Frequency;
 
 use crate::RegisterBlock;
 
-pub struct AFE4404<I2C> {
+pub struct UninitializedMode;
+pub struct ThreeLedsMode;
+pub struct TwoLedsMode;
+
+pub trait LedMode {}
+
+impl LedMode for UninitializedMode {}
+impl LedMode for ThreeLedsMode {}
+impl LedMode for TwoLedsMode {}
+
+pub struct AFE4404<I2C, MODE>
+where
+    MODE: LedMode {
     pub(crate) registers: RegisterBlock<I2C>,
     pub(crate) clock: Frequency,
+    mode: std::marker::PhantomData<MODE>
 }
 
-impl<I2C> AFE4404<I2C>
+impl<I2C> AFE4404<I2C, UninitializedMode>
 where
     I2C: I2c<SevenBitAddress>,
 {
-    pub fn new(i2c: I2C, address: SevenBitAddress, clock: Frequency) -> Self {
-        Self {
+    pub fn with_three_leds(i2c: I2C, address: SevenBitAddress, clock: Frequency) -> AFE4404<I2C, ThreeLedsMode> {
+        AFE4404::<I2C, ThreeLedsMode> {
             registers: RegisterBlock::new(address, &Rc::new(RefCell::new(i2c))),
             clock,
+            mode: std::marker::PhantomData,
+        }
+    }
+
+    pub fn with_two_leds(i2c: I2C, address: SevenBitAddress, clock: Frequency) -> AFE4404<I2C, TwoLedsMode> {
+        AFE4404::<I2C, TwoLedsMode> {
+            registers: RegisterBlock::new(address, &Rc::new(RefCell::new(i2c))),
+            clock,
+            mode: std::marker::PhantomData,
         }
     }
 }

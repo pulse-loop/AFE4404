@@ -2,7 +2,11 @@ use embedded_hal::i2c::blocking::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 use uom::si::{f32::Frequency, frequency::megahertz};
 
-use crate::{errors::AfeError, AFE4404};
+use crate::{
+    afe4404::{LedMode, ThreeLedsMode},
+    errors::AfeError,
+    AFE4404,
+};
 
 #[derive(Debug, Clone, Copy)]
 pub enum ClockConfiguration {
@@ -10,9 +14,10 @@ pub enum ClockConfiguration {
     External,
 }
 
-impl<I2C> AFE4404<I2C>
+impl<I2C, MODE> AFE4404<I2C, MODE>
 where
     I2C: I2c<SevenBitAddress>,
+    MODE: LedMode,
 {
     /// Set the clock source.
     ///

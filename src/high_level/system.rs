@@ -1,14 +1,14 @@
 use embedded_hal::i2c::blocking::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 
-use crate::{errors::AfeError, R00h, AFE4404};
+use crate::{errors::AfeError, R00h, AFE4404, afe4404::{ThreeLedsMode, LedMode}};
 
 #[derive(Clone, Copy)]
 pub struct DynamicConfiguration {
-    pub transmitter: State,
-    pub adc: State,
-    pub tia: State,
-    pub rest_of_adc: State,
+    transmitter: State,
+    adc: State,
+    tia: State,
+    rest_of_adc: State,
 }
 
 #[derive(Clone, Copy)]
@@ -17,9 +17,10 @@ pub enum State {
     Disabled,
 }
 
-impl<I2C> AFE4404<I2C>
+impl<I2C, MODE> AFE4404<I2C, MODE>
 where
     I2C: I2c<SevenBitAddress>,
+    MODE: LedMode,
 {
     /// Software reset the [`AFE4404<I2C>`].
     ///

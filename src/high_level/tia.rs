@@ -5,6 +5,7 @@ use uom::si::{
     capacitance::picofarad, electrical_resistance::kiloohm, electrical_resistance::megaohm,
 };
 
+use crate::afe4404::{LedMode, ThreeLedsMode};
 use crate::errors::AfeError;
 use crate::AFE4404;
 
@@ -20,9 +21,10 @@ pub struct CapacitorConfiguration {
     pub capacitor2: Capacitance,
 }
 
-impl<I2C> AFE4404<I2C>
+impl<I2C, MODE> AFE4404<I2C, MODE>
 where
     I2C: I2c<SevenBitAddress>,
+    MODE: LedMode,
 {
     /// Set the tia resistors value.
     ///

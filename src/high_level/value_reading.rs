@@ -3,46 +3,161 @@ use embedded_hal::i2c::SevenBitAddress;
 use uom::si::electric_potential::volt;
 use uom::si::f32::ElectricPotential;
 
-use crate::{errors::AfeError, AFE4404};
-
-pub enum ReadingMode {
-    ThreeLeds,
-    TwoLeds,
-}
+use crate::{
+    afe4404::{LedMode, ThreeLedsMode, TwoLedsMode},
+    errors::AfeError,
+    AFE4404,
+};
 
 #[derive(Debug)]
-pub enum Readings {
-    ThreeLeds {
+pub struct Readings<MODE: LedMode> {
+    led1: ElectricPotential,
+    led2: ElectricPotential,
+    ambient1: ElectricPotential,
+    ambient2_or_led3: ElectricPotential,
+    led1_minus_ambient1: ElectricPotential,
+    led2_minus_ambient2: ElectricPotential,
+    mode: std::marker::PhantomData<MODE>,
+}
+
+impl Readings<ThreeLedsMode> {
+    pub(crate) fn new(
         led1: ElectricPotential,
         led2: ElectricPotential,
         led3: ElectricPotential,
         ambient: ElectricPotential,
         led1_minus_ambient: ElectricPotential,
-    },
-    TwoLeds {
+    ) -> Self {
+        Self {
+            led1,
+            led2,
+            ambient1: ambient,
+            ambient2_or_led3: led3,
+            led1_minus_ambient1: led1_minus_ambient,
+            led2_minus_ambient2: ElectricPotential::new::<volt>(0.0),
+            mode: std::marker::PhantomData,
+        }
+    }
+    pub fn led1(&self) -> &ElectricPotential {
+        &self.led1
+    }
+    pub fn led2(&self) -> &ElectricPotential {
+        &self.led2
+    }
+    pub fn led3(&self) -> &ElectricPotential {
+        &self.ambient2_or_led3
+    }
+    pub fn ambient(&self) -> &ElectricPotential {
+        &self.ambient1
+    }
+    pub fn led1_minus_ambient(&self) -> &ElectricPotential {
+        &self.led1_minus_ambient1
+    }
+}
+
+impl Readings<TwoLedsMode> {
+    pub(crate) fn new(
         led1: ElectricPotential,
         led2: ElectricPotential,
         ambient1: ElectricPotential,
         ambient2: ElectricPotential,
         led1_minus_ambient1: ElectricPotential,
         led2_minus_ambient2: ElectricPotential,
-    },
+    ) -> Self {
+        Self {
+            led1,
+            led2,
+            ambient1,
+            ambient2_or_led3: ambient2,
+            led1_minus_ambient1,
+            led2_minus_ambient2,
+            mode: std::marker::PhantomData,
+        }
+    }
+    pub fn led1(&self) -> &ElectricPotential {
+        &self.led1
+    }
+    pub fn led2(&self) -> &ElectricPotential {
+        &self.led2
+    }
+    pub fn ambient1(&self) -> &ElectricPotential {
+        &self.ambient1
+    }
+    pub fn ambient2(&self) -> &ElectricPotential {
+        &self.ambient2_or_led3
+    }
+    pub fn led1_minus_ambient1(&self) -> &ElectricPotential {
+        &self.led1_minus_ambient1
+    }
+    pub fn led2_minus_ambient2(&self) -> &ElectricPotential {
+        &self.led2_minus_ambient2
+    }
 }
 
-impl<I2C> AFE4404<I2C>
-    where
-        I2C: I2c<SevenBitAddress>,
+impl<I2C> AFE4404<I2C, ThreeLedsMode>
+where
+    I2C: I2c<SevenBitAddress>,
 {
     /// Read the sampled values.
     ///
     /// # Notes
-    /// 
+    ///
     /// Call this function after an ADC_RDY pulse, data will remain valid untill next ADC_RDY pulse.
     ///
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error.
-    pub fn read(&mut self, mode: &ReadingMode) -> Result<Readings, AfeError<I2C::Error>> {
+    /// This function returns an error if the ADC reading falls outside the allowed range.
+    pub fn read(&mut self) -> Result<Readings<ThreeLedsMode>, AfeError<I2C::Error>> {
+        let r2ah_prev = self.registers.r2Ah.read()?;
+        let r2bh_prev = self.registers.r2Bh.read()?;
+        let r2ch_prev = self.registers.r2Ch.read()?;
+        let r2dh_prev = self.registers.r2Dh.read()?;
+        let r2fh_prev = self.registers.r2Fh.read()?;
+
+        let quantisation: ElectricPotential = ElectricPotential::new::<volt>(1.2) / 2_097_151.0;
+
+        let mut values: [ElectricPotential; 6] = Default::default();
+        for (i, &register_value) in [
+            r2ch_prev.led1val(),
+            r2ah_prev.led2val(),
+            r2bh_prev.aled2val_or_led3val(),
+            r2dh_prev.aled1val(),
+            r2fh_prev.led1_minus_aled1val(),
+        ]
+        .iter()
+        .enumerate()
+        {
+            let sign_extension_bits = ((register_value & 0x00FF_FFFF) >> 21) as u8;
+            let signed_value = match sign_extension_bits {
+                0b000 => register_value as i32, // The value is positive.
+                0b111 => (register_value | 0xFF00_0000) as i32, // Extend the sign of the negative value.
+                _ => return Err(AfeError::AdcReadingOutsideAllowedRange),
+            };
+            values[i] = signed_value as f32 * quantisation;
+        }
+
+        Ok(Readings::<ThreeLedsMode>::new(
+            values[0], values[1], values[2], values[3], values[4],
+        ))
+    }
+}
+
+impl<I2C> AFE4404<I2C, TwoLedsMode>
+where
+    I2C: I2c<SevenBitAddress>,
+{
+    /// Read the sampled values.
+    ///
+    /// # Notes
+    ///
+    /// Call this function after an ADC_RDY pulse, data will remain valid untill next ADC_RDY pulse.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    /// This function returns an error if the ADC reading falls outside the allowed range.
+    pub fn read(&mut self) -> Result<Readings<TwoLedsMode>, AfeError<I2C::Error>> {
         let r2ah_prev = self.registers.r2Ah.read()?;
         let r2bh_prev = self.registers.r2Bh.read()?;
         let r2ch_prev = self.registers.r2Ch.read()?;
@@ -54,15 +169,15 @@ impl<I2C> AFE4404<I2C>
 
         let mut values: [ElectricPotential; 6] = Default::default();
         for (i, &register_value) in [
-            r2ah_prev.led2val(),
-            r2bh_prev.aled2val_or_led3val(),
             r2ch_prev.led1val(),
+            r2ah_prev.led2val(),
             r2dh_prev.aled1val(),
-            r2eh_prev.led2_minus_aled2val(),
+            r2bh_prev.aled2val_or_led3val(),
             r2fh_prev.led1_minus_aled1val(),
+            r2eh_prev.led2_minus_aled2val(),
         ]
-            .iter()
-            .enumerate()
+        .iter()
+        .enumerate()
         {
             let sign_extension_bits = ((register_value & 0x00FF_FFFF) >> 21) as u8;
             let signed_value = match sign_extension_bits {
@@ -72,23 +187,8 @@ impl<I2C> AFE4404<I2C>
             };
             values[i] = signed_value as f32 * quantisation;
         }
-
-        Ok(match mode {
-            ReadingMode::ThreeLeds => Readings::ThreeLeds {
-                led1: values[2],
-                led2: values[0],
-                led3: values[1],
-                ambient: values[3],
-                led1_minus_ambient: values[5],
-            },
-            ReadingMode::TwoLeds => Readings::TwoLeds {
-                led1: values[2],
-                led2: values[0],
-                ambient1: values[3],
-                ambient2: values[1],
-                led1_minus_ambient1: values[5],
-                led2_minus_ambient2: values[4],
-            },
-        })
+        Ok(Readings::<TwoLedsMode>::new(
+            values[0], values[1], values[2], values[3], values[4], values[5],
+        ))
     }
 }

@@ -1,11 +1,12 @@
 use embedded_hal::i2c::blocking::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 
-use crate::{errors::AfeError, R3Dh, AFE4404};
+use crate::{errors::AfeError, R3Dh, AFE4404, afe4404::{ThreeLedsMode, LedMode}};
 
-impl<I2C> AFE4404<I2C>
+impl<I2C, MODE> AFE4404<I2C, MODE>
 where
     I2C: I2c<SevenBitAddress>,
+    MODE: LedMode,
 {
     /// Set the number of averages performed by the adc.
     ///
