@@ -66,15 +66,17 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
         .ret("Self");
     scope.push_trait(registers_trait);
 
-    let mut registers_module = Module::new("registers")
+    // Mod.
+    let mut register_structs_module = Module::new("register_structs")
         .import("modular_bitfield::prelude", "*")
         .import("super", "RegisterWritable")
         .attr("allow(clippy::too_many_arguments)")
         .attr("allow(clippy::fn_params_excessive_bools)")
         .attr("allow(dead_code)")
+        .attr("allow(unreachable_pub)")
         .vis("pub(crate)")
         .to_owned();
-        
+
     for register in register_array {
         // Struct.
         let mut current_struct = Struct::new(format!("R{:02X}h", register.addr).as_str());
@@ -103,7 +105,7 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
                 current_struct.push_field(field.vis("pub(crate)").to_owned());
             }
         }
-        registers_module.push_struct(current_struct);
+        register_structs_module.push_struct(current_struct);
 
         // Trait impl.
         let mut current_trait_impl = Impl::new(format!("R{:02X}h", register.addr));
@@ -122,10 +124,10 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
             .line("let mut reversed = bytes;")
             .line("reversed.reverse();")
             .line("Self::from_bytes(reversed)");
-        registers_module.push_impl(current_trait_impl);
+        register_structs_module.push_impl(current_trait_impl);
     }
 
-    scope.push_module(registers_module);
+    scope.push_module(register_structs_module);
 
     scope
 }
@@ -134,13 +136,18 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
     let mut scope = Scope::new();
 
     // Import.
-    scope.import("std::cell", "RefCell");
-    scope.import("std::rc", "Rc");
-    scope.import("embedded_hal::i2c::blocking", "I2c");
-    scope.import("embedded_hal::i2c", "SevenBitAddress");
-    scope.import("crate::register", "Register");
     scope.raw("include!(concat!(env!(\"OUT_DIR\"), \"/register_structs.rs\"));");
-    scope.raw("use registers::*;");
+
+    // Mod.
+    let mut register_block_module = Module::new("register_block")
+        .import("std::cell", "RefCell")
+        .import("std::rc", "Rc")
+        .import("embedded_hal::i2c::blocking", "I2c")
+        .import("embedded_hal::i2c", "SevenBitAddress")
+        .import("crate::register", "Register")
+        .import("super::register_structs", "*")
+        .vis("pub(crate)")
+        .to_owned();
 
     // Struct.
     let mut register_block_struct = Struct::new("RegisterBlock")
@@ -160,12 +167,12 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
 
         register_block_struct.push_field(field);
     }
-    scope.push_struct(register_block_struct);
+    register_block_module.push_struct(register_block_struct);
 
     // Impl.
     let mut new_function = Function::new("new");
     new_function
-        .vis("pub")
+        .vis("pub(crate)")
         .arg("phy_addr", "SevenBitAddress")
         .arg("i2c", "&Rc<RefCell<I2C>>")
         .ret("Self")
@@ -177,11 +184,14 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
         ));
     }
     new_function.line("}");
-    scope
-        .new_impl("RegisterBlock<I2C>")
+    let mut register_block_implementation = Impl::new("RegisterBlock<I2C>");
+    register_block_implementation
         .generic("I2C")
         .bound("I2C", "I2c")
         .push_fn(new_function);
+    register_block_module.push_impl(register_block_implementation);
+
+    scope.push_module(register_block_module);
 
     scope
 }

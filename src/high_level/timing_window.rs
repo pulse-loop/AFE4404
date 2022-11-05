@@ -8,9 +8,9 @@ use uom::si::{
 use crate::{
     afe4404::{LedMode, ThreeLedsMode, TwoLedsMode},
     errors::AfeError,
-    R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh, R0Eh, R0Fh, R10h,
+    register_structs::{R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh, R0Eh, R0Fh, R10h,
     R11h, R12h, R13h, R14h, R15h, R16h, R17h, R18h, R19h, R1Ah, R1Bh, R1Ch, R1Dh, R32h, R33h, R36h,
-    R37h, R39h, AFE4404,
+    R37h, R39h}, AFE4404,
 };
 
 #[derive(Debug)]

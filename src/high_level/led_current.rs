@@ -4,7 +4,7 @@ use uom::si::electric_current::{ampere, microampere, milliampere};
 use uom::si::f32::ElectricCurrent;
 
 use crate::afe4404::{LedMode, ThreeLedsMode, TwoLedsMode};
-use crate::{errors::AfeError, R22h, R3Ah, AFE4404};
+use crate::{errors::AfeError, register_structs::{R22h, R3Ah}, AFE4404};
 
 #[derive(Debug)]
 pub struct LedCurrentConfiguration<MODE: LedMode> {

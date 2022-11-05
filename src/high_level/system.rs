@@ -1,7 +1,7 @@
 use embedded_hal::i2c::blocking::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 
-use crate::{errors::AfeError, R00h, AFE4404, afe4404::LedMode};
+use crate::{errors::AfeError, register_structs::R00h, AFE4404, afe4404::LedMode};
 
 #[derive(Clone, Copy)]
 pub struct DynamicConfiguration {
