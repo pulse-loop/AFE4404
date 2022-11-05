@@ -5,7 +5,7 @@ use uom::si::{
     capacitance::picofarad, electrical_resistance::kiloohm, electrical_resistance::megaohm,
 };
 
-use crate::afe4404::{LedMode, ThreeLedsMode};
+use crate::afe4404::LedMode;
 use crate::errors::AfeError;
 use crate::AFE4404;
 

@@ -3,7 +3,7 @@ use embedded_hal::i2c::SevenBitAddress;
 use uom::si::{f32::Frequency, frequency::megahertz};
 
 use crate::{
-    afe4404::{LedMode, ThreeLedsMode},
+    afe4404::LedMode,
     errors::AfeError,
     AFE4404,
 };
