@@ -1,4 +1,6 @@
-use embedded_hal::{delay::blocking::DelayUs, digital::blocking::OutputPin};
+use std::sync::atomic::AtomicBool;
+
+use embedded_hal::delay::blocking::DelayUs;
 use esp_idf_hal::{
     i2c::{config::MasterConfig, Master, MasterPins},
     peripherals::Peripherals,
@@ -11,7 +13,9 @@ use afe4404::{
         clock::ClockConfiguration,
         led_current::{LedCurrentConfiguration, OffsetCurrentConfiguration},
         tia::{CapacitorConfiguration, ResistorConfiguration},
-        timing_window::{ActiveTiming, LedTiming, MeasurementWindowConfiguration, AmbientTiming, PowerDownTiming},
+        timing_window::{
+            ActiveTiming, AmbientTiming, LedTiming, MeasurementWindowConfiguration, PowerDownTiming,
+        },
     },
     uom::si::{
         capacitance::picofarad,
@@ -23,6 +27,8 @@ use afe4404::{
     },
     AFE4404,
 };
+
+static DATA_READY: AtomicBool = AtomicBool::new(false);
 
 fn main() {
     esp_idf_sys::link_patches();
@@ -47,9 +53,9 @@ fn main() {
 
     frontend
         .set_leds_current(&LedCurrentConfiguration::<ThreeLedsMode>::new(
-            ElectricCurrent::new::<milliampere>(30.0), // Green led.
-            ElectricCurrent::new::<milliampere>(30.0), // Red led.
-            ElectricCurrent::new::<milliampere>(30.0), // Infrared led.
+            ElectricCurrent::new::<milliampere>(30.0),
+            ElectricCurrent::new::<milliampere>(30.0),
+            ElectricCurrent::new::<milliampere>(30.0),
         ))
         .expect("Cannot set leds current");
 
@@ -130,21 +136,38 @@ fn main() {
         .set_clock_source(&ClockConfiguration::Internal)
         .expect("Cannot set clock source");
 
+    let mut delay = esp_idf_hal::delay::Ets;
+    delay.delay_ms(200).unwrap();
+
+    unsafe {
+        peripherals
+            .pins
+            .gpio4
+            .into_subscribed(
+                || {
+                    DATA_READY.store(true, std::sync::atomic::Ordering::Relaxed);
+                },
+                esp_idf_hal::gpio::InterruptType::PosEdge,
+            )
+            .unwrap();
+    }
+
     loop {
-        let readings = frontend.read();
-        match readings {
-            Ok(readings) => {
-                println!("Green: {}", readings.led1().value);
-                println!("Red: {}", readings.led2().value);
-                println!("Infrared: {}", readings.led3().value);
-                println!("Ambient: {}", readings.ambient().value);
+        if DATA_READY.load(std::sync::atomic::Ordering::Relaxed) {
+            DATA_READY.store(false, std::sync::atomic::Ordering::Relaxed); // Prevent readings overlapping.
+            let readings = frontend.read();
+            if !DATA_READY.load(std::sync::atomic::Ordering::Relaxed) {
+                match readings {
+                    Ok(readings) => {
+                        // println!("Green: {}", readings.led1().value);
+                        // println!("Red: {}", readings.led2().value);
+                        // println!("Infrared: {}", readings.led3().value);
+                        // println!("Ambient: {}", readings.ambient().value);
+                        println!("{} {} {} {}", readings.led1().value, readings.led2().value, readings.led3().value, readings.ambient().value);
+                    }
+                    Err(e) => println!("Error: {:?}", e),
+                }
             }
-            Err(e) => println!("Error: {:?}", e),
         }
-
-        let mut delay = esp_idf_hal::delay::Ets;
-        delay.delay_ms(100).unwrap();
-
-        // TODO: Check ready pin.
     }
 }
