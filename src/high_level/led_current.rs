@@ -4,7 +4,11 @@ use uom::si::electric_current::{ampere, microampere, milliampere};
 use uom::si::f32::ElectricCurrent;
 
 use crate::afe4404::{LedMode, ThreeLedsMode, TwoLedsMode};
-use crate::{errors::AfeError, register_structs::{R22h, R3Ah}, AFE4404};
+use crate::{
+    errors::AfeError,
+    register_structs::{R22h, R3Ah},
+    AFE4404,
+};
 
 #[derive(Debug)]
 pub struct LedCurrentConfiguration<MODE: LedMode> {
@@ -32,6 +36,15 @@ impl LedCurrentConfiguration<ThreeLedsMode> {
     pub fn led3(&self) -> &ElectricCurrent {
         &self.led3
     }
+    pub fn led1_mut(&mut self) -> &mut ElectricCurrent {
+        &mut self.led1
+    }
+    pub fn led2_mut(&mut self) -> &mut ElectricCurrent {
+        &mut self.led2
+    }
+    pub fn led3_mut(&mut self) -> &mut ElectricCurrent {
+        &mut self.led3
+    }
 }
 
 impl LedCurrentConfiguration<TwoLedsMode> {
@@ -48,6 +61,12 @@ impl LedCurrentConfiguration<TwoLedsMode> {
     }
     pub fn led2(&self) -> &ElectricCurrent {
         &self.led2
+    }
+    pub fn led1_mut(&mut self) -> &mut ElectricCurrent {
+        &mut self.led1
+    }
+    pub fn led2_mut(&mut self) -> &mut ElectricCurrent {
+        &mut self.led2
     }
 }
 pub struct OffsetCurrentConfiguration<MODE: LedMode> {
@@ -383,7 +402,9 @@ where
                 configuration.ambient1.value < 0.0,
             ),
             (
-                (configuration.ambient2_or_led3.abs() / quantisation).value.round() as u8,
+                (configuration.ambient2_or_led3.abs() / quantisation)
+                    .value
+                    .round() as u8,
                 configuration.ambient2_or_led3.value < 0.0,
             ),
         ];
