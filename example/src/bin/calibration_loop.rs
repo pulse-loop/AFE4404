@@ -136,7 +136,7 @@ fn main() {
             Capacitance::new::<picofarad>(22.5),
             Capacitance::new::<picofarad>(25.0),
         ],
-        current_max_value: ElectricCurrent::new::<milliampere>(100.0),
+        current_max_value: ElectricCurrent::new::<milliampere>(60.0),
         voltage_max_value: ElectricPotential::new::<volt>(1.0),
     };
 
@@ -150,17 +150,15 @@ fn main() {
         capacitor1: parameters.capacitors[0],
         capacitor2: parameters.capacitors[0],
     };
-    // TODO: Estimate best current starting value.
     let mut best_currents = LedCurrentConfiguration::<ThreeLedsMode>::new(
-        parameters.current_max_value,
-        parameters.current_max_value,
-        parameters.current_max_value,
+        ElectricCurrent::new::<milliampere>(0.0),
+        ElectricCurrent::new::<milliampere>(0.0),
+        ElectricCurrent::new::<milliampere>(0.0),
     );
 
     // TODO: Manage the errors.
     frontend.set_tia_resistors(&best_resistors).unwrap();
     frontend.set_tia_capacitors(&best_capacitors).unwrap();
-    frontend.set_leds_current(&best_currents).unwrap();
 
     unsafe {
         peripherals
@@ -176,33 +174,49 @@ fn main() {
     }
 
     let mut delay = esp_idf_hal::delay::Ets;
-    delay.delay_ms(200).unwrap();
 
-    // Current calibration loop.
+    // Gain calibration loop.
+    let voltage_threshold = parameters.voltage_max_value * 0.8;
+    *best_currents.led1_mut() = parameters.current_max_value;
+    *best_currents.led2_mut() = parameters.current_max_value;
+    *best_currents.led3_mut() = parameters.current_max_value;
+    frontend.set_leds_current(&best_currents).unwrap();
 
-    // TODO: Manage infinite readings.
-    // TODO: Change in function: get_sample_blocking().
-    let sample;
-    loop {
-        if DATA_READY.load(std::sync::atomic::Ordering::Relaxed) {
-            DATA_READY.store(false, std::sync::atomic::Ordering::Relaxed); // Prevent readings overlapping.
-            let current_readings = frontend.read();
-            if !DATA_READY.load(std::sync::atomic::Ordering::Relaxed) {
-                // TODO: Manage reading error.
-                sample = current_readings.unwrap();
-                break;
+    for resistor in parameters.resistors.iter() {
+        delay.delay_ms(200).unwrap();
+
+        // TODO: Manage infinite readings.
+        // TODO: Change in function: get_sample_blocking().
+        let sample;
+        loop {
+            if DATA_READY.load(std::sync::atomic::Ordering::Relaxed) {
+                DATA_READY.store(false, std::sync::atomic::Ordering::Relaxed); // Prevent readings overlapping.
+                let current_readings = frontend.read();
+                if !DATA_READY.load(std::sync::atomic::Ordering::Relaxed) {
+                    // TODO: Manage reading error.
+                    sample = current_readings.unwrap();
+                    break;
+                }
             }
         }
-    }
 
-    let mut voltage_threshold = [parameters.voltage_max_value * 0.8; 2]; // [led1 threshold, led2 and led3 threshold].
-    if !(sample.led2() >= &voltage_threshold[1] && sample.led3() >= &voltage_threshold[1]) {
-        // Select new voltage threshold for led2 and led3 in case of current saturation.
-        voltage_threshold[1] =
-            ElectricPotential::new::<volt>(f32::min(sample.led2().value, sample.led3().value));
-        println!("New threshold: {:?}", voltage_threshold[1]);
+        // Select greater resistors in case of current saturation.
+        if sample.led1() < &voltage_threshold {
+            best_resistors.resistor1 = *resistor;
+        }
+        if sample.led2() < &voltage_threshold || sample.led3() < &voltage_threshold {
+            best_resistors.resistor2 = *resistor;
+        }
+        if sample.led1() >= &voltage_threshold
+            && sample.led2() >= &voltage_threshold
+            && sample.led3() >= &voltage_threshold
+        {
+            break;
+        }
     }
+    println!("Best resistors: reistor1 {}kOhm, resistor2 {}kOhm", best_resistors.resistor1.value / 1000.0, best_resistors.resistor2.value / 1000.0);
 
+    // Current calibration loop.
     let mut lower_current_bound = [ElectricCurrent::new::<milliampere>(0.0); 3];
     let mut upper_current_bound = [parameters.current_max_value; 3];
     let mut mid_current_bound = [parameters.current_max_value / 2.0; 3];
@@ -239,7 +253,7 @@ fn main() {
         {
             // Find closest current value using bisection method.
             // TODO: Change in function: bisection<T>(a: &mut T, b: &mut T, c: &mut T, greater_interval: bool).
-            if sample.led1() > &voltage_threshold[0] {
+            if sample.led1() > &voltage_threshold {
                 upper_current_bound[0] = mid_current_bound[0] // Decrease current.
             } else {
                 lower_current_bound[0] = mid_current_bound[0] // Increase current.
@@ -251,7 +265,7 @@ fn main() {
         if upper_current_bound[1] - lower_current_bound[1]
             > ElectricCurrent::new::<milliampere>(0.8)
         {
-            if sample.led2() > &voltage_threshold[1] {
+            if sample.led2() > &voltage_threshold {
                 upper_current_bound[1] = mid_current_bound[1]
             } else {
                 lower_current_bound[1] = mid_current_bound[1]
@@ -262,7 +276,7 @@ fn main() {
         if upper_current_bound[2] - lower_current_bound[2]
             > ElectricCurrent::new::<milliampere>(0.8)
         {
-            if sample.led3() > &voltage_threshold[1] {
+            if sample.led3() > &voltage_threshold {
                 upper_current_bound[2] = mid_current_bound[2]
             } else {
                 lower_current_bound[2] = mid_current_bound[2]
@@ -271,13 +285,9 @@ fn main() {
             *best_currents.led3_mut() = mid_current_bound[2];
         }
 
-        frontend.set_leds_current(&best_currents).unwrap();
+        best_currents = frontend.set_leds_current(&best_currents).unwrap();
     }
-    println!("Best led current led1: {:?}", best_currents.led1());
-    println!("Best led current led2: {:?}", best_currents.led2());
-    println!("Best led current led3: {:?}", best_currents.led3());
-
-    // Gain calibration loop.
+    println!("Best currents: led1 {}A, led2 {}A, led3 {}A", best_currents.led1().value, best_currents.led2().value, best_currents.led3().value);
 
     loop {
         if DATA_READY.load(std::sync::atomic::Ordering::Relaxed) {
