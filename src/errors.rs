@@ -25,5 +25,5 @@ pub enum AfeError<I2CError: embedded_hal::i2c::Error> {
     #[error("the decimation factor falls outside the allowed range")]
     DecimationFactorOutsideAllowedRange,
     #[error("invalid value in register {:02X}h", .reg_addr)]
-    InvalidRegisterValue { reg_addr: u8},
+    InvalidRegisterValue { reg_addr: u8 },
 }

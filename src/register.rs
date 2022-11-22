@@ -15,9 +15,9 @@ pub(crate) struct Register<I2C, BF> {
 }
 
 impl<I2C, BF> Register<I2C, BF>
-    where
-        I2C: I2c,
-        BF: RegisterWritable,
+where
+    I2C: I2c,
+    BF: RegisterWritable,
 {
     /// Creates a new register from a register address, a physical address and an I2C interface.
     ///
@@ -43,18 +43,19 @@ impl<I2C, BF> Register<I2C, BF>
     pub(crate) fn read(&mut self) -> Result<BF, AfeError<I2C::Error>> {
         // Enable register reading flag for configuration registers.
         if self.reg_addr < 0x2a || self.reg_addr > 0x2f {
-            self.i2c.borrow_mut().write(self.phy_addr, [0, 0, 0, 1].as_slice())?;
+            self.i2c
+                .borrow_mut()
+                .write(self.phy_addr, [0, 0, 0, 1].as_slice())?;
         }
 
         let output_buffer = [self.reg_addr];
         let mut receive_buffer: [u8; 3] = [0, 0, 0];
 
+        self.i2c.borrow_mut().write(self.phy_addr, &output_buffer)?;
+
         self.i2c
             .borrow_mut()
-            .write(self.phy_addr, &output_buffer)?;
-            
-        self.i2c
-        .borrow_mut().read(self.phy_addr, &mut receive_buffer)?;
+            .read(self.phy_addr, &mut receive_buffer)?;
 
         // Print register content.
         // let content = ((receive_buffer[0] as u32) << 16) + ((receive_buffer[1] as u32) << 8) + (receive_buffer[2] as u32);
@@ -62,9 +63,11 @@ impl<I2C, BF> Register<I2C, BF>
 
         // Disable register reading flag for configuration registers.
         if self.reg_addr < 0x2a || self.reg_addr > 0x2f {
-            self.i2c.borrow_mut().write(self.phy_addr, [0, 0, 0, 0].as_slice())?;
+            self.i2c
+                .borrow_mut()
+                .write(self.phy_addr, [0, 0, 0, 0].as_slice())?;
         }
-        
+
         Ok(BF::from_reg_bytes(receive_buffer))
     }
 
@@ -79,9 +82,7 @@ impl<I2C, BF> Register<I2C, BF>
     /// returns: Result<(), ()>
     pub(crate) fn write(&mut self, value: BF) -> Result<(), AfeError<I2C::Error>> {
         let mut buffer: [u8; 4] = [self.reg_addr, 0, 0, 0];
-        buffer[1..=3].copy_from_slice(
-            &value.into_reg_bytes()       
-        );
+        buffer[1..=3].copy_from_slice(&value.into_reg_bytes());
 
         // Print register content.
         // let content = ((buffer[1] as u32) << 16) + ((buffer[2] as u32) << 8) + (buffer[3] as u32);

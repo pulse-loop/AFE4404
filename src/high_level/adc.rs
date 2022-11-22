@@ -1,7 +1,7 @@
 use embedded_hal::i2c::blocking::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 
-use crate::{errors::AfeError, register_structs::R3Dh, AFE4404, afe4404::LedMode};
+use crate::{afe4404::LedMode, errors::AfeError, register_structs::R3Dh, AFE4404};
 
 impl<I2C, MODE> AFE4404<I2C, MODE>
 where
