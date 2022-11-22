@@ -142,7 +142,7 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
     let mut register_block_module = Module::new("register_block")
         .import("std::cell", "RefCell")
         .import("std::rc", "Rc")
-        .import("embedded_hal::i2c::blocking", "I2c")
+        .import("embedded_hal::i2c", "I2c")
         .import("embedded_hal::i2c", "SevenBitAddress")
         .import("crate::register", "Register")
         .import("super::register_structs", "*")

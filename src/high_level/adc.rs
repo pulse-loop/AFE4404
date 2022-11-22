@@ -1,4 +1,4 @@
-use embedded_hal::i2c::blocking::I2c;
+use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 
 use crate::{afe4404::LedMode, errors::AfeError, register_structs::R3Dh, AFE4404};

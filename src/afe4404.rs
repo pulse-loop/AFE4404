@@ -3,7 +3,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use embedded_hal::i2c::{blocking::I2c, SevenBitAddress};
+use embedded_hal::i2c::{I2c, SevenBitAddress};
 use uom::si::f32::Frequency;
 
 use crate::register_block::RegisterBlock;
