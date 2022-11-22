@@ -63,9 +63,6 @@ jobs:
         with:
           command: build
           args: --target riscv32imc-esp-espidf -Zbuild-std=std,panic_abort -Zbuild-std-features=panic_immediate_abort
-      - name: Build example crate
-        working-directory: example
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --target riscv32imc-esp-espidf -Zbuild-std=std,panic_abort -Zbuild-std-features=panic_immediate_abort
+      - name: Build example crate (in example folder)
+        working-directory: ./example
+        run: cargo build --target riscv32imc-esp-espidf -Zbuild-std=std,panic_abort -Zbuild-std-features=panic_immediate_abort
