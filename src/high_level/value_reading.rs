@@ -1,4 +1,4 @@
-use embedded_hal::i2c::blocking::I2c;
+use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 use uom::si::electric_potential::volt;
 use uom::si::f32::ElectricPotential;

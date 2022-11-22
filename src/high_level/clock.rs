@@ -1,12 +1,8 @@
-use embedded_hal::i2c::blocking::I2c;
+use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 use uom::si::{f32::Frequency, frequency::megahertz};
 
-use crate::{
-    afe4404::LedMode,
-    errors::AfeError,
-    AFE4404,
-};
+use crate::{afe4404::LedMode, errors::AfeError, AFE4404};
 
 #[derive(Debug, Clone, Copy)]
 pub enum ClockConfiguration {
