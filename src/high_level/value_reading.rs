@@ -9,6 +9,7 @@ use crate::{
     AFE4404,
 };
 
+/// Represents the values read from the [`AFE4404`].
 #[derive(Debug)]
 pub struct Readings<MODE: LedMode> {
     led1: ElectricPotential,
@@ -18,6 +19,21 @@ pub struct Readings<MODE: LedMode> {
     led1_minus_ambient1: ElectricPotential,
     led2_minus_ambient2: ElectricPotential,
     mode: std::marker::PhantomData<MODE>,
+}
+
+impl<MODE> Readings<MODE>
+where
+    MODE: LedMode,
+{
+    /// Gets an immutable reference of the LED1 value.
+    pub fn led1(&self) -> &ElectricPotential {
+        &self.led1
+    }
+
+    /// Gets an immutable reference of the LED2 value.
+    pub fn led2(&self) -> &ElectricPotential {
+        &self.led2
+    }
 }
 
 impl Readings<ThreeLedsMode> {
@@ -38,18 +54,18 @@ impl Readings<ThreeLedsMode> {
             mode: std::marker::PhantomData,
         }
     }
-    pub fn led1(&self) -> &ElectricPotential {
-        &self.led1
-    }
-    pub fn led2(&self) -> &ElectricPotential {
-        &self.led2
-    }
+
+    /// Gets an immutable reference of the LED3 value.
     pub fn led3(&self) -> &ElectricPotential {
         &self.ambient2_or_led3
     }
+
+    /// Gets an immutable reference of the Ambient value.
     pub fn ambient(&self) -> &ElectricPotential {
         &self.ambient1
     }
+
+    /// Gets an immutable reference of the LED1 minus Ambient value.
     pub fn led1_minus_ambient(&self) -> &ElectricPotential {
         &self.led1_minus_ambient1
     }
@@ -74,21 +90,23 @@ impl Readings<TwoLedsMode> {
             mode: std::marker::PhantomData,
         }
     }
-    pub fn led1(&self) -> &ElectricPotential {
-        &self.led1
-    }
-    pub fn led2(&self) -> &ElectricPotential {
-        &self.led2
-    }
+
+    /// Gets an immutable reference of the Ambient1 value.
     pub fn ambient1(&self) -> &ElectricPotential {
         &self.ambient1
     }
+
+    /// Gets an immutable reference of the Ambient2 value.
     pub fn ambient2(&self) -> &ElectricPotential {
         &self.ambient2_or_led3
     }
+
+    /// Gets an immutable reference of the LED1 minus Ambient1 value.
     pub fn led1_minus_ambient1(&self) -> &ElectricPotential {
         &self.led1_minus_ambient1
     }
+
+    /// Gets an immutable reference of the LED2 minus Ambient2 value.
     pub fn led2_minus_ambient2(&self) -> &ElectricPotential {
         &self.led2_minus_ambient2
     }
@@ -98,7 +116,7 @@ impl<I2C> AFE4404<I2C, ThreeLedsMode>
 where
     I2C: I2c<SevenBitAddress>,
 {
-    /// Read the sampled values.
+    /// Reads the sampled values.
     ///
     /// # Notes
     ///
@@ -147,7 +165,7 @@ impl<I2C> AFE4404<I2C, TwoLedsMode>
 where
     I2C: I2c<SevenBitAddress>,
 {
-    /// Read the sampled values.
+    /// Reads the sampled values.
     ///
     /// # Notes
     ///

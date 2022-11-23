@@ -1,8 +1,9 @@
 use embedded_hal::i2c::blocking::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 
-use crate::{errors::AfeError, register_structs::R00h, AFE4404, afe4404::LedMode};
+use crate::{afe4404::LedMode, errors::AfeError, register_structs::R00h, AFE4404};
 
+/// Represents the dynamic blocks of the [`AFE4404<I2C>`].]
 #[derive(Clone, Copy)]
 pub struct DynamicConfiguration {
     transmitter: State,
@@ -11,9 +12,12 @@ pub struct DynamicConfiguration {
     rest_of_adc: State,
 }
 
+/// Represents the power state of a dynamic block.
 #[derive(Clone, Copy)]
 pub enum State {
+    /// The block is powered on.
     Enabled,
+    /// The block is powered off.
     Disabled,
 }
 
@@ -67,7 +71,7 @@ where
         Ok(())
     }
 
-    /// Set the functional blocks to disable during dynamic power down.
+    /// Sets the functional blocks to disable during dynamic power down.
     ///
     /// # Errors
     ///
@@ -96,7 +100,7 @@ where
         Ok(configuration.clone())
     }
 
-    /// Get the functional blocks to disable during dynamic power down.
+    /// Gets the functional blocks to disable during dynamic power down.
     ///
     /// # Errors
     ///

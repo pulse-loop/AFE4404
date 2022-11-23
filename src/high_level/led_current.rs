@@ -10,6 +10,7 @@ use crate::{
     AFE4404,
 };
 
+/// Represents the currents of the LEDs.
 #[derive(Debug)]
 pub struct LedCurrentConfiguration<MODE: LedMode> {
     led1: ElectricCurrent,
@@ -18,7 +19,33 @@ pub struct LedCurrentConfiguration<MODE: LedMode> {
     mode: std::marker::PhantomData<MODE>,
 }
 
+impl<MODE> LedCurrentConfiguration<MODE>
+where
+    MODE: LedMode,
+{
+    /// Gets an immutable reference of the current of LED1 from the `LedCurrentConfiguration`.
+    pub fn led1(&self) -> &ElectricCurrent {
+        &self.led1
+    }
+
+    /// Gets an immutable reference of the current of LED2 from the `LedCurrentConfiguration`.
+    pub fn led2(&self) -> &ElectricCurrent {
+        &self.led2
+    }
+
+    /// Gets a mutable reference of the current of LED1 from the `LedCurrentConfiguration`.
+    pub fn led1_mut(&mut self) -> &mut ElectricCurrent {
+        &mut self.led1
+    }
+
+    /// Gets a mutable reference of the current of LED2 from the `LedCurrentConfiguration`.
+    pub fn led2_mut(&mut self) -> &mut ElectricCurrent {
+        &mut self.led2
+    }
+}
+
 impl LedCurrentConfiguration<ThreeLedsMode> {
+    /// Creates a new `LedCurrentConfiguration` for the three LEDs mode.
     pub fn new(led1: ElectricCurrent, led2: ElectricCurrent, led3: ElectricCurrent) -> Self {
         Self {
             led1,
@@ -27,27 +54,20 @@ impl LedCurrentConfiguration<ThreeLedsMode> {
             mode: std::marker::PhantomData,
         }
     }
-    pub fn led1(&self) -> &ElectricCurrent {
-        &self.led1
-    }
-    pub fn led2(&self) -> &ElectricCurrent {
-        &self.led2
-    }
+
+    /// Gets an immutable reference of the current of LED3 from the `LedCurrentConfiguration`.
     pub fn led3(&self) -> &ElectricCurrent {
         &self.led3
     }
-    pub fn led1_mut(&mut self) -> &mut ElectricCurrent {
-        &mut self.led1
-    }
-    pub fn led2_mut(&mut self) -> &mut ElectricCurrent {
-        &mut self.led2
-    }
+
+    /// Gets a mutable reference of the current of LED3 from the `LedCurrentConfiguration`.
     pub fn led3_mut(&mut self) -> &mut ElectricCurrent {
         &mut self.led3
     }
 }
 
 impl LedCurrentConfiguration<TwoLedsMode> {
+    /// Creates a new `LedCurrentConfiguration` for the two LEDs mode.
     pub fn new(led1: ElectricCurrent, led2: ElectricCurrent) -> Self {
         Self {
             led1,
@@ -56,19 +76,9 @@ impl LedCurrentConfiguration<TwoLedsMode> {
             mode: std::marker::PhantomData,
         }
     }
-    pub fn led1(&self) -> &ElectricCurrent {
-        &self.led1
-    }
-    pub fn led2(&self) -> &ElectricCurrent {
-        &self.led2
-    }
-    pub fn led1_mut(&mut self) -> &mut ElectricCurrent {
-        &mut self.led1
-    }
-    pub fn led2_mut(&mut self) -> &mut ElectricCurrent {
-        &mut self.led2
-    }
 }
+
+/// Represents the offset currents of the LEDs.
 pub struct OffsetCurrentConfiguration<MODE: LedMode> {
     led1: ElectricCurrent,
     led2: ElectricCurrent,
@@ -77,7 +87,33 @@ pub struct OffsetCurrentConfiguration<MODE: LedMode> {
     mode: std::marker::PhantomData<MODE>,
 }
 
+impl<MODE> OffsetCurrentConfiguration<MODE>
+where
+    MODE: LedMode,
+{
+    /// Gets an immutable reference of the offset current of LED1.
+    pub fn led1(&self) -> &ElectricCurrent {
+        &self.led1
+    }
+
+    /// Gets an immutable reference of the offset current of LED2.
+    pub fn led2(&self) -> &ElectricCurrent {
+        &self.led2
+    }
+
+    /// Gets a mutable reference of the offset current of LED1.
+    pub fn led1_mut(&mut self) -> &mut ElectricCurrent {
+        &mut self.led1
+    }
+
+    /// Gets a mutable reference of the offset current of LED2.
+    pub fn led2_mut(&mut self) -> &mut ElectricCurrent {
+        &mut self.led2
+    }
+}
+
 impl OffsetCurrentConfiguration<ThreeLedsMode> {
+    /// Creates a new `OffsetCurrentConfiguration` for the three LEDs mode.
     pub fn new(
         led1: ElectricCurrent,
         led2: ElectricCurrent,
@@ -92,21 +128,30 @@ impl OffsetCurrentConfiguration<ThreeLedsMode> {
             mode: std::marker::PhantomData,
         }
     }
-    pub fn led1(&self) -> &ElectricCurrent {
-        &self.led1
-    }
-    pub fn led2(&self) -> &ElectricCurrent {
-        &self.led2
-    }
+
+    /// Gets an immutable reference of the offset current of LED3.
     pub fn led3(&self) -> &ElectricCurrent {
         &self.ambient2_or_led3
     }
+
+    /// Gets an immutable reference of the ambient offset current.
     pub fn ambient(&self) -> &ElectricCurrent {
         &self.ambient1
+    }
+
+    /// Gets a mutable reference of the offset current of LED3.
+    pub fn led3_mut(&mut self) -> &mut ElectricCurrent {
+        &mut self.ambient2_or_led3
+    }
+
+    /// Gets a mutable reference of the ambient offset current.
+    pub fn ambient_mut(&mut self) -> &mut ElectricCurrent {
+        &mut self.ambient1
     }
 }
 
 impl OffsetCurrentConfiguration<TwoLedsMode> {
+    /// Creates a new `OffsetCurrentConfiguration` for the two LEDs mode.
     pub fn new(
         led1: ElectricCurrent,
         led2: ElectricCurrent,
@@ -121,17 +166,25 @@ impl OffsetCurrentConfiguration<TwoLedsMode> {
             mode: std::marker::PhantomData,
         }
     }
-    pub fn led1(&self) -> &ElectricCurrent {
-        &self.led1
-    }
-    pub fn led2(&self) -> &ElectricCurrent {
-        &self.led2
-    }
+
+    /// Gets an immutable reference of the ambient1 offset current.
     pub fn ambient1(&self) -> &ElectricCurrent {
         &self.ambient1
     }
+
+    /// Gets an immutable reference of the ambient2 offset current.
     pub fn ambient2(&self) -> &ElectricCurrent {
         &self.ambient2_or_led3
+    }
+
+    /// Gets a mutable reference of the ambient1 offset current.
+    pub fn ambient1_mut(&mut self) -> &mut ElectricCurrent {
+        &mut self.ambient1
+    }
+
+    /// Gets a mutable reference of the ambient2 offset current.
+    pub fn ambient2_mut(&mut self) -> &mut ElectricCurrent {
+        &mut self.ambient2_or_led3
     }
 }
 
@@ -139,7 +192,7 @@ impl<I2C> AFE4404<I2C, ThreeLedsMode>
 where
     I2C: I2c<SevenBitAddress>,
 {
-    /// Set the LEDs current.
+    /// Sets the LEDs current.
     ///
     /// # Notes
     ///
@@ -202,7 +255,7 @@ where
         ))
     }
 
-    /// Get the LEDs current.
+    /// Gets the LEDs current.
     ///
     /// # Errors
     ///
@@ -227,11 +280,11 @@ where
         ))
     }
 
-    /// Set the offset cancellation currents.
+    /// Sets the offset cancellation currents.
     ///
     /// # Errors
     ///
-    /// This function will return an error if the I2C bus encounters an error.
+    /// This function returns an error if the I2C bus encounters an error.
     /// Setting a current value outside the range -7-7uA will result in an error.
     pub fn set_offset_current(
         &mut self,
@@ -291,13 +344,58 @@ where
             values[3].0 as f32 * quantisation * if values[3].1 { -1.0 } else { 1.0 },
         ))
     }
+
+    /// Gets the offset cancellation currents.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn get_offset_current(
+        &mut self,
+    ) -> Result<OffsetCurrentConfiguration<ThreeLedsMode>, AfeError<I2C::Error>> {
+        let r3ah_prev = self.registers.r3Ah.read()?;
+
+        let range = ElectricCurrent::new::<microampere>(7.0);
+        let quantisation = range / 15.0;
+
+        Ok(OffsetCurrentConfiguration::<ThreeLedsMode>::new(
+            r3ah_prev.i_offdac_led1() as f32
+                * quantisation
+                * if r3ah_prev.pol_offdac_led1() {
+                    -1.0
+                } else {
+                    1.0
+                },
+            r3ah_prev.i_offdac_led2() as f32
+                * quantisation
+                * if r3ah_prev.pol_offdac_led2() {
+                    -1.0
+                } else {
+                    1.0
+                },
+            r3ah_prev.i_offdac_amb2_or_i_offdac_led3() as f32
+                * quantisation
+                * if r3ah_prev.pol_offdac_amb2_or_pol_offdac_led3() {
+                    -1.0
+                } else {
+                    1.0
+                },
+            r3ah_prev.i_offdac_amb1() as f32
+                * quantisation
+                * if r3ah_prev.pol_offdac_amb1() {
+                    -1.0
+                } else {
+                    1.0
+                },
+        ))
+    }
 }
 
 impl<I2C> AFE4404<I2C, TwoLedsMode>
 where
     I2C: I2c<SevenBitAddress>,
 {
-    /// Set the LEDs current.
+    /// Sets the LEDs current.
     ///
     /// # Errors
     ///
@@ -349,6 +447,11 @@ where
         ))
     }
 
+    /// Gets the LEDs current.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
     pub fn get_leds_current(
         &mut self,
     ) -> Result<LedCurrentConfiguration<TwoLedsMode>, AfeError<I2C::Error>> {
@@ -369,6 +472,12 @@ where
         ))
     }
 
+    /// Sets the offset cancellation currents.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    /// Setting a current value outside the range -7-7uA will result in an error.
     pub fn set_offset_current(
         &mut self,
         configuration: &OffsetCurrentConfiguration<TwoLedsMode>,
@@ -425,6 +534,51 @@ where
             values[1].0 as f32 * quantisation * if values[1].1 { -1.0 } else { 1.0 },
             values[2].0 as f32 * quantisation * if values[2].1 { -1.0 } else { 1.0 },
             values[3].0 as f32 * quantisation * if values[3].1 { -1.0 } else { 1.0 },
+        ))
+    }
+
+    /// Gets the offset cancellation currents.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn get_offset_current(
+        &mut self,
+    ) -> Result<OffsetCurrentConfiguration<TwoLedsMode>, AfeError<I2C::Error>> {
+        let r3ah_prev = self.registers.r3Ah.read()?;
+
+        let range = ElectricCurrent::new::<microampere>(7.0);
+        let quantisation = range / 15.0;
+
+        Ok(OffsetCurrentConfiguration::<TwoLedsMode>::new(
+            r3ah_prev.i_offdac_led1() as f32
+                * quantisation
+                * if r3ah_prev.pol_offdac_led1() {
+                    -1.0
+                } else {
+                    1.0
+                },
+            r3ah_prev.i_offdac_led2() as f32
+                * quantisation
+                * if r3ah_prev.pol_offdac_led2() {
+                    -1.0
+                } else {
+                    1.0
+                },
+            r3ah_prev.i_offdac_amb1() as f32
+                * quantisation
+                * if r3ah_prev.pol_offdac_amb1() {
+                    -1.0
+                } else {
+                    1.0
+                },
+            r3ah_prev.i_offdac_amb2_or_i_offdac_led3() as f32
+                * quantisation
+                * if r3ah_prev.pol_offdac_amb2_or_pol_offdac_led3() {
+                    -1.0
+                } else {
+                    1.0
+                },
         ))
     }
 }

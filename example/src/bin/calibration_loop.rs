@@ -51,10 +51,14 @@ fn main() {
     )
     .expect("Failed to initialize I2C bus.");
 
-    let mut frontend = AFE4404::with_three_leds(i2c, 0x58u8, Frequency::new::<megahertz>(4.0));
+    let mut frontend = AFE4404::with_three_leds(i2c, 0x58u8);
 
     frontend.sw_reset().expect("Cannot reset the afe");
-
+    
+    frontend
+        .set_clock_source(&ClockConfiguration::Internal)
+        .unwrap();
+        
     frontend
         .set_timing_window(&MeasurementWindowConfiguration::<ThreeLedsMode>::new(
             Time::new::<microsecond>(10_000.0),
@@ -105,9 +109,6 @@ fn main() {
         ))
         .unwrap();
 
-    frontend
-        .set_clock_source(&ClockConfiguration::Internal)
-        .unwrap();
 
     struct Parameters {
         resistors: [ElectricalResistance; 8],

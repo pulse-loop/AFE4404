@@ -13,6 +13,7 @@ use crate::{
     R37h, R39h}, AFE4404,
 };
 
+/// Represents a period of the measurement window.
 #[derive(Debug)]
 pub struct MeasurementWindowConfiguration<MODE: LedMode> {
     period: Time,
@@ -24,16 +25,19 @@ impl<MODE> MeasurementWindowConfiguration<MODE>
 where
     MODE: LedMode,
 {
+    /// Gets an immutable reference of the period of the measurement window.
     pub fn period(&self) -> &Time {
         &self.period
     }
 
+    /// Gets an immutable reference of the inactive timing configuration.
     pub fn inactive_timing_configuration(&self) -> &PowerDownTiming {
         &self.inactive_timing_configuration
     }
 }
 
 impl MeasurementWindowConfiguration<ThreeLedsMode> {
+    /// Creates a new measurement window configuration for the three LEDs mode.
     pub fn new(
         period: Time,
         active_timing_configuration: ActiveTiming<ThreeLedsMode>,
@@ -46,12 +50,14 @@ impl MeasurementWindowConfiguration<ThreeLedsMode> {
         }
     }
 
+    /// Gets an immutable reference of the active timing configuration.
     pub fn active_timing_configuration(&self) -> &ActiveTiming<ThreeLedsMode> {
         &self.active_timing_configuration
     }
 }
 
 impl MeasurementWindowConfiguration<TwoLedsMode> {
+    /// Creates a new measurement window configuration for the two LEDs mode.
     pub fn new(
         period: Time,
         active_timing_configuration: ActiveTiming<TwoLedsMode>,
@@ -64,11 +70,13 @@ impl MeasurementWindowConfiguration<TwoLedsMode> {
         }
     }
 
+    /// Gets an immutable reference of the active timing configuration.
     pub fn active_timing_configuration(&self) -> &ActiveTiming<TwoLedsMode> {
         &self.active_timing_configuration
     }
 }
 
+/// Represents the active phase of the measurement window.
 #[derive(Debug)]
 pub struct ActiveTiming<MODE: LedMode> {
     led1: LedTiming,
@@ -80,6 +88,7 @@ pub struct ActiveTiming<MODE: LedMode> {
 }
 
 impl ActiveTiming<ThreeLedsMode> {
+    /// Creates a new active timing configuration for the three LEDs mode.
     pub fn new(led1: LedTiming, led2: LedTiming, led3: LedTiming, ambient: AmbientTiming) -> Self {
         ActiveTiming {
             led1,
@@ -93,6 +102,7 @@ impl ActiveTiming<ThreeLedsMode> {
 }
 
 impl ActiveTiming<TwoLedsMode> {
+    /// Creates a new active timing configuration for the two LEDs mode.
     pub fn new(led1: LedTiming, led2: LedTiming, ambient1: AmbientTiming, ambient2: AmbientTiming) -> Self {
         ActiveTiming {
             led1,
@@ -105,25 +115,41 @@ impl ActiveTiming<TwoLedsMode> {
     }
 }
 
+/// Represents the timings of a single LED phase.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct LedTiming {
+    /// The time at which the LED is turned on.
     pub led_st: Time,
+    /// The time at which the LED is turned off.
     pub led_end: Time,
+    /// The time at which the ADC starts sampling.
     pub sample_st: Time,
+    /// The time at which the ADC stops sampling.
     pub sample_end: Time,
+    /// The time at which the ADC starts resetting.
     pub reset_st: Time,
+    /// The time at which the ADC stops resetting.
     pub reset_end: Time,
+    /// The time at which the ADC starts converting.
     pub conv_st: Time,
+    /// The time at which the ADC stops converting.
     pub conv_end: Time,
 }
 
+/// Represents the timings of the ambient phase.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct AmbientTiming {
+    /// The time at which the ADC starts sampling.
     pub sample_st: Time,
+    /// The time at which the ADC stops sampling.
     pub sample_end: Time,
+    /// The time at which the ADC starts resetting.
     pub reset_st: Time,
+    /// The time at which the ADC stops resetting.
     pub reset_end: Time,
+    /// The time at which the ADC starts converting.
     pub conv_st: Time,
+    /// The time at which the ADC stops converting.
     pub conv_end: Time,
 }
 
@@ -143,13 +169,17 @@ impl From<AmbientTiming> for LedTiming {
     }
 }
 
+/// Represents the inactive phase of the measurement window.
 #[derive(Debug)]
 pub struct PowerDownTiming {
+    /// The time at which the dynamic blocks are powered down.
     pub power_down_st: Time,
+    /// The time at which the dynamic blocks are powered up.
     pub power_down_end: Time,
 }
 
 impl PowerDownTiming {
+    /// Creates a new power down timing configuration.
     pub fn new(power_down_st: Time, power_down_end: Time) -> Self {
         PowerDownTiming {
             power_down_st,
@@ -170,7 +200,7 @@ where
         clippy::too_many_lines
     )]
 
-    /// Set the LEDs timings.
+    /// Sets the LEDs timings.
     ///
     /// # Notes
     ///
@@ -405,11 +435,11 @@ where
         ))
     }
 
-    /// Get the LEDs timings.
+    /// Gets the LEDs timings.
     ///
     /// # Errors
     ///
-    /// This function returns an error if the I2C bus encounters an error.
+    /// This function returns an error if the I2C bus encounters an error or if the [`AFE4404`] contains invalid data.
     pub fn get_timing_window(
         &mut self,
     ) -> Result<MeasurementWindowConfiguration<ThreeLedsMode>, AfeError<I2C::Error>> {
@@ -522,7 +552,7 @@ where
         clippy::too_many_lines
     )]
 
-    /// Set the LEDs timings.
+    /// Sets the LEDs timings.
     ///
     /// # Notes
     ///
@@ -749,11 +779,11 @@ where
         ))
     }
 
-    /// Get the LEDs timings.
+    /// Gets the LEDs timings.
     ///
     /// # Errors
     ///
-    /// This function returns an error if the I2C bus encounters an error.
+    /// This function returns an error if the I2C bus encounters an error or if the [`AFE4404`] contains invalid data.
     pub fn get_timing_window(
         &mut self,
     ) -> Result<MeasurementWindowConfiguration<TwoLedsMode>, AfeError<I2C::Error>> {

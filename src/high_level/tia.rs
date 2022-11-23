@@ -9,15 +9,21 @@ use crate::afe4404::LedMode;
 use crate::errors::AfeError;
 use crate::AFE4404;
 
+/// Represents the feedback resistors of the TIA inside the [`AFE4404`].
 #[derive(Debug)]
 pub struct ResistorConfiguration {
+    /// The resistor used during sample LED1 and sample Ambient1 phases.
     pub resistor1: ElectricalResistance,
+    /// The resistor used during sample LED2 and sample Ambient2 or LED3 phases.
     pub resistor2: ElectricalResistance,
 }
 
+/// Represents the feedback capacitors of the TIA inside the [`AFE4404`].
 #[derive(Debug)]
 pub struct CapacitorConfiguration {
+    /// The capacitor used during sample LED1 and sample Ambient1 phases.
     pub capacitor1: Capacitance,
+    /// The capacitor used during sample LED2 and sample Ambient2 or LED3 phases.
     pub capacitor2: Capacitance,
 }
 
@@ -26,10 +32,7 @@ where
     I2C: I2c<SevenBitAddress>,
     MODE: LedMode,
 {
-    /// Set the tia resistors value.
-    ///
-    /// `resistor1` is used during sample LED1 and sample Ambient1 phases,
-    /// `resistor2` is used during sample LED2 and sample Ambient2 or LED3 phases.
+    /// Sets the tia resistors value.
     ///
     /// # Notes
     ///
@@ -82,14 +85,11 @@ where
         })
     }
 
-    /// Get the tia resistors value.
-    ///
-    /// `resistor1` is used during sample LED1 and sample Ambient1 phases,
-    /// `resistor2` is used during sample LED2 and sample Ambient2 or LED3 phases.
+    /// Gets the tia resistors value.
     ///
     /// # Errors
     ///
-    /// This function returns an error if the I2C bus encounters an error.
+    /// This function returns an error if the I2C bus encounters an error or if the [`AFE4404`] contains invalid data.
     pub fn get_tia_resistors(&mut self) -> Result<ResistorConfiguration, AfeError<I2C::Error>> {
         let r20h_prev = self.registers.r20h.read()?;
         let r21h_prev = self.registers.r21h.read()?;
@@ -122,10 +122,7 @@ where
         })
     }
 
-    /// Set the tia capacitors value.
-    ///
-    /// `capacitor1` is used during sample LED1 and sample Ambient1 phases,
-    /// `capacitor2` is used during sample LED2 and sample Ambient2 or LED3 phases.
+    /// Sets the tia capacitors value.
     ///
     /// # Notes
     ///
@@ -178,14 +175,11 @@ where
         })
     }
 
-    /// Set the tia capacitors value.
-    ///
-    /// `capacitor1` is used during sample LED1 and sample Ambient1 phases,
-    /// `capacitor2` is used during sample LED2 and sample Ambient2 or LED3 phases.
+    /// Gets the tia capacitors value.
     ///
     /// # Errors
     ///
-    /// This function returns an error if the I2C bus encounters an error.
+    /// This function returns an error if the I2C bus encounters an error or if the [`AFE4404`] contains invalid data.
     pub fn get_tia_capacitors(&mut self) -> Result<CapacitorConfiguration, AfeError<I2C::Error>> {
         let r20h_prev = self.registers.r20h.read()?;
         let r21h_prev = self.registers.r21h.read()?;

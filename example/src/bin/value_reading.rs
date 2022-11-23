@@ -36,7 +36,7 @@ fn main() {
     let peripherals = Peripherals::take().unwrap();
 
     let config = MasterConfig::new().baudrate(100.kHz().into());
-
+    
     let i2c = Master::new(
         peripherals.i2c0,
         MasterPins {
@@ -46,10 +46,14 @@ fn main() {
         config,
     )
     .expect("Failed to initialize I2C bus.");
-
-    let mut frontend = AFE4404::with_three_leds(i2c, 0x58u8, Frequency::new::<megahertz>(4.0));
+    
+    let mut frontend = AFE4404::with_three_leds(i2c, 0x58u8);
 
     frontend.sw_reset().expect("Cannot reset the afe");
+    
+    frontend
+            .set_clock_source(&ClockConfiguration::Internal)
+            .expect("Cannot set clock source");
 
     frontend
         .set_leds_current(&LedCurrentConfiguration::<ThreeLedsMode>::new(
@@ -131,10 +135,6 @@ fn main() {
             },
         ))
         .expect("Cannot set timing window");
-
-    frontend
-        .set_clock_source(&ClockConfiguration::Internal)
-        .expect("Cannot set clock source");
 
     let mut delay = esp_idf_hal::delay::Ets;
     delay.delay_ms(200).unwrap();

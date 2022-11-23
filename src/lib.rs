@@ -1,4 +1,4 @@
-// #![warn(missing_docs, unreachable_pub)]
+#![warn(missing_docs, unreachable_pub)]
 // TODO: Add documentation.
 #![warn(clippy::pedantic)]
 #![warn(clippy::cargo)]
