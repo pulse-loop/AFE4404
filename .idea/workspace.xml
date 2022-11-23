@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="CargoProjects">
+    <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
+    <cargoProject FILE="$PROJECT_DIR$/example/Cargo.toml" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3a44c919-ff8d-4d7c-8081-daa589e35415" name="Changes" comment="Fixed some bugs.">
+      <change beforePath="$PROJECT_DIR$/example/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/example/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/example/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/afe4404.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/afe4404.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/high_level/adc.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/high_level/adc.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/high_level/clock.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/high_level/clock.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/high_level/led_current.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/high_level/led_current.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/high_level/system.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/high_level/system.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/high_level/tia.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/high_level/tia.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/high_level/timing_window.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/high_level/timing_window.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/high_level/value_reading.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/high_level/value_reading.rs" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="gk6aks50" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2G7ePaswmQVla43wzgy1RfssJM7" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RustProjectSettings">
+    <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
+    <option name="version" value="2" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3a44c919-ff8d-4d7c-8081-daa589e35415" name="Changes" comment="" />
+      <created>1665744025978</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1665744025978</updated>
+      <workItem from="1665750618522" duration="3084000" />
+      <workItem from="1665759065510" duration="789000" />
+      <workItem from="1665760296571" duration="4078000" />
+      <workItem from="1665766453935" duration="1685000" />
+      <workItem from="1665928841008" duration="6241000" />
+      <workItem from="1666087404545" duration="9437000" />
+      <workItem from="1666265189057" duration="2367000" />
+    </task>
+    <task id="LOCAL-00001" summary="Fixed register value reading.">
+      <created>1666103144589</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1666103144589</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Fixed clock source setting.">
+      <created>1666103315951</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1666103315951</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Fixed some bugs.">
+      <created>1666266537941</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1666266537942</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="Fixed register value reading." />
+    <MESSAGE value="Fixed clock source setting." />
+    <MESSAGE value="Fixed some bugs." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed some bugs." />
+  </component>
+</project>
