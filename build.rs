@@ -90,7 +90,7 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
 
         for (name, length) in register.data.iter() {
             if name == "0" {
-                let field = Field::new(&*format!("__{}", skips), format!("B{}", length))
+                let field = Field::new(&format!("__{}", skips), format!("B{}", length))
                     .annotation("#[skip]")
                     .to_owned();
                 skips += 1;

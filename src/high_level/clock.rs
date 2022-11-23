@@ -40,7 +40,7 @@ where
             .r23h
             .write(r23h_prev.with_osc_enable(internal))?;
 
-        Ok(configuration.clone())
+        Ok(*configuration)
     }
 
     /// Get the clock source.
@@ -51,9 +51,10 @@ where
     pub fn get_clock_source(&mut self) -> Result<ClockConfiguration, AfeError<I2C::Error>> {
         let r23h_prev = self.registers.r23h.read()?;
 
-        Ok(match r23h_prev.osc_enable() {
-            true => ClockConfiguration::Internal,
-            false => ClockConfiguration::External,
+        Ok(if r23h_prev.osc_enable() {
+            ClockConfiguration::Internal
+        } else {
+            ClockConfiguration::External
         })
     }
 

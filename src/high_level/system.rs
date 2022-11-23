@@ -11,10 +11,23 @@ pub struct DynamicConfiguration {
     rest_of_adc: State,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum State {
     Enabled,
     Disabled,
+}
+
+impl From<bool> for State {
+    fn from(val: bool) -> Self {
+        // Attention: negative logic!
+        if val { State::Disabled } else { State::Enabled }
+    }
+}
+
+impl From<State> for bool {
+    fn from(val: State) -> Self {
+        val == State::Disabled
+    }
 }
 
 impl<I2C, MODE> AFE4404<I2C, MODE>
@@ -54,7 +67,7 @@ where
     ///
     /// # Notes
     ///
-    /// After calling this function, a wait time of tCHANNEL should be applied before high-accuracy readings.
+    /// After calling this function, a wait time of `tCHANNEL` should be applied before high-accuracy readings.
     ///
     /// # Errors
     ///
@@ -76,24 +89,18 @@ where
         &mut self,
         configuration: &DynamicConfiguration,
     ) -> Result<DynamicConfiguration, AfeError<I2C::Error>> {
-        fn is_powered_down(state: State) -> bool {
-            match state {
-                State::Enabled => false,
-                State::Disabled => true,
-            }
-        }
 
         let r23h_prev = self.registers.r23h.read()?;
 
         self.registers.r23h.write(
             r23h_prev
-                .with_dynamic1(is_powered_down(configuration.transmitter))
-                .with_dynamic2(is_powered_down(configuration.adc))
-                .with_dynamic3(is_powered_down(configuration.tia))
-                .with_dynamic4(is_powered_down(configuration.rest_of_adc)),
+                .with_dynamic1(configuration.transmitter.into())
+                .with_dynamic2(configuration.adc.into())
+                .with_dynamic3(configuration.tia.into())
+                .with_dynamic4(configuration.rest_of_adc.into()),
         )?;
 
-        Ok(configuration.clone())
+        Ok(*configuration)
     }
 
     /// Get the functional blocks to disable during dynamic power down.
@@ -102,20 +109,13 @@ where
     ///
     /// This function returns an error if the I2C bus encounters an error.
     pub fn get_dynamic(&mut self) -> Result<DynamicConfiguration, AfeError<I2C::Error>> {
-        fn is_powered_down(state: bool) -> State {
-            match state {
-                false => State::Enabled,
-                true => State::Disabled,
-            }
-        }
-
         let r23h_prev = self.registers.r23h.read()?;
 
         Ok(DynamicConfiguration {
-            transmitter: is_powered_down(r23h_prev.dynamic1()),
-            adc: is_powered_down(r23h_prev.dynamic2()),
-            tia: is_powered_down(r23h_prev.dynamic3()),
-            rest_of_adc: is_powered_down(r23h_prev.dynamic4()),
+            transmitter: r23h_prev.dynamic1().into(),
+            adc: r23h_prev.dynamic2().into(),
+            tia: r23h_prev.dynamic3().into(),
+            rest_of_adc: r23h_prev.dynamic4().into(),
         })
     }
 }

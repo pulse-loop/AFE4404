@@ -415,6 +415,7 @@ where
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error.
+    #[allow(clippy::similar_names)]
     pub fn get_timing_window(
         &mut self,
     ) -> Result<MeasurementWindowConfiguration<ThreeLedsMode>, AfeError<I2C::Error>> {
@@ -532,7 +533,7 @@ where
     /// # Notes
     ///
     /// This function automatically enables the timer engine.
-    /// After calling this function, a wait time of tCHANNEL should be applied before high-accuracy readings.
+    /// After calling this function, a wait time of `tCHANNEL` should be applied before high-accuracy readings.
     ///
     /// # Errors
     ///
@@ -759,6 +760,7 @@ where
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error.
+    #[allow(clippy::similar_names)]
     pub fn get_timing_window(
         &mut self,
     ) -> Result<MeasurementWindowConfiguration<TwoLedsMode>, AfeError<I2C::Error>> {

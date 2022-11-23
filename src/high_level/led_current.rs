@@ -15,7 +15,7 @@ pub struct LedCurrentConfiguration<MODE: LedMode> {
     led1: ElectricCurrent,
     led2: ElectricCurrent,
     led3: ElectricCurrent,
-    mode: std::marker::PhantomData<MODE>,
+    mode: core::marker::PhantomData<MODE>,
 }
 
 impl LedCurrentConfiguration<ThreeLedsMode> {
@@ -24,7 +24,7 @@ impl LedCurrentConfiguration<ThreeLedsMode> {
             led1,
             led2,
             led3,
-            mode: std::marker::PhantomData,
+            mode: core::marker::PhantomData,
         }
     }
     pub fn led1(&self) -> &ElectricCurrent {
@@ -53,7 +53,7 @@ impl LedCurrentConfiguration<TwoLedsMode> {
             led1,
             led2,
             led3: ElectricCurrent::new::<ampere>(0.0),
-            mode: std::marker::PhantomData,
+            mode: core::marker::PhantomData,
         }
     }
     pub fn led1(&self) -> &ElectricCurrent {
@@ -74,7 +74,7 @@ pub struct OffsetCurrentConfiguration<MODE: LedMode> {
     led2: ElectricCurrent,
     ambient1: ElectricCurrent,
     ambient2_or_led3: ElectricCurrent,
-    mode: std::marker::PhantomData<MODE>,
+    mode: core::marker::PhantomData<MODE>,
 }
 
 impl OffsetCurrentConfiguration<ThreeLedsMode> {
@@ -89,7 +89,7 @@ impl OffsetCurrentConfiguration<ThreeLedsMode> {
             led2,
             ambient1: ambient,
             ambient2_or_led3: led3,
-            mode: std::marker::PhantomData,
+            mode: core::marker::PhantomData,
         }
     }
     pub fn led1(&self) -> &ElectricCurrent {
