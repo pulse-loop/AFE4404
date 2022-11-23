@@ -1,4 +1,4 @@
-use embedded_hal::i2c::blocking::I2c;
+use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 use uom::si::electric_current::{ampere, microampere, milliampere};
 use uom::si::f32::ElectricCurrent;
@@ -16,7 +16,7 @@ pub struct LedCurrentConfiguration<MODE: LedMode> {
     led1: ElectricCurrent,
     led2: ElectricCurrent,
     led3: ElectricCurrent,
-    mode: std::marker::PhantomData<MODE>,
+    mode: core::marker::PhantomData<MODE>,
 }
 
 impl<MODE> LedCurrentConfiguration<MODE>
@@ -51,7 +51,7 @@ impl LedCurrentConfiguration<ThreeLedsMode> {
             led1,
             led2,
             led3,
-            mode: std::marker::PhantomData,
+            mode: core::marker::PhantomData,
         }
     }
 
@@ -73,7 +73,7 @@ impl LedCurrentConfiguration<TwoLedsMode> {
             led1,
             led2,
             led3: ElectricCurrent::new::<ampere>(0.0),
-            mode: std::marker::PhantomData,
+            mode: core::marker::PhantomData,
         }
     }
 }
@@ -84,7 +84,7 @@ pub struct OffsetCurrentConfiguration<MODE: LedMode> {
     led2: ElectricCurrent,
     ambient1: ElectricCurrent,
     ambient2_or_led3: ElectricCurrent,
-    mode: std::marker::PhantomData<MODE>,
+    mode: core::marker::PhantomData<MODE>,
 }
 
 impl<MODE> OffsetCurrentConfiguration<MODE>
@@ -125,7 +125,7 @@ impl OffsetCurrentConfiguration<ThreeLedsMode> {
             led2,
             ambient1: ambient,
             ambient2_or_led3: led3,
-            mode: std::marker::PhantomData,
+            mode: core::marker::PhantomData,
         }
     }
 

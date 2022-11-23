@@ -11,6 +11,6 @@ anyhow = { version = "1.0.65" }
 
 [dependencies]
 afe4404 = { path = ".." }
-embedded-hal = { version = "1.0.0-alpha.8" }
-esp-idf-hal = { version = "0.38.1" }
-esp-idf-sys = { version = "0.31.9", features = ["native", "binstart"] }
+embedded-hal = { version = "1.0.0-alpha.9" }
+esp-idf-hal = { version = "0.39.2" }
+esp-idf-sys = { version = "0.31.11", features = ["native", "binstart"] }
