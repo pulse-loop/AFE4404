@@ -24,7 +24,11 @@ pub enum State {
 impl From<bool> for State {
     fn from(val: bool) -> Self {
         // Attention: negative logic!
-        if val { State::Disabled } else { State::Enabled }
+        if val {
+            State::Disabled
+        } else {
+            State::Enabled
+        }
     }
 }
 
@@ -93,7 +97,6 @@ where
         &mut self,
         configuration: &DynamicConfiguration,
     ) -> Result<DynamicConfiguration, AfeError<I2C::Error>> {
-
         let r23h_prev = self.registers.r23h.read()?;
 
         self.registers.r23h.write(
