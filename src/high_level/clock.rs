@@ -15,10 +15,7 @@ pub enum ClockConfiguration {
         division_ratio: u8,
     },
     /// The clock is driven by an external oscillator.
-    External {
-        /// The frequency of the external oscillator.
-        frequency: Frequency,
-    },
+    External,
 }
 
 impl<I2C, MODE> AFE4404<I2C, MODE>
@@ -31,26 +28,29 @@ where
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error.
-    /// Setting a division ratio greater than 128 will result in an error.
+    /// Setting an internal clock value different from 4MHz will result in an error.
+    /// Setting an output clock division ratio greater than 128 will result in an error.
     pub fn set_clock_source(
         &mut self,
         configuration: &ClockConfiguration,
     ) -> Result<ClockConfiguration, AfeError<I2C::Error>> {
         let r23h_prev = self.registers.r23h.read()?;
 
-        let (internal, frequency, output, reg_ratio) = match configuration {
-            ClockConfiguration::Internal => (true, Frequency::new::<megahertz>(4.0), false, 0),
+        let (internal, output, reg_ratio) = match configuration {
+            ClockConfiguration::Internal => (true, false, 0),
             ClockConfiguration::InternalToOutput { division_ratio } => {
                 let reg_ratio = (*division_ratio as f32).log2().round() as u8;
                 if reg_ratio > 7 {
-                    return Err(AfeError::DivisionRatioOutsideAllowedRange);
+                    return Err(AfeError::ClockDivisionRatioOutsideAllowedRange);
                 }
-                (true, Frequency::new::<megahertz>(4.0), true, reg_ratio)
+                (true, true, reg_ratio)
             }
-            ClockConfiguration::External { frequency } => (false, *frequency, false, 0),
+            ClockConfiguration::External => (false, false, 0),
         };
 
-        self.clock = frequency;
+        if internal && self.clock != Frequency::new::<megahertz>(4.0) {
+            return Err(AfeError::IncorrectInternalClock);
+        }
 
         self.registers
             .r23h
@@ -69,9 +69,7 @@ where
                     division_ratio: 2 ^ reg_ratio,
                 }
             }
-            ClockConfiguration::External { frequency } => ClockConfiguration::External {
-                frequency: *frequency,
-            },
+            ClockConfiguration::External => ClockConfiguration::External,
         })
     }
 
@@ -93,9 +91,7 @@ where
                 ClockConfiguration::Internal
             }
         } else {
-            ClockConfiguration::External {
-                frequency: Frequency::new::<megahertz>(4.0),
-            }
+            ClockConfiguration::External
         })
     }
 }
