@@ -1,5 +1,5 @@
-use core::marker::PhantomData;
 use core::cell::RefCell;
+use core::marker::PhantomData;
 use std::rc::Rc;
 
 use embedded_hal::i2c::{I2c, SevenBitAddress};
@@ -19,7 +19,6 @@ where
     I2C: I2c,
     BF: RegisterWritable,
 {
-
     /// Creates a new [`Register<I2C, BF>`] given a physical and memory address, associated to the specified I2C interface.
     pub(crate) fn new(reg_addr: u8, phy_addr: SevenBitAddress, i2c: Rc<RefCell<I2C>>) -> Self {
         Self {
@@ -29,7 +28,6 @@ where
             i2c,
         }
     }
-
 
     /// Reads the contents of this [`Register<I2C, BF>`].
     ///
