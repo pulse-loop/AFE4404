@@ -1,4 +1,4 @@
-use uom::si::f32::{ElectricalResistance, Capacitance};
+use uom::si::f32::{Capacitance, ElectricalResistance};
 
 /// Represents the feedback resistors of the TIA inside the [`AFE4404`].
 #[derive(Debug)]

@@ -11,9 +11,9 @@ use crate::register_block::RegisterBlock;
 pub mod adc;
 pub mod clock;
 pub mod led_current;
+pub mod measurement_window;
 pub mod system;
 pub mod tia;
-pub mod measurement_window;
 pub mod value_reading;
 
 /// Uninitialized mode.

@@ -141,9 +141,7 @@ where
                 configuration.led2().value < 0.0,
             ),
             (
-                (configuration.led3().abs() / quantisation)
-                    .value
-                    .round() as u8,
+                (configuration.led3().abs() / quantisation).value.round() as u8,
                 configuration.led3().value < 0.0,
             ),
             (
@@ -333,7 +331,9 @@ where
                 configuration.led2().value < 0.0,
             ),
             (
-                (configuration.ambient1().abs() / quantisation).value.round() as u8,
+                (configuration.ambient1().abs() / quantisation)
+                    .value
+                    .round() as u8,
                 configuration.ambient1().value < 0.0,
             ),
             (

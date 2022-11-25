@@ -1,4 +1,4 @@
-use uom::si::{f32::ElectricPotential, electric_potential::volt};
+use uom::si::{electric_potential::volt, f32::ElectricPotential};
 
 use crate::afe4404::{LedMode, ThreeLedsMode, TwoLedsMode};
 

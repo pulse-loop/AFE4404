@@ -1,4 +1,4 @@
-use uom::si::{f32::ElectricCurrent, electric_current::milliampere};
+use uom::si::{electric_current::milliampere, f32::ElectricCurrent};
 
 use crate::afe4404::{LedMode, ThreeLedsMode, TwoLedsMode};
 
