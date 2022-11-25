@@ -9,14 +9,18 @@ use esp_idf_hal::{
 };
 
 use afe4404::{
-    afe4404::ThreeLedsMode,
-    high_level::{
+    afe4404::{
         clock::ClockConfiguration,
         led_current::{LedCurrentConfiguration, OffsetCurrentConfiguration},
-        tia::{CapacitorConfiguration, ResistorConfiguration},
-        timing_window::{
+        measurement_window::{
             ActiveTiming, AmbientTiming, LedTiming, MeasurementWindowConfiguration, PowerDownTiming,
         },
+        system::{
+            DynamicConfiguration,
+            State::{Disabled, Enabled},
+        },
+        tia::{CapacitorConfiguration, ResistorConfiguration},
+        ThreeLedsMode, AFE4404,
     },
     uom::si::{
         capacitance::picofarad,
@@ -26,7 +30,6 @@ use afe4404::{
         frequency::megahertz,
         time::microsecond,
     },
-    AFE4404,
 };
 
 static DATA_READY: AtomicBool = AtomicBool::new(false);
@@ -55,8 +58,8 @@ fn main() {
     frontend
         .set_leds_current(&LedCurrentConfiguration::<ThreeLedsMode>::new(
             ElectricCurrent::new::<milliampere>(30.0),
-            ElectricCurrent::new::<milliampere>(30.0),
-            ElectricCurrent::new::<milliampere>(30.0),
+            ElectricCurrent::new::<milliampere>(2.0),
+            ElectricCurrent::new::<milliampere>(2.0),
         ))
         .expect("Cannot set leds current");
 
@@ -82,6 +85,15 @@ fn main() {
             capacitor2: Capacitance::new::<picofarad>(5.0),
         })
         .expect("Cannot set tia capacitors");
+
+    frontend
+        .set_dynamic(&DynamicConfiguration {
+            transmitter: Disabled,
+            adc: Disabled,
+            tia: Enabled,
+            rest_of_adc: Enabled,
+        })
+        .unwrap();
 
     frontend
         .set_timing_window(&MeasurementWindowConfiguration::<ThreeLedsMode>::new(
@@ -140,7 +152,9 @@ fn main() {
     let mut delay = esp_idf_hal::delay::Ets;
     delay.delay_ms(200).unwrap();
 
-    interrupt_pin.set_interrupt_type(esp_idf_hal::gpio::InterruptType::PosEdge).unwrap();
+    interrupt_pin
+        .set_interrupt_type(esp_idf_hal::gpio::InterruptType::PosEdge)
+        .unwrap();
 
     unsafe {
         interrupt_pin

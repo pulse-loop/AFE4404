@@ -1,197 +1,23 @@
 use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
-use uom::si::{f32::Time, time::second};
+use uom::si::f32::Time;
 
+use super::AFE4404;
 use crate::{
-    afe4404::{LedMode, ThreeLedsMode, TwoLedsMode},
+    afe4404::{ThreeLedsMode, TwoLedsMode},
     errors::AfeError,
     register_structs::{
         R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh, R0Eh, R0Fh,
         R10h, R11h, R12h, R13h, R14h, R15h, R16h, R17h, R18h, R19h, R1Ah, R1Bh, R1Ch, R1Dh, R32h,
         R33h, R36h, R37h, R39h,
     },
-    AFE4404,
 };
 
-/// Represents a period of the measurement window.
-#[derive(Debug)]
-pub struct MeasurementWindowConfiguration<MODE: LedMode> {
-    period: Time,
-    active_timing_configuration: ActiveTiming<MODE>,
-    inactive_timing_configuration: PowerDownTiming,
-}
+pub use configuration::{
+    ActiveTiming, AmbientTiming, LedTiming, MeasurementWindowConfiguration, PowerDownTiming,
+};
 
-impl<MODE> MeasurementWindowConfiguration<MODE>
-where
-    MODE: LedMode,
-{
-    /// Gets an immutable reference of the period of the measurement window.
-    pub fn period(&self) -> &Time {
-        &self.period
-    }
-
-    /// Gets an immutable reference of the inactive timing configuration.
-    pub fn inactive_timing_configuration(&self) -> &PowerDownTiming {
-        &self.inactive_timing_configuration
-    }
-}
-
-impl MeasurementWindowConfiguration<ThreeLedsMode> {
-    /// Creates a new measurement window configuration for the three LEDs mode.
-    pub fn new(
-        period: Time,
-        active_timing_configuration: ActiveTiming<ThreeLedsMode>,
-        inactive_timing_configuration: PowerDownTiming,
-    ) -> MeasurementWindowConfiguration<ThreeLedsMode> {
-        MeasurementWindowConfiguration {
-            period,
-            active_timing_configuration,
-            inactive_timing_configuration,
-        }
-    }
-
-    /// Gets an immutable reference of the active timing configuration.
-    pub fn active_timing_configuration(&self) -> &ActiveTiming<ThreeLedsMode> {
-        &self.active_timing_configuration
-    }
-}
-
-impl MeasurementWindowConfiguration<TwoLedsMode> {
-    /// Creates a new measurement window configuration for the two LEDs mode.
-    pub fn new(
-        period: Time,
-        active_timing_configuration: ActiveTiming<TwoLedsMode>,
-        inactive_timing_configuration: PowerDownTiming,
-    ) -> MeasurementWindowConfiguration<TwoLedsMode> {
-        MeasurementWindowConfiguration {
-            period,
-            active_timing_configuration,
-            inactive_timing_configuration,
-        }
-    }
-
-    /// Gets an immutable reference of the active timing configuration.
-    pub fn active_timing_configuration(&self) -> &ActiveTiming<TwoLedsMode> {
-        &self.active_timing_configuration
-    }
-}
-
-/// Represents the active phase of the measurement window.
-#[derive(Debug)]
-pub struct ActiveTiming<MODE: LedMode> {
-    led1: LedTiming,
-    led2: LedTiming,
-    led3: LedTiming,
-    ambient1: AmbientTiming,
-    ambient2: AmbientTiming,
-    mode: std::marker::PhantomData<MODE>,
-}
-
-impl ActiveTiming<ThreeLedsMode> {
-    /// Creates a new active timing configuration for the three LEDs mode.
-    pub fn new(led1: LedTiming, led2: LedTiming, led3: LedTiming, ambient: AmbientTiming) -> Self {
-        ActiveTiming {
-            led1,
-            led2,
-            led3,
-            ambient1: ambient,
-            ambient2: Default::default(),
-            mode: std::marker::PhantomData,
-        }
-    }
-}
-
-impl ActiveTiming<TwoLedsMode> {
-    /// Creates a new active timing configuration for the two LEDs mode.
-    pub fn new(
-        led1: LedTiming,
-        led2: LedTiming,
-        ambient1: AmbientTiming,
-        ambient2: AmbientTiming,
-    ) -> Self {
-        ActiveTiming {
-            led1,
-            led2,
-            led3: Default::default(),
-            ambient1,
-            ambient2,
-            mode: std::marker::PhantomData,
-        }
-    }
-}
-
-/// Represents the timings of a single LED phase.
-#[derive(Clone, Copy, Debug, Default)]
-pub struct LedTiming {
-    /// The time at which the LED is turned on.
-    pub led_st: Time,
-    /// The time at which the LED is turned off.
-    pub led_end: Time,
-    /// The time at which the ADC starts sampling.
-    pub sample_st: Time,
-    /// The time at which the ADC stops sampling.
-    pub sample_end: Time,
-    /// The time at which the ADC starts resetting.
-    pub reset_st: Time,
-    /// The time at which the ADC stops resetting.
-    pub reset_end: Time,
-    /// The time at which the ADC starts converting.
-    pub conv_st: Time,
-    /// The time at which the ADC stops converting.
-    pub conv_end: Time,
-}
-
-/// Represents the timings of the ambient phase.
-#[derive(Clone, Copy, Debug, Default)]
-pub struct AmbientTiming {
-    /// The time at which the ADC starts sampling.
-    pub sample_st: Time,
-    /// The time at which the ADC stops sampling.
-    pub sample_end: Time,
-    /// The time at which the ADC starts resetting.
-    pub reset_st: Time,
-    /// The time at which the ADC stops resetting.
-    pub reset_end: Time,
-    /// The time at which the ADC starts converting.
-    pub conv_st: Time,
-    /// The time at which the ADC stops converting.
-    pub conv_end: Time,
-}
-
-impl From<AmbientTiming> for LedTiming {
-    fn from(other: AmbientTiming) -> Self {
-        Self {
-            led_st: Time::new::<second>(0.0),
-            led_end: Time::new::<second>(0.0),
-            sample_st: other.sample_st,
-
-            sample_end: other.sample_end,
-            reset_st: other.reset_st,
-            reset_end: other.reset_end,
-            conv_st: other.conv_st,
-            conv_end: other.conv_end,
-        }
-    }
-}
-
-/// Represents the inactive phase of the measurement window.
-#[derive(Debug)]
-pub struct PowerDownTiming {
-    /// The time at which the dynamic blocks are powered down.
-    pub power_down_st: Time,
-    /// The time at which the dynamic blocks are powered up.
-    pub power_down_end: Time,
-}
-
-impl PowerDownTiming {
-    /// Creates a new power down timing configuration.
-    pub fn new(power_down_st: Time, power_down_end: Time) -> Self {
-        PowerDownTiming {
-            power_down_st,
-            power_down_end,
-        }
-    }
-}
+mod configuration;
 
 impl<I2C> AFE4404<I2C, ThreeLedsMode>
 where
@@ -233,7 +59,7 @@ where
 
         let r1eh_prev = self.registers.r1Eh.read()?;
 
-        let clk_div = ((configuration.period * self.clock).value / 65536.0).ceil() as u8;
+        let clk_div = ((*configuration.period() * self.clock).value / 65536.0).ceil() as u8;
         let clk_div: (f32, u8) = match clk_div {
             1 => (1.0, 0), // (division ratio, register value).
             2 => (2.0, 4),
@@ -244,15 +70,15 @@ where
         };
         let period_clk: Time = 1.0 / self.clock;
         let period_clk_div: Time = period_clk * clk_div.0;
-        let counter: f32 = (configuration.period / period_clk_div).value;
+        let counter: f32 = (*configuration.period() / period_clk_div).value;
         let counter_max_value: u16 = counter.round() as u16 - 1;
-        let quantisation: Time = configuration.period / counter;
+        let quantisation: Time = *configuration.period() / counter;
 
         let active_values: Vec<QuantisedValues> = [
-            configuration.active_timing_configuration.led2,
-            configuration.active_timing_configuration.led3,
-            configuration.active_timing_configuration.led1,
-            configuration.active_timing_configuration.ambient1.into(),
+            *configuration.active_timing_configuration().led2(),
+            *configuration.active_timing_configuration().led3(),
+            *configuration.active_timing_configuration().led1(),
+            (*configuration.active_timing_configuration().ambient()).into(),
         ]
         .iter()
         .map(|timing| QuantisedValues {
@@ -268,10 +94,10 @@ where
         .collect();
 
         let power_down_values = [
-            (configuration.inactive_timing_configuration.power_down_st / quantisation)
+            (configuration.inactive_timing_configuration().power_down_st / quantisation)
                 .value
                 .round() as u16,
-            (configuration.inactive_timing_configuration.power_down_end / quantisation)
+            (configuration.inactive_timing_configuration().power_down_end / quantisation)
                 .value
                 .round() as u16,
         ];
@@ -585,7 +411,7 @@ where
 
         let r1eh_prev = self.registers.r1Eh.read()?;
 
-        let clk_div = ((configuration.period * self.clock).value / 65536.0).ceil() as u8;
+        let clk_div = ((*configuration.period() * self.clock).value / 65536.0).ceil() as u8;
         let clk_div: (f32, u8) = match clk_div {
             1 => (1.0, 0), // (division ratio, register value).
             2 => (2.0, 4),
@@ -596,15 +422,15 @@ where
         };
         let period_clk: Time = 1.0 / self.clock;
         let period_clk_div: Time = period_clk * clk_div.0;
-        let counter: f32 = (configuration.period / period_clk_div).value;
+        let counter: f32 = (*configuration.period() / period_clk_div).value;
         let counter_max_value: u16 = counter.round() as u16 - 1;
-        let quantisation: Time = configuration.period / counter;
+        let quantisation: Time = *configuration.period() / counter;
 
         let active_values: Vec<QuantisedValues> = [
-            configuration.active_timing_configuration.led2,
-            configuration.active_timing_configuration.ambient2.into(),
-            configuration.active_timing_configuration.led1,
-            configuration.active_timing_configuration.ambient1.into(),
+            *configuration.active_timing_configuration().led2(),
+            (*configuration.active_timing_configuration().ambient2()).into(),
+            *configuration.active_timing_configuration().led1(),
+            (*configuration.active_timing_configuration().ambient1()).into(),
         ]
         .iter()
         .map(|timing| QuantisedValues {
@@ -620,10 +446,10 @@ where
         .collect();
 
         let power_down_values = [
-            (configuration.inactive_timing_configuration.power_down_st / quantisation)
+            (configuration.inactive_timing_configuration().power_down_st / quantisation)
                 .value
                 .round() as u16,
-            (configuration.inactive_timing_configuration.power_down_end / quantisation)
+            (configuration.inactive_timing_configuration().power_down_end / quantisation)
                 .value
                 .round() as u16,
         ];

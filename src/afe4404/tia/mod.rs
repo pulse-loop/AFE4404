@@ -1,31 +1,18 @@
 use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
-use uom::si::f32::{Capacitance, ElectricalResistance};
 use uom::si::{
-    capacitance::picofarad, electrical_resistance::kiloohm, electrical_resistance::megaohm,
+    capacitance::picofarad,
+    electrical_resistance::kiloohm,
+    electrical_resistance::megaohm,
+    f32::{Capacitance, ElectricalResistance},
 };
 
-use crate::afe4404::LedMode;
-use crate::errors::AfeError;
-use crate::AFE4404;
+use super::AFE4404;
+use crate::{afe4404::LedMode, errors::AfeError};
 
-/// Represents the feedback resistors of the TIA inside the [`AFE4404`].
-#[derive(Debug)]
-pub struct ResistorConfiguration {
-    /// The resistor used during sample LED1 and sample Ambient1 phases.
-    pub resistor1: ElectricalResistance,
-    /// The resistor used during sample LED2 and sample Ambient2 or LED3 phases.
-    pub resistor2: ElectricalResistance,
-}
+pub use configuration::{CapacitorConfiguration, ResistorConfiguration};
 
-/// Represents the feedback capacitors of the TIA inside the [`AFE4404`].
-#[derive(Debug)]
-pub struct CapacitorConfiguration {
-    /// The capacitor used during sample LED1 and sample Ambient1 phases.
-    pub capacitor1: Capacitance,
-    /// The capacitor used during sample LED2 and sample Ambient2 or LED3 phases.
-    pub capacitor2: Capacitance,
-}
+mod configuration;
 
 impl<I2C, MODE> AFE4404<I2C, MODE>
 where
