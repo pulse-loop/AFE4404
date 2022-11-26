@@ -1,8 +1,13 @@
 [package]
 name = "afe4404"
 version = "0.1.0"
-description = "AFE4404 driver for Rust Embedded HAL" 
+authors = ["Fabio Cragnolini"]
 edition = "2021"
+description = "AFE4404 driver for Rust Embedded HAL."
+readme = "README.md"
+repository = "https://github.com/pulse-loop/AFE4404"
+license = "MIT"
+keywords = ["afe4404", "embedded-hal", "driver"]
 
 # [workspace]
 # members = [
