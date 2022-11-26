@@ -1,9 +1,7 @@
-#![warn(missing_docs, unreachable_pub)]
-// TODO: Add documentation.
 #![warn(clippy::pedantic)]
 #![warn(clippy::cargo)]
 #![warn(rustdoc::all)]
-// #![allow(clippy::multiple_crate_versions)]
+#![warn(missing_docs)]
 #![warn(clippy::std_instead_of_core)]
 #![warn(clippy::std_instead_of_alloc)]
 #![warn(clippy::alloc_instead_of_core)]
@@ -13,14 +11,12 @@
 #![allow(clippy::must_use_candidate)]
 
 #![no_std]
-// TODO: Migrate to no_std.
 
-pub use uom;
+#![doc = include_str!("../README.md")]
 
 extern crate alloc;
 
 include!(concat!(env!("OUT_DIR"), "/register_block.rs"));
-
 
 pub mod afe4404;
 mod errors;

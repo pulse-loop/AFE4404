@@ -8,6 +8,7 @@ readme = "README.md"
 repository = "https://github.com/pulse-loop/AFE4404"
 license = "MIT"
 keywords = ["afe4404", "embedded-hal", "driver"]
+categories = ["embedded", "no-std", "hardware-support"]
 
 # [workspace]
 # members = [
