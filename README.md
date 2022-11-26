@@ -1,6 +1,8 @@
 # AFE4404 Rust driver
 
-This is a Rust Embedded HAL driver for the AFE4404, an integrated analog front end for wearable, optical heart-monitoring and biosensing, from Texas Instruments.
+[![build](https://github.com/pulse-loop/AFE4404/actions/workflows/build.yml/badge.svg)](https://github.com/pulse-loop/AFE4404/actions/workflows/build.yml)
+
+This is a AFE4404 driver for Rust Embedded HAL.
 It allows a high level interaction with the AFE.
 
 ## Usage
