@@ -70,8 +70,9 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
     let mut register_structs_module = Module::new("register_structs")
         .import("modular_bitfield::prelude", "*")
         .import("super", "RegisterWritable")
-        .attr("allow(clippy::too_many_arguments)")
         .attr("allow(clippy::fn_params_excessive_bools)")
+        .attr("allow(clippy::no_effect_underscore_binding)")
+        .attr("allow(clippy::too_many_arguments)")
         .attr("allow(dead_code)")
         .attr("allow(unreachable_pub)")
         .vis("pub(crate)")
@@ -140,12 +141,12 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
 
     // Mod.
     let mut register_block_module = Module::new("register_block")
-        .import("std::cell", "RefCell")
-        .import("std::rc", "Rc")
+        .import("core::cell", "RefCell")
+        .import("alloc::rc", "Rc")
         .import("embedded_hal::i2c", "I2c")
         .import("embedded_hal::i2c", "SevenBitAddress")
         .import("crate::register", "Register")
-        .import("super::register_structs", "*")
+        .import("super::register_structs", "{R00h, R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh, R0Eh, R0Fh, R10h, R11h, R12h, R13h, R14h, R15h, R16h, R17h, R18h, R19h, R1Ah, R1Bh, R1Ch, R1Dh, R1Eh, R20h, R21h, R22h, R23h, R28h, R29h, R2Ah, R2Bh, R2Ch, R2Dh, R2Eh, R2Fh, R31h, R32h, R33h, R34h, R35h, R36h, R37h, R39h, R3Ah, R3Dh, R3Fh, R40h}")
         .vis("pub(crate)")
         .to_owned();
 

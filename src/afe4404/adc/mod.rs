@@ -1,3 +1,5 @@
+//! This module contains the ADC related functions.
+
 use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 
@@ -22,7 +24,7 @@ where
     pub fn set_averaging(&mut self, averages: u8) -> Result<u8, AfeError<I2C::Error>> {
         let r1eh_prev = self.registers.r1Eh.read()?;
 
-        if averages < 1 || averages > 16 {
+        if !(1..=16).contains(&averages) {
             return Err(AfeError::NumberOfAveragesOutsideAllowedRange);
         }
 

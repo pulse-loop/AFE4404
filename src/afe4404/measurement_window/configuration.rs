@@ -66,7 +66,7 @@ pub struct ActiveTiming<MODE: LedMode> {
     led3: LedTiming,
     ambient1: AmbientTiming,
     ambient2: AmbientTiming,
-    mode: std::marker::PhantomData<MODE>,
+    mode: core::marker::PhantomData<MODE>,
 }
 
 impl<MODE> ActiveTiming<MODE>
@@ -102,8 +102,8 @@ impl ActiveTiming<ThreeLedsMode> {
             led2,
             led3,
             ambient1: ambient,
-            ambient2: Default::default(),
-            mode: std::marker::PhantomData,
+            ambient2: AmbientTiming::default(),
+            mode: core::marker::PhantomData,
         }
     }
 
@@ -139,10 +139,10 @@ impl ActiveTiming<TwoLedsMode> {
         ActiveTiming {
             led1,
             led2,
-            led3: Default::default(),
+            led3: LedTiming::default(),
             ambient1,
             ambient2,
-            mode: std::marker::PhantomData,
+            mode: core::marker::PhantomData,
         }
     }
 

@@ -1,7 +1,11 @@
 //! The main AFE4404 module.
 
-use std::cell::RefCell;
-use std::rc::Rc;
+#![allow(clippy::module_name_repetitions)]
+
+extern crate alloc;
+
+use alloc::rc::Rc;
+use core::cell::RefCell;
 
 use embedded_hal::i2c::{I2c, SevenBitAddress};
 use uom::si::f32::Frequency;
@@ -39,7 +43,7 @@ where
 {
     pub(crate) registers: RegisterBlock<I2C>,
     pub(crate) clock: Frequency,
-    mode: std::marker::PhantomData<MODE>,
+    mode: core::marker::PhantomData<MODE>,
 }
 
 impl<I2C> AFE4404<I2C, UninitializedMode>
@@ -55,7 +59,7 @@ where
         AFE4404::<I2C, ThreeLedsMode> {
             registers: RegisterBlock::new(address, &Rc::new(RefCell::new(i2c))),
             clock,
-            mode: std::marker::PhantomData,
+            mode: core::marker::PhantomData,
         }
     }
 
@@ -68,7 +72,7 @@ where
         AFE4404::<I2C, TwoLedsMode> {
             registers: RegisterBlock::new(address, &Rc::new(RefCell::new(i2c))),
             clock,
-            mode: std::marker::PhantomData,
+            mode: core::marker::PhantomData,
         }
     }
 }

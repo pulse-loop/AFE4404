@@ -80,7 +80,7 @@ impl Readings<TwoLedsMode> {
             ambient2_or_led3: ambient2,
             led1_minus_ambient1,
             led2_minus_ambient2,
-            mode: std::marker::PhantomData,
+            mode: core::marker::PhantomData,
         }
     }
 

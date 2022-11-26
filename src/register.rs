@@ -1,6 +1,5 @@
+use alloc::rc::Rc;
 use core::cell::RefCell;
-use core::marker::PhantomData;
-use std::rc::Rc;
 
 use embedded_hal::i2c::{I2c, SevenBitAddress};
 
@@ -8,7 +7,7 @@ use crate::{errors::AfeError, RegisterWritable};
 
 /// Represents a register inside the AFE4404.
 pub(crate) struct Register<I2C, BF> {
-    _p: PhantomData<BF>,
+    _p: core::marker::PhantomData<BF>,
     reg_addr: u8,
     phy_addr: SevenBitAddress,
     i2c: Rc<RefCell<I2C>>,

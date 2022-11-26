@@ -1,4 +1,4 @@
-/// Represents the dynamic blocks of the [`AFE4404<I2C>`].]
+/// Represents the dynamic blocks inside the [`AFE4404<I2C>`].
 #[derive(Clone, Copy)]
 pub struct DynamicConfiguration {
     /// Supply voltage for LEDs.

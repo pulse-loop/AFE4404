@@ -155,7 +155,7 @@ impl OffsetCurrentConfiguration<TwoLedsMode> {
             led2,
             ambient1,
             ambient2_or_led3: ambient2,
-            mode: std::marker::PhantomData,
+            mode: core::marker::PhantomData,
         }
     }
 

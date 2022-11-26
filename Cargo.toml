@@ -1,6 +1,7 @@
 [package]
 name = "afe4404"
 version = "0.1.0"
+description = "AFE4404 driver for Rust Embedded HAL" 
 edition = "2021"
 
 # [workspace]

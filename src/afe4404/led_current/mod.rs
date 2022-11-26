@@ -1,3 +1,5 @@
+//! This module contains the LEDs current and offset current related functions.
+
 use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 use uom::si::electric_current::{microampere, milliampere};
@@ -75,9 +77,9 @@ where
             .write(r23h_prev.with_iled_2x(high_current))?;
 
         Ok(LedCurrentConfiguration::<ThreeLedsMode>::new(
-            values[0] as f32 * quantisation,
-            values[1] as f32 * quantisation,
-            values[2] as f32 * quantisation,
+            f32::from(values[0]) * quantisation,
+            f32::from(values[1]) * quantisation,
+            f32::from(values[2]) * quantisation,
         ))
     }
 
@@ -100,9 +102,9 @@ where
         let quantisation = range / 63.0;
 
         Ok(LedCurrentConfiguration::<ThreeLedsMode>::new(
-            r22h_prev.iled1() as f32 * quantisation,
-            r22h_prev.iled2() as f32 * quantisation,
-            r22h_prev.iled3() as f32 * quantisation,
+            f32::from(r22h_prev.iled1()) * quantisation,
+            f32::from(r22h_prev.iled2()) * quantisation,
+            f32::from(r22h_prev.iled3()) * quantisation,
         ))
     }
 
@@ -131,6 +133,7 @@ where
             return Err(AfeError::OffsetCurrentOutsideAllowedRange);
         }
 
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
         let values: [(u8, bool); 4] = [
             (
                 (configuration.led1().abs() / quantisation).value.round() as u8,
@@ -162,10 +165,10 @@ where
                 .with_pol_offdac_amb1(values[3].1),
         )?;
         Ok(OffsetCurrentConfiguration::<ThreeLedsMode>::new(
-            values[0].0 as f32 * quantisation * if values[0].1 { -1.0 } else { 1.0 },
-            values[1].0 as f32 * quantisation * if values[1].1 { -1.0 } else { 1.0 },
-            values[2].0 as f32 * quantisation * if values[2].1 { -1.0 } else { 1.0 },
-            values[3].0 as f32 * quantisation * if values[3].1 { -1.0 } else { 1.0 },
+            f32::from(values[0].0) * quantisation * if values[0].1 { -1.0 } else { 1.0 },
+            f32::from(values[1].0) * quantisation * if values[1].1 { -1.0 } else { 1.0 },
+            f32::from(values[2].0) * quantisation * if values[2].1 { -1.0 } else { 1.0 },
+            f32::from(values[3].0) * quantisation * if values[3].1 { -1.0 } else { 1.0 },
         ))
     }
 
@@ -183,28 +186,28 @@ where
         let quantisation = range / 15.0;
 
         Ok(OffsetCurrentConfiguration::<ThreeLedsMode>::new(
-            r3ah_prev.i_offdac_led1() as f32
+            f32::from(r3ah_prev.i_offdac_led1())
                 * quantisation
                 * if r3ah_prev.pol_offdac_led1() {
                     -1.0
                 } else {
                     1.0
                 },
-            r3ah_prev.i_offdac_led2() as f32
+            f32::from(r3ah_prev.i_offdac_led2())
                 * quantisation
                 * if r3ah_prev.pol_offdac_led2() {
                     -1.0
                 } else {
                     1.0
                 },
-            r3ah_prev.i_offdac_amb2_or_i_offdac_led3() as f32
+            f32::from(r3ah_prev.i_offdac_amb2_or_i_offdac_led3())
                 * quantisation
                 * if r3ah_prev.pol_offdac_amb2_or_pol_offdac_led3() {
                     -1.0
                 } else {
                     1.0
                 },
-            r3ah_prev.i_offdac_amb1() as f32
+            f32::from(r3ah_prev.i_offdac_amb1())
                 * quantisation
                 * if r3ah_prev.pol_offdac_amb1() {
                     -1.0
@@ -266,8 +269,8 @@ where
             .write(r23h_prev.with_iled_2x(high_current))?;
 
         Ok(LedCurrentConfiguration::<TwoLedsMode>::new(
-            values[0] as f32 * quantisation,
-            values[1] as f32 * quantisation,
+            f32::from(values[0]) * quantisation,
+            f32::from(values[1]) * quantisation,
         ))
     }
 
@@ -291,8 +294,8 @@ where
         let quantisation = range / 63.0;
 
         Ok(LedCurrentConfiguration::<TwoLedsMode>::new(
-            r22h_prev.iled1() as f32 * quantisation,
-            r22h_prev.iled2() as f32 * quantisation,
+            f32::from(r22h_prev.iled1()) * quantisation,
+            f32::from(r22h_prev.iled2()) * quantisation,
         ))
     }
 
@@ -321,6 +324,7 @@ where
             return Err(AfeError::OffsetCurrentOutsideAllowedRange);
         }
 
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
         let values: [(u8, bool); 4] = [
             (
                 (configuration.led1().abs() / quantisation).value.round() as u8,
@@ -356,10 +360,10 @@ where
                 .with_pol_offdac_amb2_or_pol_offdac_led3(values[3].1),
         )?;
         Ok(OffsetCurrentConfiguration::<TwoLedsMode>::new(
-            values[0].0 as f32 * quantisation * if values[0].1 { -1.0 } else { 1.0 },
-            values[1].0 as f32 * quantisation * if values[1].1 { -1.0 } else { 1.0 },
-            values[2].0 as f32 * quantisation * if values[2].1 { -1.0 } else { 1.0 },
-            values[3].0 as f32 * quantisation * if values[3].1 { -1.0 } else { 1.0 },
+            f32::from(values[0].0) * quantisation * if values[0].1 { -1.0 } else { 1.0 },
+            f32::from(values[1].0) * quantisation * if values[1].1 { -1.0 } else { 1.0 },
+            f32::from(values[2].0) * quantisation * if values[2].1 { -1.0 } else { 1.0 },
+            f32::from(values[3].0) * quantisation * if values[3].1 { -1.0 } else { 1.0 },
         ))
     }
 
@@ -377,28 +381,28 @@ where
         let quantisation = range / 15.0;
 
         Ok(OffsetCurrentConfiguration::<TwoLedsMode>::new(
-            r3ah_prev.i_offdac_led1() as f32
+            f32::from(r3ah_prev.i_offdac_led1())
                 * quantisation
                 * if r3ah_prev.pol_offdac_led1() {
                     -1.0
                 } else {
                     1.0
                 },
-            r3ah_prev.i_offdac_led2() as f32
+            f32::from(r3ah_prev.i_offdac_led2())
                 * quantisation
                 * if r3ah_prev.pol_offdac_led2() {
                     -1.0
                 } else {
                     1.0
                 },
-            r3ah_prev.i_offdac_amb1() as f32
+            f32::from(r3ah_prev.i_offdac_amb1())
                 * quantisation
                 * if r3ah_prev.pol_offdac_amb1() {
                     -1.0
                 } else {
                     1.0
                 },
-            r3ah_prev.i_offdac_amb2_or_i_offdac_led3() as f32
+            f32::from(r3ah_prev.i_offdac_amb2_or_i_offdac_led3())
                 * quantisation
                 * if r3ah_prev.pol_offdac_amb2_or_pol_offdac_led3() {
                     -1.0

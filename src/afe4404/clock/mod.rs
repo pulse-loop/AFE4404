@@ -1,3 +1,5 @@
+//! This module contains the clock related functions.
+
 use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 use uom::si::{f32::Frequency, frequency::megahertz};
@@ -23,14 +25,15 @@ where
     /// Setting an output clock division ratio greater than 128 will result in an error.
     pub fn set_clock_source(
         &mut self,
-        configuration: &ClockConfiguration,
+        configuration: ClockConfiguration,
     ) -> Result<ClockConfiguration, AfeError<I2C::Error>> {
         let r23h_prev = self.registers.r23h.read()?;
 
         let (internal, output, reg_ratio) = match configuration {
             ClockConfiguration::Internal => (true, false, 0),
             ClockConfiguration::InternalToOutput { division_ratio } => {
-                let reg_ratio = (*division_ratio as f32).log2().round() as u8;
+                #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
+                let reg_ratio = f32::from(division_ratio).log2().round() as u8;
                 if reg_ratio > 7 {
                     return Err(AfeError::ClockDivisionRatioOutsideAllowedRange);
                 }

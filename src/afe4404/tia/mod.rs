@@ -1,3 +1,5 @@
+//! This module contains the TIA related functions.
+
 use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 use uom::si::{
