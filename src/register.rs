@@ -1,3 +1,5 @@
+//! This module contains the register communication, using I2C, related functions.
+
 use alloc::rc::Rc;
 use core::cell::RefCell;
 

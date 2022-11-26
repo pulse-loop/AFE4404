@@ -146,7 +146,7 @@ fn main() {
         .expect("Cannot set timing window");
 
     frontend
-        .set_clock_source(&ClockConfiguration::Internal)
+        .set_clock_source(ClockConfiguration::Internal)
         .expect("Cannot set clock source");
 
     let mut delay = esp_idf_hal::delay::Ets;

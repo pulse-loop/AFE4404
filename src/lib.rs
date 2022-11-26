@@ -12,20 +12,16 @@
 // #![warn(clippy::missing_docs_in_private_items)]
 #![allow(clippy::must_use_candidate)]
 
-// #![no_std]
+#![no_std]
 // TODO: Migrate to no_std.
 
 pub use uom;
 
 extern crate alloc;
 
-
 include!(concat!(env!("OUT_DIR"), "/register_block.rs"));
 
-/// A driver for the AFE4404 pulse oximeter analog frontend.
+
 pub mod afe4404;
-
-
 mod errors;
-
 mod register;

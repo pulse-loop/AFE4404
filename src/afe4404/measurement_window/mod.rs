@@ -76,7 +76,7 @@ where
         let counter_max_value: u16 = counter.round() as u16 - 1;
         let quantisation: Time = *configuration.period() / counter;
 
-        let active_values: Vec<QuantisedValues> = [
+        let active_values: alloc::vec::Vec<QuantisedValues> = [
             *configuration.active_timing_configuration().led2(),
             *configuration.active_timing_configuration().led3(),
             *configuration.active_timing_configuration().led1(),
@@ -429,7 +429,7 @@ where
         let counter_max_value: u16 = counter.round() as u16 - 1;
         let quantisation: Time = *configuration.period() / counter;
 
-        let active_values: Vec<QuantisedValues> = [
+        let active_values: alloc::vec::Vec<QuantisedValues> = [
             *configuration.active_timing_configuration().led2(),
             (*configuration.active_timing_configuration().ambient2()).into(),
             *configuration.active_timing_configuration().led1(),
