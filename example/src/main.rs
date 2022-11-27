@@ -1,3 +1,5 @@
+extern crate uom;
+
 use std::sync::atomic::AtomicBool;
 
 use embedded_hal::delay::DelayUs;
@@ -8,28 +10,27 @@ use esp_idf_hal::{
     prelude::*,
 };
 
-use afe4404::{
-    afe4404::{
-        clock::ClockConfiguration,
-        led_current::{LedCurrentConfiguration, OffsetCurrentConfiguration},
-        measurement_window::{
-            ActiveTiming, AmbientTiming, LedTiming, MeasurementWindowConfiguration, PowerDownTiming,
-        },
-        system::{
-            DynamicConfiguration,
-            State::{Disabled, Enabled},
-        },
-        tia::{CapacitorConfiguration, ResistorConfiguration},
-        ThreeLedsMode, AFE4404,
+use uom::si::{
+    capacitance::picofarad,
+    electric_current::{microampere, milliampere},
+    electrical_resistance::kiloohm,
+    f32::{Capacitance, ElectricCurrent, ElectricalResistance, Frequency, Time},
+    frequency::megahertz,
+    time::microsecond,
+};
+
+use afe4404::afe4404::{
+    clock::ClockConfiguration,
+    led_current::{LedCurrentConfiguration, OffsetCurrentConfiguration},
+    measurement_window::{
+        ActiveTiming, AmbientTiming, LedTiming, MeasurementWindowConfiguration, PowerDownTiming,
     },
-    uom::si::{
-        capacitance::picofarad,
-        electric_current::{microampere, milliampere},
-        electrical_resistance::kiloohm,
-        f32::{Capacitance, ElectricCurrent, ElectricalResistance, Frequency, Time},
-        frequency::megahertz,
-        time::microsecond,
+    system::{
+        DynamicConfiguration,
+        State::{Disabled, Enabled},
     },
+    tia::{CapacitorConfiguration, ResistorConfiguration},
+    ThreeLedsMode, AFE4404,
 };
 
 static DATA_READY: AtomicBool = AtomicBool::new(false);

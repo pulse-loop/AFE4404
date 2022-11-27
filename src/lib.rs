@@ -9,9 +9,7 @@
 #![warn(clippy::unwrap_used)]
 // #![warn(clippy::missing_docs_in_private_items)]
 #![allow(clippy::must_use_candidate)]
-
 #![no_std]
-
 #![doc = include_str!("../README.md")]
 
 extern crate alloc;

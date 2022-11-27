@@ -2,7 +2,7 @@
 
 [![build](https://github.com/pulse-loop/AFE4404/actions/workflows/build.yml/badge.svg)](https://github.com/pulse-loop/AFE4404/actions/workflows/build.yml)
 
-This is a AFE4404 driver for Rust Embedded HAL.
+This is a AFE4404 driver for Rust embedded-hal.
 It allows a high level interaction with the AFE.
 
 ## Usage

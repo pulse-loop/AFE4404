@@ -1,4 +1,4 @@
-//! This module contains the register communication, using I2C, related functions.
+//! This module contains the register communication, using I2C, functions.
 
 use alloc::rc::Rc;
 use core::cell::RefCell;
@@ -62,7 +62,7 @@ where
         Ok(BF::from_reg_bytes(receive_buffer))
     }
 
-    /// Write a new value to the specified register.
+    /// Writes a new value to the specified register.
     ///
     /// # Errors
     ///
