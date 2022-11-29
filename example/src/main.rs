@@ -74,17 +74,17 @@ fn main() {
         .expect("Cannot set offset current");
 
     frontend
-        .set_tia_resistors(&ResistorConfiguration {
-            resistor1: ElectricalResistance::new::<kiloohm>(50.0),
-            resistor2: ElectricalResistance::new::<kiloohm>(50.0),
-        })
+        .set_tia_resistors(&ResistorConfiguration::<ThreeLedsMode>::new(
+            ElectricalResistance::new::<kiloohm>(50.0),
+            ElectricalResistance::new::<kiloohm>(50.0),
+        ))
         .expect("Cannot set tia resistors");
 
     frontend
-        .set_tia_capacitors(&CapacitorConfiguration {
-            capacitor1: Capacitance::new::<picofarad>(5.0),
-            capacitor2: Capacitance::new::<picofarad>(5.0),
-        })
+        .set_tia_capacitors(&CapacitorConfiguration::<ThreeLedsMode>::new(
+            Capacitance::new::<picofarad>(5.0),
+            Capacitance::new::<picofarad>(5.0),
+        ))
         .expect("Cannot set tia capacitors");
 
     frontend
