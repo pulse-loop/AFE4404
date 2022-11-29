@@ -14,6 +14,7 @@ categories = ["embedded", "no-std", "hardware-support"]
 # members = [
 #     "example",
 # ]
+
 [package.metadata.esp-idf-sys]
 esp_idf_tools_install_dir = "out"
 
