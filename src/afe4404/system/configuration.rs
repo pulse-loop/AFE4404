@@ -1,5 +1,5 @@
-/// Represents the dynamic blocks inside the [`AFE4404<I2C>`].
-#[derive(Clone, Copy)]
+/// Represents the dynamic blocks inside the [`AFE4404`].
+#[derive(Copy, Clone, Debug)]
 pub struct DynamicConfiguration {
     /// Supply voltage for LEDs.
     pub transmitter: State,
@@ -12,7 +12,7 @@ pub struct DynamicConfiguration {
 }
 
 /// Represents the power state of a dynamic block.
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum State {
     /// The block is powered on.
     Enabled,

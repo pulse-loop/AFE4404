@@ -3,7 +3,7 @@ use uom::si::{electric_potential::volt, f32::ElectricPotential};
 use crate::afe4404::{LedMode, ThreeLedsMode, TwoLedsMode};
 
 /// Represents the values read from the [`AFE4404`].
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Readings<MODE: LedMode> {
     led1: ElectricPotential,
     led2: ElectricPotential,

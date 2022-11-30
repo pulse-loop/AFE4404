@@ -20,6 +20,7 @@ pub use configuration::{
 };
 
 mod configuration;
+pub mod low_level;
 
 impl<I2C> AFE4404<I2C, ThreeLedsMode>
 where
@@ -49,8 +50,8 @@ where
         configuration: &MeasurementWindowConfiguration<ThreeLedsMode>,
     ) -> Result<MeasurementWindowConfiguration<ThreeLedsMode>, AfeError<I2C::Error>> {
         struct QuantisedValues {
-            led_st: u16,
-            led_end: u16,
+            lighting_st: u16,
+            lighting_end: u16,
             sample_st: u16,
             sample_end: u16,
             reset_st: u16,
@@ -84,8 +85,8 @@ where
         ]
         .iter()
         .map(|timing| QuantisedValues {
-            led_st: (timing.led_st / quantisation).value.round() as u16,
-            led_end: (timing.led_end / quantisation).value.round() as u16,
+            lighting_st: (timing.lighting_st / quantisation).value.round() as u16,
+            lighting_end: (timing.lighting_end / quantisation).value.round() as u16,
             sample_st: (timing.sample_st / quantisation).value.round() as u16,
             sample_end: (timing.sample_end / quantisation).value.round() as u16,
             reset_st: (timing.reset_st / quantisation).value.round() as u16,
@@ -116,10 +117,10 @@ where
         // Write led2 registers.
         self.registers
             .r09h
-            .write(R09h::new().with_led2ledstc(active_values[0].led_st))?;
+            .write(R09h::new().with_led2ledstc(active_values[0].lighting_st))?;
         self.registers
             .r0Ah
-            .write(R0Ah::new().with_led2ledendc(active_values[0].led_end))?;
+            .write(R0Ah::new().with_led2ledendc(active_values[0].lighting_end))?;
         self.registers
             .r01h
             .write(R01h::new().with_led2stc(active_values[0].sample_st))?;
@@ -142,10 +143,10 @@ where
         // Write led3 registers.
         self.registers
             .r36h
-            .write(R36h::new().with_led3ledstc(active_values[1].led_st))?;
+            .write(R36h::new().with_led3ledstc(active_values[1].lighting_st))?;
         self.registers
             .r37h
-            .write(R37h::new().with_led3ledendc(active_values[1].led_end))?;
+            .write(R37h::new().with_led3ledendc(active_values[1].lighting_end))?;
         self.registers
             .r05h
             .write(R05h::new().with_aled2stc_or_led3stc(active_values[1].sample_st))?;
@@ -168,10 +169,10 @@ where
         // Write led1 registers.
         self.registers
             .r03h
-            .write(R03h::new().with_led1ledstc(active_values[2].led_st))?;
+            .write(R03h::new().with_led1ledstc(active_values[2].lighting_st))?;
         self.registers
             .r04h
-            .write(R04h::new().with_led1ledendc(active_values[2].led_end))?;
+            .write(R04h::new().with_led1ledendc(active_values[2].lighting_end))?;
         self.registers
             .r07h
             .write(R07h::new().with_led1stc(active_values[2].sample_st))?;
@@ -223,8 +224,8 @@ where
             (counter_max_value + 1) as f32 * quantisation,
             ActiveTiming::<ThreeLedsMode>::new(
                 LedTiming {
-                    led_st: active_values[2].led_st as f32 * quantisation,
-                    led_end: active_values[2].led_end as f32 * quantisation,
+                    lighting_st: active_values[2].lighting_st as f32 * quantisation,
+                    lighting_end: active_values[2].lighting_end as f32 * quantisation,
                     sample_st: active_values[2].sample_st as f32 * quantisation,
                     sample_end: active_values[2].sample_end as f32 * quantisation,
                     reset_st: active_values[2].reset_st as f32 * quantisation,
@@ -233,8 +234,8 @@ where
                     conv_end: active_values[2].conv_end as f32 * quantisation,
                 },
                 LedTiming {
-                    led_st: active_values[0].led_st as f32 * quantisation,
-                    led_end: active_values[0].led_end as f32 * quantisation,
+                    lighting_st: active_values[0].lighting_st as f32 * quantisation,
+                    lighting_end: active_values[0].lighting_end as f32 * quantisation,
                     sample_st: active_values[0].sample_st as f32 * quantisation,
                     sample_end: active_values[0].sample_end as f32 * quantisation,
                     reset_st: active_values[0].reset_st as f32 * quantisation,
@@ -243,8 +244,8 @@ where
                     conv_end: active_values[0].conv_end as f32 * quantisation,
                 },
                 LedTiming {
-                    led_st: active_values[1].led_st as f32 * quantisation,
-                    led_end: active_values[1].led_end as f32 * quantisation,
+                    lighting_st: active_values[1].lighting_st as f32 * quantisation,
+                    lighting_end: active_values[1].lighting_end as f32 * quantisation,
                     sample_st: active_values[1].sample_st as f32 * quantisation,
                     sample_end: active_values[1].sample_end as f32 * quantisation,
                     reset_st: active_values[1].reset_st as f32 * quantisation,
@@ -328,8 +329,8 @@ where
             period,
             ActiveTiming::<ThreeLedsMode>::new(
                 LedTiming {
-                    led_st: r03h_prev.led1ledstc() as f32 * quantisation,
-                    led_end: r04h_prev.led1ledendc() as f32 * quantisation,
+                    lighting_st: r03h_prev.led1ledstc() as f32 * quantisation,
+                    lighting_end: r04h_prev.led1ledendc() as f32 * quantisation,
                     sample_st: r07h_prev.led1stc() as f32 * quantisation,
                     sample_end: r08h_prev.led1endc() as f32 * quantisation,
                     reset_st: r19h_prev.adcrststct2() as f32 * quantisation,
@@ -338,8 +339,8 @@ where
                     conv_end: r12h_prev.led1convend() as f32 * quantisation,
                 },
                 LedTiming {
-                    led_st: r09h_prev.led2ledstc() as f32 * quantisation,
-                    led_end: r0ah_prev.led2ledendc() as f32 * quantisation,
+                    lighting_st: r09h_prev.led2ledstc() as f32 * quantisation,
+                    lighting_end: r0ah_prev.led2ledendc() as f32 * quantisation,
                     sample_st: r01h_prev.led2stc() as f32 * quantisation,
                     sample_end: r02h_prev.led2endc() as f32 * quantisation,
                     reset_st: r15h_prev.adcrststct0() as f32 * quantisation,
@@ -348,8 +349,8 @@ where
                     conv_end: r0eh_prev.led2convend() as f32 * quantisation,
                 },
                 LedTiming {
-                    led_st: r36h_prev.led3ledstc() as f32 * quantisation,
-                    led_end: r37h_prev.led3ledendc() as f32 * quantisation,
+                    lighting_st: r36h_prev.led3ledstc() as f32 * quantisation,
+                    lighting_end: r37h_prev.led3ledendc() as f32 * quantisation,
                     sample_st: r05h_prev.aled2stc_or_led3stc() as f32 * quantisation,
                     sample_end: r06h_prev.aled2endc_or_led3endc() as f32 * quantisation,
                     reset_st: r17h_prev.adcrststct1() as f32 * quantisation,
@@ -402,8 +403,8 @@ where
         configuration: &MeasurementWindowConfiguration<TwoLedsMode>,
     ) -> Result<MeasurementWindowConfiguration<TwoLedsMode>, AfeError<I2C::Error>> {
         struct QuantisedValues {
-            led_st: u16,
-            led_end: u16,
+            lighting_st: u16,
+            lighting_end: u16,
             sample_st: u16,
             sample_end: u16,
             reset_st: u16,
@@ -437,8 +438,8 @@ where
         ]
         .iter()
         .map(|timing| QuantisedValues {
-            led_st: (timing.led_st / quantisation).value.round() as u16,
-            led_end: (timing.led_end / quantisation).value.round() as u16,
+            lighting_st: (timing.lighting_st / quantisation).value.round() as u16,
+            lighting_end: (timing.lighting_end / quantisation).value.round() as u16,
             sample_st: (timing.sample_st / quantisation).value.round() as u16,
             sample_end: (timing.sample_end / quantisation).value.round() as u16,
             reset_st: (timing.reset_st / quantisation).value.round() as u16,
@@ -469,10 +470,10 @@ where
         // Write led2 registers.
         self.registers
             .r09h
-            .write(R09h::new().with_led2ledstc(active_values[0].led_st))?;
+            .write(R09h::new().with_led2ledstc(active_values[0].lighting_st))?;
         self.registers
             .r0Ah
-            .write(R0Ah::new().with_led2ledendc(active_values[0].led_end))?;
+            .write(R0Ah::new().with_led2ledendc(active_values[0].lighting_end))?;
         self.registers
             .r01h
             .write(R01h::new().with_led2stc(active_values[0].sample_st))?;
@@ -515,10 +516,10 @@ where
         // Write led1 registers.
         self.registers
             .r03h
-            .write(R03h::new().with_led1ledstc(active_values[2].led_st))?;
+            .write(R03h::new().with_led1ledstc(active_values[2].lighting_st))?;
         self.registers
             .r04h
-            .write(R04h::new().with_led1ledendc(active_values[2].led_end))?;
+            .write(R04h::new().with_led1ledendc(active_values[2].lighting_end))?;
         self.registers
             .r07h
             .write(R07h::new().with_led1stc(active_values[2].sample_st))?;
@@ -570,8 +571,8 @@ where
             (counter_max_value + 1) as f32 * quantisation,
             ActiveTiming::<TwoLedsMode>::new(
                 LedTiming {
-                    led_st: active_values[2].led_st as f32 * quantisation,
-                    led_end: active_values[2].led_end as f32 * quantisation,
+                    lighting_st: active_values[2].lighting_st as f32 * quantisation,
+                    lighting_end: active_values[2].lighting_end as f32 * quantisation,
                     sample_st: active_values[2].sample_st as f32 * quantisation,
                     sample_end: active_values[2].sample_end as f32 * quantisation,
                     reset_st: active_values[2].reset_st as f32 * quantisation,
@@ -580,8 +581,8 @@ where
                     conv_end: active_values[2].conv_end as f32 * quantisation,
                 },
                 LedTiming {
-                    led_st: active_values[0].led_st as f32 * quantisation,
-                    led_end: active_values[0].led_end as f32 * quantisation,
+                    lighting_st: active_values[0].lighting_st as f32 * quantisation,
+                    lighting_end: active_values[0].lighting_end as f32 * quantisation,
                     sample_st: active_values[0].sample_st as f32 * quantisation,
                     sample_end: active_values[0].sample_end as f32 * quantisation,
                     reset_st: active_values[0].reset_st as f32 * quantisation,
@@ -671,8 +672,8 @@ where
             period,
             ActiveTiming::<TwoLedsMode>::new(
                 LedTiming {
-                    led_st: r03h_prev.led1ledstc() as f32 * quantisation,
-                    led_end: r04h_prev.led1ledendc() as f32 * quantisation,
+                    lighting_st: r03h_prev.led1ledstc() as f32 * quantisation,
+                    lighting_end: r04h_prev.led1ledendc() as f32 * quantisation,
                     sample_st: r07h_prev.led1stc() as f32 * quantisation,
                     sample_end: r08h_prev.led1endc() as f32 * quantisation,
                     reset_st: r19h_prev.adcrststct2() as f32 * quantisation,
@@ -681,8 +682,8 @@ where
                     conv_end: r12h_prev.led1convend() as f32 * quantisation,
                 },
                 LedTiming {
-                    led_st: r09h_prev.led2ledstc() as f32 * quantisation,
-                    led_end: r0ah_prev.led2ledendc() as f32 * quantisation,
+                    lighting_st: r09h_prev.led2ledstc() as f32 * quantisation,
+                    lighting_end: r0ah_prev.led2ledendc() as f32 * quantisation,
                     sample_st: r01h_prev.led2stc() as f32 * quantisation,
                     sample_end: r02h_prev.led2endc() as f32 * quantisation,
                     reset_st: r15h_prev.adcrststct0() as f32 * quantisation,

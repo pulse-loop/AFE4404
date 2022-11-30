@@ -3,7 +3,7 @@ use uom::si::f32::{Capacitance, ElectricalResistance};
 use crate::afe4404::{LedMode, ThreeLedsMode, TwoLedsMode};
 
 /// Represents the feedback resistors of the TIA inside the [`AFE4404`].
-#[derive(Debug, Clone, Copy)]
+#[derive(Copy, Clone, Debug)]
 pub struct ResistorConfiguration<MODE: LedMode> {
     resistor1: ElectricalResistance,
     resistor2: ElectricalResistance,
@@ -83,7 +83,7 @@ impl ResistorConfiguration<TwoLedsMode> {
 }
 
 /// Represents the feedback capacitors of the TIA inside the [`AFE4404`].
-#[derive(Debug, Clone, Copy)]
+#[derive(Copy, Clone, Debug)]
 pub struct CapacitorConfiguration<MODE: LedMode> {
     capacitor1: Capacitance,
     capacitor2: Capacitance,

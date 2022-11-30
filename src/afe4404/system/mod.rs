@@ -15,7 +15,7 @@ where
     I2C: I2c<SevenBitAddress>,
     MODE: LedMode,
 {
-    /// Software reset the [`AFE4404<I2C>`].
+    /// Software reset the [`AFE4404`].
     ///
     /// # Errors
     ///
@@ -26,11 +26,11 @@ where
         Ok(())
     }
 
-    /// Software power down the [`AFE4404<I2C>`].
+    /// Software power down the [`AFE4404`].
     ///
     /// # Notes
     ///
-    /// To resume the [`AFE4404<I2C>`] call `sw_power_up()` function.
+    /// To resume the [`AFE4404`] call `sw_power_up()` function.
     ///
     /// # Errors
     ///
@@ -43,7 +43,7 @@ where
         Ok(())
     }
 
-    /// Software power up the [`AFE4404<I2C>`].
+    /// Software power up the [`AFE4404`].
     ///
     /// # Notes
     ///

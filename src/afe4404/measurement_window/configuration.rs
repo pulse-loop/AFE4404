@@ -3,7 +3,7 @@ use uom::si::{f32::Time, time::microsecond};
 use crate::afe4404::{LedMode, ThreeLedsMode, TwoLedsMode};
 
 /// Represents a period of the measurement window.
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct MeasurementWindowConfiguration<MODE: LedMode> {
     period: Time,
     active_timing_configuration: ActiveTiming<MODE>,
@@ -59,7 +59,7 @@ where
 }
 
 /// Represents the active phase of the measurement window.
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct ActiveTiming<MODE: LedMode> {
     led1: LedTiming,
     led2: LedTiming,
@@ -168,12 +168,12 @@ impl ActiveTiming<TwoLedsMode> {
 }
 
 /// Represents the timings of a single LED phase.
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Copy, Clone, Debug, Default)]
 pub struct LedTiming {
     /// The time at which the LED is turned on.
-    pub led_st: Time,
+    pub lighting_st: Time,
     /// The time at which the LED is turned off.
-    pub led_end: Time,
+    pub lighting_end: Time,
     /// The time at which the ADC starts sampling.
     pub sample_st: Time,
     /// The time at which the ADC stops sampling.
@@ -189,7 +189,7 @@ pub struct LedTiming {
 }
 
 /// Represents the timings of the ambient phase.
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Copy, Clone, Debug, Default)]
 pub struct AmbientTiming {
     /// The time at which the ADC starts sampling.
     pub sample_st: Time,
@@ -208,8 +208,8 @@ pub struct AmbientTiming {
 impl From<AmbientTiming> for LedTiming {
     fn from(other: AmbientTiming) -> Self {
         Self {
-            led_st: Time::new::<microsecond>(0.0),
-            led_end: Time::new::<microsecond>(0.0),
+            lighting_st: Time::new::<microsecond>(0.0),
+            lighting_end: Time::new::<microsecond>(0.0),
             sample_st: other.sample_st,
 
             sample_end: other.sample_end,
@@ -222,7 +222,7 @@ impl From<AmbientTiming> for LedTiming {
 }
 
 /// Represents the inactive phase of the measurement window.
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct PowerDownTiming {
     /// The time at which the dynamic blocks are powered down.
     pub power_down_st: Time,

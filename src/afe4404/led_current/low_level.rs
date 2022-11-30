@@ -1,3 +1,5 @@
+//! This module contains the LED current and offset current low level functions.
+
 use embedded_hal::i2c::{I2c, SevenBitAddress};
 use uom::si::{
     electric_current::{microampere, milliampere},

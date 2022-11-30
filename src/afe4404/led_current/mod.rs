@@ -1,7 +1,5 @@
 //! This module contains the LEDs current and offset current related functions.
 
-// TODO: &, low_level, main, readme, default.
-
 use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 use uom::si::electric_current::{microampere, milliampere};
@@ -17,7 +15,7 @@ use crate::{
 pub use configuration::{LedCurrentConfiguration, OffsetCurrentConfiguration};
 
 mod configuration;
-mod low_level;
+pub mod low_level;
 
 impl<I2C> AFE4404<I2C, ThreeLedsMode>
 where

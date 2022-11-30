@@ -3,7 +3,7 @@ use uom::si::{electric_current::milliampere, f32::ElectricCurrent};
 use crate::afe4404::{LedMode, ThreeLedsMode, TwoLedsMode};
 
 /// Represents the currents of the LEDs.
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct LedCurrentConfiguration<MODE: LedMode> {
     led1: ElectricCurrent,
     led2: ElectricCurrent,
@@ -71,6 +71,7 @@ impl LedCurrentConfiguration<TwoLedsMode> {
 }
 
 /// Represents the offset currents of the LEDs.
+#[derive(Clone, Copy, Debug)]
 pub struct OffsetCurrentConfiguration<MODE: LedMode> {
     led1: ElectricCurrent,
     led2: ElectricCurrent,

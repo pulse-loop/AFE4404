@@ -101,8 +101,8 @@ fn main() {
             Time::new::<microsecond>(10_000.0),
             ActiveTiming::<ThreeLedsMode>::new(
                 LedTiming {
-                    led_st: Time::new::<microsecond>(200.5),
-                    led_end: Time::new::<microsecond>(300.25),
+                    lighting_st: Time::new::<microsecond>(200.5),
+                    lighting_end: Time::new::<microsecond>(300.25),
                     sample_st: Time::new::<microsecond>(225.5),
                     sample_end: Time::new::<microsecond>(300.25),
                     reset_st: Time::new::<microsecond>(634.75),
@@ -111,8 +111,8 @@ fn main() {
                     conv_end: Time::new::<microsecond>(901.5),
                 },
                 LedTiming {
-                    led_st: Time::new::<microsecond>(0.0),
-                    led_end: Time::new::<microsecond>(99.75),
+                    lighting_st: Time::new::<microsecond>(0.0),
+                    lighting_end: Time::new::<microsecond>(99.75),
                     sample_st: Time::new::<microsecond>(25.0),
                     sample_end: Time::new::<microsecond>(99.75),
                     reset_st: Time::new::<microsecond>(100.25),
@@ -121,8 +121,8 @@ fn main() {
                     conv_end: Time::new::<microsecond>(367.0),
                 },
                 LedTiming {
-                    led_st: Time::new::<microsecond>(100.25),
-                    led_end: Time::new::<microsecond>(200.0),
+                    lighting_st: Time::new::<microsecond>(100.25),
+                    lighting_end: Time::new::<microsecond>(200.0),
                     sample_st: Time::new::<microsecond>(125.25),
                     sample_end: Time::new::<microsecond>(200.0),
                     reset_st: Time::new::<microsecond>(367.5),

@@ -11,7 +11,7 @@ use crate::errors::AfeError;
 pub use configuration::{CapacitorConfiguration, ResistorConfiguration};
 
 mod configuration;
-mod low_level;
+pub mod low_level;
 
 impl<I2C> AFE4404<I2C, ThreeLedsMode>
 where

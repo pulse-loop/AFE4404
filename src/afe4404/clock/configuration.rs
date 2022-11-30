@@ -1,5 +1,5 @@
 /// Represents the clock mode of the [`AFE4404`].
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum ClockConfiguration {
     /// The clock is driven by the internal oscillator at 4 MHz.
     Internal,

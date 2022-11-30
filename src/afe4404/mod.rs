@@ -21,12 +21,15 @@ pub mod tia;
 pub mod value_reading;
 
 /// Uninitialized mode.
+#[derive(Debug)]
 pub struct UninitializedMode;
 
 /// Three LEDs mode.
+#[derive(Debug)]
 pub struct ThreeLedsMode;
 
 /// Two LEDs mode.
+#[derive(Debug)]
 pub struct TwoLedsMode;
 
 /// Represents the lighting mode of the [`AFE4404`].

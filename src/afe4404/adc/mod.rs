@@ -39,7 +39,7 @@ where
     ///
     /// # Errors
     ///
-    /// This function returns an error if the I2C bus encounters an error or if the [`AFE4404<I2C>`] contains invalid data.
+    /// This function returns an error if the I2C bus encounters an error or if the [`AFE4404`] contains invalid data.
     pub fn get_averaging(&mut self) -> Result<u8, AfeError<I2C::Error>> {
         let r1eh_prev = self.registers.r1Eh.read()?;
 
@@ -84,7 +84,7 @@ where
     ///
     /// # Errors
     ///
-    /// This function returns an error if the I2C bus encounters an error or if the [`AFE4404<I2C>`] contains invalid data.
+    /// This function returns an error if the I2C bus encounters an error or if the [`AFE4404`] contains invalid data.
     pub fn get_decimation(&mut self) -> Result<u8, AfeError<I2C::Error>> {
         let r3dh_prev = self.registers.r3Dh.read()?;
 
