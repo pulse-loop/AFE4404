@@ -29,10 +29,10 @@ Set the TIA resistors:
 
 ```rust
 frontend
-    .set_tia_resistors(&ResistorConfiguration {
-        resistor1: ElectricalResistance::new::<kiloohm>(250.0),
-        resistor2: ElectricalResistance::new::<kiloohm>(100.0),
-    })
+    .set_tia_resistors(&ResistorConfiguration::<ThreeLedsMode>::new(
+        ElectricalResistance::new::<kiloohm>(250.0),
+        ElectricalResistance::new::<kiloohm>(100.0),
+    ))
     .expect("Cannot set tia resistors");
 ```
 
@@ -40,7 +40,7 @@ Set the clock source:
 
 ```rust
 frontend
-    .set_clock_source(&ClockConfiguration::Internal)
+    .set_clock_source(ClockConfiguration::Internal)
     .expect("Cannot set clock source");
 ```
 
