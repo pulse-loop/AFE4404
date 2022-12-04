@@ -40,7 +40,7 @@ fn main() {
 
     let peripherals = Peripherals::take().unwrap();
 
-    let config = Config::new().baudrate(100.kHz().into());
+    let config = Config::new().baudrate(400.kHz().into());
 
     let mut interrupt_pin = PinDriver::input(peripherals.pins.gpio4).unwrap();
 
