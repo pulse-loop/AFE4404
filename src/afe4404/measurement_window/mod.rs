@@ -34,7 +34,7 @@ where
         clippy::too_many_lines
     )]
 
-    /// Sets the LEDs timings.
+    /// Sets the LEDs and Ambient timings of the measurement window.
     ///
     /// # Notes
     ///
@@ -45,7 +45,7 @@ where
     ///
     /// This function returns an error if the I2C bus encounters an error.
     /// Setting a window periond too long for the current clock frequency will result in an error.
-    pub fn set_timing_window(
+    pub fn set_measurement_window(
         &mut self,
         configuration: &MeasurementWindowConfiguration<ThreeLedsMode>,
     ) -> Result<MeasurementWindowConfiguration<ThreeLedsMode>, AfeError<I2C::Error>> {
@@ -269,13 +269,13 @@ where
         ))
     }
 
-    /// Gets the LEDs timings.
+    /// Gets the LEDs and Ambient timings of the measurement window.
     ///
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error or if the [`AFE4404`] contains invalid data.
     #[allow(clippy::similar_names)]
-    pub fn get_timing_window(
+    pub fn get_measurement_window(
         &mut self,
     ) -> Result<MeasurementWindowConfiguration<ThreeLedsMode>, AfeError<I2C::Error>> {
         let r01h_prev = self.registers.r01h.read()?;
@@ -387,7 +387,7 @@ where
         clippy::too_many_lines
     )]
 
-    /// Sets the LEDs timings.
+    /// Sets the LEDs and Ambient timings of the measurement window.
     ///
     /// # Notes
     ///
@@ -398,7 +398,7 @@ where
     ///
     /// This function returns an error if the I2C bus encounters an error.
     /// Setting a window periond too long for the current clock frequency will result in an error.
-    pub fn set_timing_window(
+    pub fn set_measurement_window(
         &mut self,
         configuration: &MeasurementWindowConfiguration<TwoLedsMode>,
     ) -> Result<MeasurementWindowConfiguration<TwoLedsMode>, AfeError<I2C::Error>> {
@@ -614,13 +614,13 @@ where
         ))
     }
 
-    /// Gets the LEDs timings.
+    /// Gets the LEDs and Ambient timings of the measurement window.
     ///
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error or if the [`AFE4404`] contains invalid data.
     #[allow(clippy::similar_names)]
-    pub fn get_timing_window(
+    pub fn get_measurement_window(
         &mut self,
     ) -> Result<MeasurementWindowConfiguration<TwoLedsMode>, AfeError<I2C::Error>> {
         let r01h_prev = self.registers.r01h.read()?;

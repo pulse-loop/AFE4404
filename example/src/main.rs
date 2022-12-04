@@ -97,7 +97,7 @@ fn main() {
         .unwrap();
 
     frontend
-        .set_timing_window(&MeasurementWindowConfiguration::<ThreeLedsMode>::new(
+        .set_measurement_window(&MeasurementWindowConfiguration::<ThreeLedsMode>::new(
             Time::new::<microsecond>(10_000.0),
             ActiveTiming::<ThreeLedsMode>::new(
                 LedTiming {

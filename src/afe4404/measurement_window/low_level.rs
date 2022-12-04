@@ -653,11 +653,11 @@ where
     ///
     ///
     pub fn set_window_period(&mut self, period: Time) -> Result<Time, AfeError<I2C::Error>> {
-        let mut configuration_prev = self.get_timing_window()?;
+        let mut configuration_prev = self.get_measurement_window()?;
 
         *configuration_prev.period_mut() = period;
 
-        let configuration = self.set_timing_window(&configuration_prev)?;
+        let configuration = self.set_measurement_window(&configuration_prev)?;
 
         Ok(*configuration.period())
     }
@@ -1121,11 +1121,11 @@ where
     ///
     ///
     pub fn set_window_period(&mut self, period: Time) -> Result<Time, AfeError<I2C::Error>> {
-        let mut configuration_prev = self.get_timing_window()?;
+        let mut configuration_prev = self.get_measurement_window()?;
 
         *configuration_prev.period_mut() = period;
 
-        let configuration = self.set_timing_window(&configuration_prev)?;
+        let configuration = self.set_measurement_window(&configuration_prev)?;
 
         Ok(*configuration.period())
     }
