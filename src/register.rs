@@ -37,7 +37,7 @@ where
     /// This function will return an error if an I2C transaction fails.
     pub(crate) fn read(&mut self) -> Result<BF, AfeError<I2C::Error>> {
         // Enable register reading flag for configuration registers.
-        if self.reg_addr < 0x2a || self.reg_addr > 0x2f {
+        if self.reg_addr < 0x2a || (self.reg_addr > 0x2f && self.reg_addr < 0x3f) {
             self.i2c
                 .borrow_mut()
                 .write(self.phy_addr, [0, 0, 0, 1].as_slice())?;
@@ -53,7 +53,7 @@ where
             .read(self.phy_addr, &mut receive_buffer)?;
 
         // Disable register reading flag for configuration registers.
-        if self.reg_addr < 0x2a || self.reg_addr > 0x2f {
+        if self.reg_addr < 0x2a || (self.reg_addr > 0x2f && self.reg_addr < 0x3f) {
             self.i2c
                 .borrow_mut()
                 .write(self.phy_addr, [0, 0, 0, 0].as_slice())?;

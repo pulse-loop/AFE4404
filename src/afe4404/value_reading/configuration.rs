@@ -104,3 +104,51 @@ impl Readings<TwoLedsMode> {
         &self.led2_minus_ambient2
     }
 }
+
+/// Represents the averaged values read from the [`AFE4404`].
+#[derive(Copy, Clone, Debug)]
+pub struct AveragedReadings<MODE: LedMode> {
+    avg_led1_minus_ambient1: ElectricPotential,
+    avg_led2_minus_ambient2: ElectricPotential,
+    mode: core::marker::PhantomData<MODE>,
+}
+
+impl AveragedReadings<ThreeLedsMode> {
+    pub(crate) fn new(
+        avg_led1_minus_ambient: ElectricPotential,
+    ) -> Self {
+        Self {
+            avg_led1_minus_ambient1: avg_led1_minus_ambient,
+            avg_led2_minus_ambient2: ElectricPotential::new::<volt>(0.0),
+            mode: core::marker::PhantomData,
+        }
+    }
+
+    /// Gets an immutable reference of the averaged LED1 minus Ambient value.
+    pub fn avg_led1_minus_ambient(&self) -> &ElectricPotential {
+        &self.avg_led1_minus_ambient1
+    }
+}
+
+impl AveragedReadings<TwoLedsMode> {
+    pub(crate) fn new(
+        avg_led1_minus_ambient1: ElectricPotential,
+        avg_led2_minus_ambient2: ElectricPotential,
+    ) -> Self {
+        Self {
+            avg_led1_minus_ambient1,
+            avg_led2_minus_ambient2,
+            mode: core::marker::PhantomData,
+        }
+    }
+
+    /// Gets an immutable reference of the averaged LED1 minus Ambient1 value.
+    pub fn avg_led1_minus_ambient1(&self) -> &ElectricPotential {
+        &self.avg_led1_minus_ambient1
+    }
+
+    /// Gets an immutable reference of the averaged LED2 minus Ambient2 value.
+    pub fn avg_led2_minus_ambient2(&self) -> &ElectricPotential {
+        &self.avg_led2_minus_ambient2
+    }
+}

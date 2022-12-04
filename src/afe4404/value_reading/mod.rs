@@ -11,7 +11,7 @@ use crate::{
     errors::AfeError,
 };
 
-pub use configuration::Readings;
+pub use configuration::{AveragedReadings, Readings};
 
 mod configuration;
 
@@ -24,18 +24,21 @@ where
     ///
     /// # Errors
     ///
-    /// This function will return an error in case of failure of an I2C operation.
+    /// This function will return an error if the I2C bus encounters an error.
     #[allow(clippy::similar_names)]
-    fn get_raw_readings(&mut self) -> Result<[ElectricPotential; 6], AfeError<I2C::Error>> {
+    fn get_raw_readings(&mut self) -> Result<[ElectricPotential; 8], AfeError<I2C::Error>> {
         let r2ah_prev = self.registers.r2Ah.read()?;
         let r2bh_prev = self.registers.r2Bh.read()?;
         let r2ch_prev = self.registers.r2Ch.read()?;
         let r2dh_prev = self.registers.r2Dh.read()?;
+        let r2eh_prev = self.registers.r2Eh.read()?;
         let r2fh_prev = self.registers.r2Fh.read()?;
+        let r3fh_prev = self.registers.r3Fh.read()?;
+        let r40h_prev = self.registers.r40h.read()?;
 
         let quantisation: ElectricPotential = ElectricPotential::new::<volt>(1.2) / 2_097_151.0;
 
-        let mut values: [ElectricPotential; 6] = Default::default();
+        let mut values: [ElectricPotential; 8] = Default::default();
 
         // We are converting a 22 bit reading (stored in a 32 bit register) to a 32 bit float.
         // Since the 32 bit float has a 23 bits, we allow a precision loss.
@@ -44,9 +47,12 @@ where
         for (i, &register_value) in [
             r2ch_prev.led1val(),
             r2ah_prev.led2val(),
-            r2bh_prev.aled2val_or_led3val(),
             r2dh_prev.aled1val(),
+            r2bh_prev.aled2val_or_led3val(),
             r2fh_prev.led1_minus_aled1val(),
+            r2eh_prev.led2_minus_aled2val(),
+            r40h_prev.avg_led1_minus_aled1val(),
+            r3fh_prev.avg_led2_minus_aled2val(),
         ]
         .iter()
         .enumerate()
@@ -68,7 +74,7 @@ impl<I2C> AFE4404<I2C, ThreeLedsMode>
 where
     I2C: I2c<SevenBitAddress>,
 {
-    /// Read the sampled values.
+    /// Reads the sampled values.
     ///
     /// # Notes
     ///
@@ -82,8 +88,26 @@ where
         let values = self.get_raw_readings()?;
 
         Ok(Readings::<ThreeLedsMode>::new(
-            values[0], values[1], values[2], values[3], values[4],
+            values[0], values[1], values[3], values[2], values[4],
         ))
+    }
+
+    /// Reads the values averaged over a number of samples set by the `decimation_factor`.
+    ///
+    /// # Notes
+    ///
+    /// When the decimation factor is greater than one, call this function after an `ADC_RDY` pulse, data will remain valid untill next `ADC_RDY` pulse.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    /// This function returns an error if the ADC reading falls outside the allowed range.
+    pub fn read_averaged(
+        &mut self,
+    ) -> Result<AveragedReadings<ThreeLedsMode>, AfeError<I2C::Error>> {
+        let values = self.get_raw_readings()?;
+
+        Ok(AveragedReadings::<ThreeLedsMode>::new(values[6]))
     }
 }
 
@@ -108,5 +132,21 @@ where
         Ok(Readings::<TwoLedsMode>::new(
             values[0], values[1], values[2], values[3], values[4], values[5],
         ))
+    }
+
+    /// Reads the values averaged over a number of samples set by the `decimation_factor`.
+    ///
+    /// # Notes
+    ///
+    /// When the decimation factor is greater than one, call this function after an `ADC_RDY` pulse, data will remain valid untill next `ADC_RDY` pulse.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    /// This function returns an error if the ADC reading falls outside the allowed range.
+    pub fn read_averaged(&mut self) -> Result<AveragedReadings<TwoLedsMode>, AfeError<I2C::Error>> {
+        let values = self.get_raw_readings()?;
+
+        Ok(AveragedReadings::<TwoLedsMode>::new(values[6], values[7]))
     }
 }
