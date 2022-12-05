@@ -11,12 +11,12 @@ pub struct DynamicConfiguration {
     pub rest_of_adc: State,
 }
 
-/// Represents the power state of a dynamic block.
+/// Represents the state of a block.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum State {
-    /// The block is powered on.
+    /// The block is enabled.
     Enabled,
-    /// The block is powered off.
+    /// The block is disabled.
     Disabled,
 }
 

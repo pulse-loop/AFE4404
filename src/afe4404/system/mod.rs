@@ -15,7 +15,7 @@ where
     I2C: I2c<SevenBitAddress>,
     MODE: LedMode,
 {
-    /// Software reset the [`AFE4404`].
+    /// Software resets the [`AFE4404`].
     ///
     /// # Errors
     ///
@@ -26,11 +26,11 @@ where
         Ok(())
     }
 
-    /// Software power down the [`AFE4404`].
+    /// Software powers down the entire [`AFE4404`].
     ///
     /// # Notes
     ///
-    /// To resume the [`AFE4404`] call `sw_power_up()` function.
+    /// To resume the entire [`AFE4404`] call `sw_power_up()` function.
     ///
     /// # Errors
     ///
@@ -43,7 +43,7 @@ where
         Ok(())
     }
 
-    /// Software power up the [`AFE4404`].
+    /// Software powers up the entire [`AFE4404`].
     ///
     /// # Notes
     ///
@@ -56,6 +56,40 @@ where
         let r23h_prev = self.registers.r23h.read()?;
 
         self.registers.r23h.write(r23h_prev.with_pdnafe(false))?;
+
+        Ok(())
+    }
+
+    /// Software powers down the RX portion of the [`AFE4404`].
+    ///
+    /// # Notes
+    ///
+    /// To resume the RX portion of the [`AFE4404`] call `sw_power_up_rx()` function.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn sw_power_down_rx(&mut self) -> Result<(), AfeError<I2C::Error>> {
+        let r23h_prev = self.registers.r23h.read()?;
+
+        self.registers.r23h.write(r23h_prev.with_pdnrx(true))?;
+
+        Ok(())
+    }
+
+    /// Software powers up the RX portion of the [`AFE4404`].
+    ///
+    /// # Notes
+    ///
+    /// After calling this function, a wait time of `tCHANNEL` should be applied before high-accuracy readings.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn sw_power_up_rx(&mut self) -> Result<(), AfeError<I2C::Error>> {
+        let r23h_prev = self.registers.r23h.read()?;
+
+        self.registers.r23h.write(r23h_prev.with_pdnrx(false))?;
 
         Ok(())
     }
@@ -96,5 +130,37 @@ where
             tia: r23h_prev.dynamic3().into(),
             rest_of_adc: r23h_prev.dynamic4().into(),
         })
+    }
+
+    /// Sets the photodiode state.
+    /// 
+    /// # Notes
+    /// 
+    /// When the photodiode is disabled, the readings are determined only by the offset currents.
+    /// 
+    /// # Errors
+    /// 
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn set_photodiode(&mut self, state: State) -> Result<State, AfeError<I2C::Error>> {
+        let r31h_prev = self.registers.r31h.read()?;
+
+        self.registers.r31h.write(r31h_prev.with_pd_disconnect(state.into()))?;
+
+        Ok(state)
+    }
+
+    /// Gets the photodiode state.
+    /// 
+    /// # Notes
+    /// 
+    /// When the photodiode is disabled, the readings are determined only by the offset currents.
+    /// 
+    /// # Errors
+    /// 
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn get_photodiode(&mut self) -> Result<State, AfeError<I2C::Error>> {
+        let r31h_prev = self.registers.r31h.read()?;
+
+        Ok(r31h_prev.pd_disconnect().into())
     }
 }
