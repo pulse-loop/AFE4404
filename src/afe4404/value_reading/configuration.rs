@@ -114,9 +114,7 @@ pub struct AveragedReadings<MODE: LedMode> {
 }
 
 impl AveragedReadings<ThreeLedsMode> {
-    pub(crate) fn new(
-        avg_led1_minus_ambient: ElectricPotential,
-    ) -> Self {
+    pub(crate) fn new(avg_led1_minus_ambient: ElectricPotential) -> Self {
         Self {
             avg_led1_minus_ambient1: avg_led1_minus_ambient,
             avg_led2_minus_ambient2: ElectricPotential::new::<volt>(0.0),

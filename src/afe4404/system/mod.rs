@@ -133,30 +133,32 @@ where
     }
 
     /// Sets the photodiode state.
-    /// 
+    ///
     /// # Notes
-    /// 
+    ///
     /// When the photodiode is disabled, the readings are determined only by the offset currents.
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// This function returns an error if the I2C bus encounters an error.
     pub fn set_photodiode(&mut self, state: State) -> Result<State, AfeError<I2C::Error>> {
         let r31h_prev = self.registers.r31h.read()?;
 
-        self.registers.r31h.write(r31h_prev.with_pd_disconnect(state.into()))?;
+        self.registers
+            .r31h
+            .write(r31h_prev.with_pd_disconnect(state.into()))?;
 
         Ok(state)
     }
 
     /// Gets the photodiode state.
-    /// 
+    ///
     /// # Notes
-    /// 
+    ///
     /// When the photodiode is disabled, the readings are determined only by the offset currents.
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// This function returns an error if the I2C bus encounters an error.
     pub fn get_photodiode(&mut self) -> Result<State, AfeError<I2C::Error>> {
         let r31h_prev = self.registers.r31h.read()?;
