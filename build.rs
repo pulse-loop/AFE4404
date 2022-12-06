@@ -40,7 +40,7 @@ impl RegisterData {
 
 fn read_from_file(file_name: &str) -> Vec<RegisterData> {
     let file_data =
-        fs::read_to_string(file_name).unwrap_or_else(|_| panic!("Cannot read {}.", file_name));
+        fs::read_to_string(file_name).unwrap_or_else(|_| panic!("Cannot read {file_name}."));
     let mut register_array = Vec::<RegisterData>::new();
     for (i, line) in file_data.lines().enumerate() {
         if let Ok(reg) = RegisterData::from_string(i as u8, line.to_string()) {
@@ -91,7 +91,7 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
 
         for (name, length) in register.data.iter() {
             if name == "0" {
-                let field = Field::new(&format!("__{}", skips), format!("B{}", length))
+                let field = Field::new(&format!("__{skips}"), format!("B{length}"))
                     .annotation("#[skip]")
                     .to_owned();
                 skips += 1;
@@ -99,8 +99,8 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
             } else {
                 let mut field = match length {
                     1 => Field::new(name.as_str(), "bool"),
-                    8 | 16 | 32 | 64 => Field::new(name.as_str(), format!("u{}", length)),
-                    _ => Field::new(name.as_str(), format!("B{}", length)),
+                    8 | 16 | 32 | 64 => Field::new(name.as_str(), format!("u{length}")),
+                    _ => Field::new(name.as_str(), format!("B{length}")),
                 };
 
                 current_struct.push_field(field.vis("pub(crate)").to_owned());
