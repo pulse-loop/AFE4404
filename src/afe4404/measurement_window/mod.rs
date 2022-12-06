@@ -44,7 +44,7 @@ where
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error.
-    /// Setting a window periond too long for the current clock frequency will result in an error.
+    /// Setting a window period too long for the current clock frequency will result in an error.
     pub fn set_measurement_window(
         &mut self,
         configuration: &MeasurementWindowConfiguration<ThreeLedsMode>,
@@ -397,7 +397,7 @@ where
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error.
-    /// Setting a window periond too long for the current clock frequency will result in an error.
+    /// Setting a window period too long for the current clock frequency will result in an error.
     pub fn set_measurement_window(
         &mut self,
         configuration: &MeasurementWindowConfiguration<TwoLedsMode>,

@@ -20,7 +20,7 @@ pub enum AfeError<I2CError: embedded_hal::i2c::Error> {
     WindowPeriodTooLong,
     #[error("the requested internal clock is not 4MHz")]
     IncorrectInternalClock,
-    #[error("the requested number of averages falls outseide the allowed range")]
+    #[error("the requested number of averages falls outside the allowed range")]
     NumberOfAveragesOutsideAllowedRange,
     #[error("the decimation factor falls outside the allowed range")]
     DecimationFactorOutsideAllowedRange,

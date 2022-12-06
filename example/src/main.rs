@@ -62,7 +62,7 @@ fn main() {
             ElectricCurrent::new::<milliampere>(2.0),
             ElectricCurrent::new::<milliampere>(2.0),
         ))
-        .expect("Cannot set leds current");
+        .expect("Cannot set LEDs current");
 
     frontend
         .set_offset_current(&OffsetCurrentConfiguration::<ThreeLedsMode>::new(

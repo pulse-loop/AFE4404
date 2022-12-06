@@ -78,7 +78,7 @@ where
     ///
     /// # Notes
     ///
-    /// Call this function after an `ADC_RDY` pulse, data will remain valid untill next `ADC_RDY` pulse.
+    /// Call this function after an `ADC_RDY` pulse, data will remain valid until next `ADC_RDY` pulse.
     ///
     /// # Errors
     ///
@@ -119,7 +119,7 @@ where
     ///
     /// # Notes
     ///
-    /// Call this function after an `ADC_RDY` pulse, data will remain valid untill next `ADC_RDY` pulse.
+    /// Call this function after an `ADC_RDY` pulse, data will remain valid until next `ADC_RDY` pulse.
     ///
     /// # Errors
     ///

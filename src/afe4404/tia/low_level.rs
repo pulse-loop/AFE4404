@@ -17,7 +17,7 @@ where
     I2C: I2c<SevenBitAddress>,
     MODE: LedMode,
 {
-    /// Converts an `ElectricalResistance` into a tuple of `ElecticalResistance` rounded to the closest actual value and register value.
+    /// Converts an `ElectricalResistance` into a tuple of `ElectricalResistance` rounded to the closest actual value and register value.
     pub(crate) fn from_resistor(
         resistor: ElectricalResistance,
     ) -> Result<(ElectricalResistance, u8), AfeError<I2C::Error>> {
