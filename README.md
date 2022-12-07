@@ -1,6 +1,10 @@
 # AFE4404 Rust driver
 
+[![crates.io](https://img.shields.io/crates/v/afe4404)](https://crates.io/crates/afe4404)
 [![build](https://github.com/pulse-loop/AFE4404/actions/workflows/build.yml/badge.svg)](https://github.com/pulse-loop/AFE4404/actions/workflows/build.yml)
+[![docs.rs](https://docs.rs/afe4404/badge.svg)](https://docs.rs/afe4404)
+![crates.io](https://img.shields.io/crates/d/afe4404)
+![crates.io](https://img.shields.io/crates/l/afe4404)
 
 This is a AFE4404 driver for Rust embedded-hal.
 It allows a high level interaction with the AFE.
