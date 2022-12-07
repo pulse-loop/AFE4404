@@ -9,8 +9,7 @@ use uom::si::{
     f32::{Capacitance, ElectricalResistance},
 };
 
-use super::AFE4404;
-use crate::{afe4404::LedMode, errors::AfeError};
+use crate::{device::AFE4404, errors::AfeError, modes::LedMode};
 
 impl<I2C, MODE> AFE4404<I2C, MODE>
 where

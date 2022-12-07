@@ -11,13 +11,22 @@
 #![allow(clippy::must_use_candidate)]
 #![no_std]
 #![doc = include_str!("../README.md")]
+#![allow(clippy::module_name_repetitions)]
 
 extern crate alloc;
 
 include!(concat!(env!("OUT_DIR"), "/register_block.rs"));
 
-pub mod afe4404;
+pub mod adc;
+pub mod clock;
+pub mod device;
 mod errors;
+pub mod led_current;
+pub mod measurement_window;
+pub mod modes;
 mod register;
+pub mod system;
+pub mod tia;
+pub mod value_reading;
 
 // TODO: Prelude.

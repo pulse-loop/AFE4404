@@ -1,6 +1,6 @@
 use uom::si::{electric_potential::volt, f32::ElectricPotential};
 
-use crate::afe4404::{LedMode, ThreeLedsMode, TwoLedsMode};
+use crate::modes::{LedMode, ThreeLedsMode, TwoLedsMode};
 
 /// Represents the values read from the [`AFE4404`].
 #[derive(Copy, Clone, Debug)]

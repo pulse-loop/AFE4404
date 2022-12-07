@@ -1,6 +1,6 @@
 use uom::si::f32::{Capacitance, ElectricalResistance};
 
-use crate::afe4404::{LedMode, ThreeLedsMode, TwoLedsMode};
+use crate::modes::{LedMode, ThreeLedsMode, TwoLedsMode};
 
 /// Represents the feedback resistors of the TIA inside the [`AFE4404`].
 #[derive(Copy, Clone, Debug)]

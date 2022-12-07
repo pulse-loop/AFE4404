@@ -5,10 +5,10 @@ use embedded_hal::i2c::SevenBitAddress;
 use uom::si::electric_potential::volt;
 use uom::si::f32::ElectricPotential;
 
-use super::AFE4404;
 use crate::{
-    afe4404::{LedMode, ThreeLedsMode, TwoLedsMode},
+    device::AFE4404,
     errors::AfeError,
+    modes::{LedMode, ThreeLedsMode, TwoLedsMode},
 };
 
 pub use configuration::{AveragedReadings, Readings};

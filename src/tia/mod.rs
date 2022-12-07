@@ -3,10 +3,11 @@
 use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 
-use super::ThreeLedsMode;
-use super::TwoLedsMode;
-use super::AFE4404;
-use crate::errors::AfeError;
+use crate::{
+    device::AFE4404,
+    errors::AfeError,
+    modes::{ThreeLedsMode, TwoLedsMode},
+};
 
 pub use configuration::{CapacitorConfiguration, ResistorConfiguration};
 

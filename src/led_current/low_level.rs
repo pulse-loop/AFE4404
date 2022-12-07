@@ -7,8 +7,9 @@ use uom::si::{
 };
 
 use crate::{
-    afe4404::{LedMode, ThreeLedsMode, TwoLedsMode, AFE4404},
+    device::AFE4404,
     errors::AfeError,
+    modes::{LedMode, ThreeLedsMode, TwoLedsMode},
     register_structs::R22h,
 };
 

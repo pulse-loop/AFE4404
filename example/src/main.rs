@@ -19,18 +19,19 @@ use uom::si::{
     time::microsecond,
 };
 
-use afe4404::afe4404::{
+use afe4404::{
     clock::ClockConfiguration,
+    device::AFE4404,
     led_current::{LedCurrentConfiguration, OffsetCurrentConfiguration},
     measurement_window::{
         ActiveTiming, AmbientTiming, LedTiming, MeasurementWindowConfiguration, PowerDownTiming,
     },
+    modes::ThreeLedsMode,
     system::{
         DynamicConfiguration,
         State::{Disabled, Enabled},
     },
     tia::{CapacitorConfiguration, ResistorConfiguration},
-    ThreeLedsMode, AFE4404,
 };
 
 static DATA_READY: AtomicBool = AtomicBool::new(false);

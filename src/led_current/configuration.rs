@@ -1,6 +1,6 @@
 use uom::si::{electric_current::milliampere, f32::ElectricCurrent};
 
-use crate::afe4404::{LedMode, ThreeLedsMode, TwoLedsMode};
+use crate::modes::{LedMode, ThreeLedsMode, TwoLedsMode};
 
 /// Represents the currents of the LEDs.
 #[derive(Clone, Copy, Debug)]

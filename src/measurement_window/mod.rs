@@ -4,10 +4,10 @@ use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 use uom::si::f32::Time;
 
-use super::AFE4404;
 use crate::{
-    afe4404::{ThreeLedsMode, TwoLedsMode},
+    device::AFE4404,
     errors::AfeError,
+    modes::{ThreeLedsMode, TwoLedsMode},
     register_structs::{
         R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh, R0Eh, R0Fh,
         R10h, R11h, R12h, R13h, R14h, R15h, R16h, R17h, R18h, R19h, R1Ah, R1Bh, R1Ch, R1Dh, R32h,

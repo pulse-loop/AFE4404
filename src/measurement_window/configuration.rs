@@ -1,6 +1,6 @@
 use uom::si::{f32::Time, time::microsecond};
 
-use crate::afe4404::{LedMode, ThreeLedsMode, TwoLedsMode};
+use crate::modes::{LedMode, ThreeLedsMode, TwoLedsMode};
 
 /// Represents a period of the measurement window.
 #[derive(Copy, Clone, Debug)]

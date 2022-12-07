@@ -5,10 +5,10 @@ use embedded_hal::i2c::SevenBitAddress;
 use uom::si::electric_current::{microampere, milliampere};
 use uom::si::f32::ElectricCurrent;
 
-use super::AFE4404;
 use crate::{
-    afe4404::{ThreeLedsMode, TwoLedsMode},
+    device::AFE4404,
     errors::AfeError,
+    modes::{ThreeLedsMode, TwoLedsMode},
     register_structs::{R22h, R3Ah},
 };
 

@@ -3,8 +3,7 @@
 use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 
-use super::AFE4404;
-use crate::{afe4404::LedMode, errors::AfeError, register_structs::R00h};
+use crate::{device::AFE4404, errors::AfeError, modes::LedMode, register_structs::R00h};
 
 pub use configuration::{DynamicConfiguration, State};
 

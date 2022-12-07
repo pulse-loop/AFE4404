@@ -4,8 +4,7 @@ use embedded_hal::i2c::I2c;
 use embedded_hal::i2c::SevenBitAddress;
 use uom::si::{f32::Frequency, frequency::megahertz};
 
-use super::AFE4404;
-use crate::{afe4404::LedMode, errors::AfeError, register_structs::R29h};
+use crate::{device::AFE4404, errors::AfeError, modes::LedMode, register_structs::R29h};
 
 pub use configuration::ClockConfiguration;
 
