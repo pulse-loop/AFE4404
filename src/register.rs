@@ -48,9 +48,7 @@ where
 
         self.i2c.lock().write(self.phy_addr, &output_buffer)?;
 
-        self.i2c
-            .lock()
-            .read(self.phy_addr, &mut receive_buffer)?;
+        self.i2c.lock().read(self.phy_addr, &mut receive_buffer)?;
 
         // Disable register reading flag for configuration registers.
         if self.reg_addr < 0x2a || (self.reg_addr > 0x2f && self.reg_addr < 0x3f) {
@@ -71,9 +69,7 @@ where
         let mut buffer: [u8; 4] = [self.reg_addr, 0, 0, 0];
         buffer[1..=3].copy_from_slice(&value.into_reg_bytes());
 
-        self.i2c
-            .lock()
-            .write(self.phy_addr, buffer.as_slice())?;
+        self.i2c.lock().write(self.phy_addr, buffer.as_slice())?;
 
         Ok(())
     }
