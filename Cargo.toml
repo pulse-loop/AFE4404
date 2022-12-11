@@ -1,18 +1,28 @@
 [package]
-name = "AFE4404"
-version = "0.1.0"
+name = "afe4404"
+version = "0.2.0"
+authors = ["Fabio Cragnolini <fbcragnolini@gmail.com>"]
 edition = "2021"
+description = "AFE4404 driver for Rust embedded-hal."
+readme = "README.md"
+repository = "https://github.com/pulse-loop/AFE4404"
+license = "MIT"
+keywords = ["afe4404", "embedded-hal", "driver"]
+categories = ["embedded", "no-std", "hardware-support"]
 
 # [workspace]
 # members = [
 #     "example",
 # ]
 
+[package.metadata.esp-idf-sys]
+esp_idf_tools_install_dir = "out"
+
 [build-dependencies]
 codegen = { version = "0.2.0" }
 
 [dependencies]
-embedded-hal = { version = "1.0.0-alpha.8" }
+embedded-hal = { version = "1.0.0-alpha.9" }
 modular-bitfield = { version = "0.11.2" }
 thiserror-no-std = { version = "2.0.2" }
 uom = { version = "0.33.0" }

@@ -27,11 +27,12 @@ impl RegisterData {
             }
         }
 
-        let zipped = names
+        let mut zipped = names
             .iter()
             .zip(lengths.iter())
             .map(|item| (item.0.clone(), *item.1))
             .collect::<Vec<(String, u32)>>();
+        zipped.reverse(); // Fields are saved in reversed order due to bitfield endianness.
 
         Ok(RegisterData::new(addr, zipped))
     }
@@ -39,7 +40,7 @@ impl RegisterData {
 
 fn read_from_file(file_name: &str) -> Vec<RegisterData> {
     let file_data =
-        fs::read_to_string(file_name).unwrap_or_else(|_| panic!("Cannot read {}.", file_name));
+        fs::read_to_string(file_name).unwrap_or_else(|_| panic!("Cannot read {file_name}."));
     let mut register_array = Vec::<RegisterData>::new();
     for (i, line) in file_data.lines().enumerate() {
         if let Ok(reg) = RegisterData::from_string(i as u8, line.to_string()) {
@@ -65,15 +66,18 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
         .ret("Self");
     scope.push_trait(registers_trait);
 
-    let mut registers_module = Module::new("registers")
+    // Mod.
+    let mut register_structs_module = Module::new("register_structs")
         .import("modular_bitfield::prelude", "*")
         .import("super", "RegisterWritable")
-        .attr("allow(clippy::too_many_arguments)")
         .attr("allow(clippy::fn_params_excessive_bools)")
+        .attr("allow(clippy::no_effect_underscore_binding)")
+        .attr("allow(clippy::too_many_arguments)")
         .attr("allow(dead_code)")
+        .attr("allow(unreachable_pub)")
         .vis("pub(crate)")
         .to_owned();
-        
+
     for register in register_array {
         // Struct.
         let mut current_struct = Struct::new(format!("R{:02X}h", register.addr).as_str());
@@ -87,7 +91,7 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
 
         for (name, length) in register.data.iter() {
             if name == "0" {
-                let field = Field::new(&*format!("__{}", skips), format!("B{}", length))
+                let field = Field::new(&format!("__{skips}"), format!("B{length}"))
                     .annotation("#[skip]")
                     .to_owned();
                 skips += 1;
@@ -95,14 +99,14 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
             } else {
                 let mut field = match length {
                     1 => Field::new(name.as_str(), "bool"),
-                    8 | 16 | 32 | 64 => Field::new(name.as_str(), format!("u{}", length)),
-                    _ => Field::new(name.as_str(), format!("B{}", length)),
+                    8 | 16 | 32 | 64 => Field::new(name.as_str(), format!("u{length}")),
+                    _ => Field::new(name.as_str(), format!("B{length}")),
                 };
 
                 current_struct.push_field(field.vis("pub(crate)").to_owned());
             }
         }
-        registers_module.push_struct(current_struct);
+        register_structs_module.push_struct(current_struct);
 
         // Trait impl.
         let mut current_trait_impl = Impl::new(format!("R{:02X}h", register.addr));
@@ -111,16 +115,20 @@ fn generate_register_structs(register_array: &Vec<RegisterData>) -> Scope {
             .new_fn("into_reg_bytes")
             .arg_self()
             .ret("[u8; 3]")
-            .line("self.into_bytes()");
+            .line("let mut reversed = self.into_bytes();")
+            .line("reversed.reverse();")
+            .line("reversed");
         current_trait_impl
             .new_fn("from_reg_bytes")
             .arg("bytes", "[u8; 3]")
             .ret("Self")
-            .line("Self::from_bytes(bytes)");
-        registers_module.push_impl(current_trait_impl);
+            .line("let mut reversed = bytes;")
+            .line("reversed.reverse();")
+            .line("Self::from_bytes(reversed)");
+        register_structs_module.push_impl(current_trait_impl);
     }
 
-    scope.push_module(registers_module);
+    scope.push_module(register_structs_module);
 
     scope
 }
@@ -129,13 +137,18 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
     let mut scope = Scope::new();
 
     // Import.
-    scope.import("std::cell", "RefCell");
-    scope.import("std::rc", "Rc");
-    scope.import("embedded_hal::i2c", "I2c");
-    scope.import("embedded_hal::i2c", "SevenBitAddress");
-    scope.import("crate::register", "Register");
     scope.raw("include!(concat!(env!(\"OUT_DIR\"), \"/register_structs.rs\"));");
-    scope.raw("use registers::*;");
+
+    // Mod.
+    let mut register_block_module = Module::new("register_block")
+        .import("core::cell", "RefCell")
+        .import("alloc::rc", "Rc")
+        .import("embedded_hal::i2c", "I2c")
+        .import("embedded_hal::i2c", "SevenBitAddress")
+        .import("crate::register", "Register")
+        .import("super::register_structs", "{R00h, R01h, R02h, R03h, R04h, R05h, R06h, R07h, R08h, R09h, R0Ah, R0Bh, R0Ch, R0Dh, R0Eh, R0Fh, R10h, R11h, R12h, R13h, R14h, R15h, R16h, R17h, R18h, R19h, R1Ah, R1Bh, R1Ch, R1Dh, R1Eh, R20h, R21h, R22h, R23h, R28h, R29h, R2Ah, R2Bh, R2Ch, R2Dh, R2Eh, R2Fh, R31h, R32h, R33h, R34h, R35h, R36h, R37h, R39h, R3Ah, R3Dh, R3Fh, R40h}")
+        .vis("pub(crate)")
+        .to_owned();
 
     // Struct.
     let mut register_block_struct = Struct::new("RegisterBlock")
@@ -155,12 +168,12 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
 
         register_block_struct.push_field(field);
     }
-    scope.push_struct(register_block_struct);
+    register_block_module.push_struct(register_block_struct);
 
     // Impl.
     let mut new_function = Function::new("new");
     new_function
-        .vis("pub")
+        .vis("pub(crate)")
         .arg("phy_addr", "SevenBitAddress")
         .arg("i2c", "&Rc<RefCell<I2C>>")
         .ret("Self")
@@ -172,11 +185,14 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
         ));
     }
     new_function.line("}");
-    scope
-        .new_impl("RegisterBlock<I2C>")
+    let mut register_block_implementation = Impl::new("RegisterBlock<I2C>");
+    register_block_implementation
         .generic("I2C")
         .bound("I2C", "I2c")
         .push_fn(new_function);
+    register_block_module.push_impl(register_block_implementation);
+
+    scope.push_module(register_block_module);
 
     scope
 }

@@ -1,24 +1,32 @@
-#![deny(clippy::all)]
 #![warn(clippy::pedantic)]
-#![warn(clippy::nursery)]
 #![warn(clippy::cargo)]
-// Documentation lints
-// #![warn(clippy::missing_docs_in_private_items)]
-#![warn(invalid_doc_attributes)]
 #![warn(rustdoc::all)]
+#![warn(missing_docs)]
+#![warn(clippy::std_instead_of_core)]
+#![warn(clippy::std_instead_of_alloc)]
+#![warn(clippy::alloc_instead_of_core)]
+#![warn(clippy::unwrap_in_result)]
+#![warn(clippy::unwrap_used)]
+// #![warn(clippy::missing_docs_in_private_items)]
+#![allow(clippy::must_use_candidate)]
+#![no_std]
+#![doc = include_str!("../README.md")]
+#![allow(clippy::module_name_repetitions)]
 
-// #![no_std]
-// TODO: Migrate to no_std.
-
-// Direct import of main struct.
-pub use afe4404::AFE4404;
-
-pub use uom;
+extern crate alloc;
 
 include!(concat!(env!("OUT_DIR"), "/register_block.rs"));
 
-/// A driver for the AFE4404 pulse oximeter analog frontend.
-mod afe4404;
+pub mod adc;
+pub mod clock;
+pub mod device;
 mod errors;
-pub mod high_level;
+pub mod led_current;
+pub mod measurement_window;
+pub mod modes;
 mod register;
+pub mod system;
+pub mod tia;
+pub mod value_reading;
+
+// TODO: Prelude.
