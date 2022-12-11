@@ -1,6 +1,6 @@
 //! This module contains the register communication via I2C functions.
 
-use alloc::rc::Rc;
+use alloc::sync::Arc;
 use core::cell::RefCell;
 
 use embedded_hal::i2c::{I2c, SevenBitAddress};
@@ -12,7 +12,7 @@ pub(crate) struct Register<I2C, BF> {
     _p: core::marker::PhantomData<BF>,
     reg_addr: u8,
     phy_addr: SevenBitAddress,
-    i2c: Rc<RefCell<I2C>>,
+    i2c: Arc<RefCell<I2C>>,
 }
 
 impl<I2C, BF> Register<I2C, BF>
@@ -21,7 +21,7 @@ where
     BF: RegisterWritable,
 {
     /// Creates a new [`Register<I2C, BF>`] given a physical and memory address, associated to the specified I2C interface.
-    pub(crate) fn new(reg_addr: u8, phy_addr: SevenBitAddress, i2c: Rc<RefCell<I2C>>) -> Self {
+    pub(crate) fn new(reg_addr: u8, phy_addr: SevenBitAddress, i2c: Arc<RefCell<I2C>>) -> Self {
         Self {
             _p: core::marker::PhantomData::default(),
             reg_addr,

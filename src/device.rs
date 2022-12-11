@@ -1,6 +1,6 @@
 //! This module contains the device initialization functions.
 
-use alloc::rc::Rc;
+use alloc::sync::Arc;
 use core::cell::RefCell;
 
 use embedded_hal::i2c::{I2c, SevenBitAddress};
@@ -32,7 +32,7 @@ where
         clock: Frequency,
     ) -> AFE4404<I2C, ThreeLedsMode> {
         AFE4404::<I2C, ThreeLedsMode> {
-            registers: RegisterBlock::new(address, &Rc::new(RefCell::new(i2c))),
+            registers: RegisterBlock::new(address, &Arc::new(RefCell::new(i2c))),
             clock,
             mode: core::marker::PhantomData,
         }
@@ -45,7 +45,7 @@ where
         clock: Frequency,
     ) -> AFE4404<I2C, TwoLedsMode> {
         AFE4404::<I2C, TwoLedsMode> {
-            registers: RegisterBlock::new(address, &Rc::new(RefCell::new(i2c))),
+            registers: RegisterBlock::new(address, &Arc::new(RefCell::new(i2c))),
             clock,
             mode: core::marker::PhantomData,
         }
