@@ -24,5 +24,6 @@ codegen = { version = "0.2.0" }
 [dependencies]
 embedded-hal = { version = "1.0.0-alpha.9" }
 modular-bitfield = { version = "0.11.2" }
+spin = { version = "0.9.4" }
 thiserror-no-std = { version = "2.0.2" }
 uom = { version = "0.33.0" }

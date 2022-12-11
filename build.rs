@@ -141,7 +141,7 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
 
     // Mod.
     let mut register_block_module = Module::new("register_block")
-        .import("core::cell", "RefCell")
+        .import("spin", "Mutex")
         .import("alloc::sync", "Arc")
         .import("embedded_hal::i2c", "I2c")
         .import("embedded_hal::i2c", "SevenBitAddress")
@@ -175,7 +175,7 @@ fn generate_register_block(register_array: &Vec<RegisterData>) -> Scope {
     new_function
         .vis("pub(crate)")
         .arg("phy_addr", "SevenBitAddress")
-        .arg("i2c", "&Arc<RefCell<I2C>>")
+        .arg("i2c", "&Arc<Mutex<I2C>>")
         .ret("Self")
         .line("Self {");
     for register in register_array {
