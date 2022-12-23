@@ -409,6 +409,19 @@ where
         Ok(value.0)
     }
 
+    /// Gets the window period.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error or if the [`AFE4404`] contains invalid data.
+    pub fn get_window_period(&mut self) -> Result<Time, AfeError<I2C::Error>> {
+        let r1dh_prev = self.registers.r1Dh.read()?;
+
+        let value = self.into_timing(r1dh_prev.prpct())?;
+
+        Ok(value)
+    }
+
     /// Gets the LED1 lighting start timing.
     ///
     /// # Errors
