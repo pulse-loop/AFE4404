@@ -417,7 +417,7 @@ where
     pub fn get_window_period(&mut self) -> Result<Time, AfeError<I2C::Error>> {
         let r1dh_prev = self.registers.r1Dh.read()?;
 
-        let value = self.into_timing(r1dh_prev.prpct())?;
+        let value = self.into_timing(r1dh_prev.prpct() + 1)?;
 
         Ok(value)
     }

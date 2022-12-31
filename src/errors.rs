@@ -16,8 +16,8 @@ pub enum AfeError<I2CError: embedded_hal::i2c::Error> {
     CapacitorValueOutsideAllowedRange,
     #[error("the ADC reading falls outside the allowed range")]
     AdcReadingOutsideAllowedRange,
-    #[error("the requested window period is too long for the current clock frequency")]
-    WindowPeriodTooLong,
+    #[error("the requested window period falls outside the allowed range for the current clock frequency")]
+    WindowPeriodOutsideAllowedRange,
     #[error("the requested internal clock is not 4MHz")]
     IncorrectInternalClock,
     #[error("the requested number of averages falls outside the allowed range")]
