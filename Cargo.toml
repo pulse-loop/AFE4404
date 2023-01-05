@@ -1,6 +1,6 @@
 [package]
 name = "afe4404"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Fabio Cragnolini <fbcragnolini@gmail.com>"]
 edition = "2021"
 description = "AFE4404 driver for Rust embedded-hal."
