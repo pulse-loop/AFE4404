@@ -11,7 +11,7 @@ use crate::{
     modes::{LedMode, ThreeLedsMode, TwoLedsMode},
 };
 
-pub use configuration::{AveragedReadings, Readings};
+pub use configuration::Readings;
 
 mod configuration;
 
@@ -31,10 +31,6 @@ where
         let r2bh_prev = self.registers.r2Bh.read()?;
         let r2ch_prev = self.registers.r2Ch.read()?;
         let r2dh_prev = self.registers.r2Dh.read()?;
-        let r2eh_prev = self.registers.r2Eh.read()?;
-        let r2fh_prev = self.registers.r2Fh.read()?;
-        let r3fh_prev = self.registers.r3Fh.read()?;
-        let r40h_prev = self.registers.r40h.read()?;
 
         let quantisation: ElectricPotential = ElectricPotential::new::<volt>(1.2) / 2_097_151.0;
 
@@ -49,10 +45,6 @@ where
             r2ah_prev.led2val(),
             r2dh_prev.aled1val(),
             r2bh_prev.aled2val_or_led3val(),
-            r2fh_prev.led1_minus_aled1val(),
-            r2eh_prev.led2_minus_aled2val(),
-            r40h_prev.avg_led1_minus_aled1val(),
-            r3fh_prev.avg_led2_minus_aled2val(),
         ]
         .iter()
         .enumerate()
@@ -88,26 +80,8 @@ where
         let values = self.get_raw_readings()?;
 
         Ok(Readings::<ThreeLedsMode>::new(
-            values[0], values[1], values[3], values[2], values[4],
+            values[0], values[1], values[3], values[2],
         ))
-    }
-
-    /// Reads the values averaged over a number of samples set by the `decimation_factor`.
-    ///
-    /// # Notes
-    ///
-    /// When the decimation factor is greater than one, call this function after an `ADC_RDY` pulse, data will remain valid untill next `ADC_RDY` pulse.
-    ///
-    /// # Errors
-    ///
-    /// This function returns an error if the I2C bus encounters an error.
-    /// This function returns an error if the ADC reading falls outside the allowed range.
-    pub fn read_averaged(
-        &mut self,
-    ) -> Result<AveragedReadings<ThreeLedsMode>, AfeError<I2C::Error>> {
-        let values = self.get_raw_readings()?;
-
-        Ok(AveragedReadings::<ThreeLedsMode>::new(values[6]))
     }
 }
 
@@ -130,23 +104,7 @@ where
         let values = self.get_raw_readings()?;
 
         Ok(Readings::<TwoLedsMode>::new(
-            values[0], values[1], values[2], values[3], values[4], values[5],
+            values[0], values[1], values[2], values[3],
         ))
-    }
-
-    /// Reads the values averaged over a number of samples set by the `decimation_factor`.
-    ///
-    /// # Notes
-    ///
-    /// When the decimation factor is greater than one, call this function after an `ADC_RDY` pulse, data will remain valid untill next `ADC_RDY` pulse.
-    ///
-    /// # Errors
-    ///
-    /// This function returns an error if the I2C bus encounters an error.
-    /// This function returns an error if the ADC reading falls outside the allowed range.
-    pub fn read_averaged(&mut self) -> Result<AveragedReadings<TwoLedsMode>, AfeError<I2C::Error>> {
-        let values = self.get_raw_readings()?;
-
-        Ok(AveragedReadings::<TwoLedsMode>::new(values[6], values[7]))
     }
 }
