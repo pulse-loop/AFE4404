@@ -27,7 +27,8 @@ pub enum ResistorValue {
 }
 
 impl ResistorValue {
-    pub(crate) fn from_u8(value: u8) -> ResistorValue {
+    /// Converts a [`u8`] into a [`ResistorValue`].
+    pub fn from_u8(value: u8) -> ResistorValue {
         match value {
             0 => ResistorValue::R500k,
             1 => ResistorValue::R250k,
@@ -69,7 +70,8 @@ pub enum CapacitorValue {
 }
 
 impl CapacitorValue {
-    pub(crate) fn from_u8(value: u8) -> CapacitorValue {
+    /// Converts a [`u8`] into a [`CapacitorValue`].
+    pub fn from_u8(value: u8) -> CapacitorValue {
         match value {
             0 => CapacitorValue::C5p0,
             1 => CapacitorValue::C2p5,
