@@ -13,6 +13,7 @@ pub use configuration::{CapacitorConfiguration, ResistorConfiguration};
 
 mod configuration;
 pub mod low_level;
+pub mod values;
 
 impl<I2C> AFE4404<I2C, ThreeLedsMode>
 where

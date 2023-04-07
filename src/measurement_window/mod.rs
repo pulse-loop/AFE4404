@@ -39,12 +39,13 @@ where
     /// # Notes
     ///
     /// This function automatically enables the timer engine.
+    /// Negative timings will be rounded to zero.
     /// After calling this function, a wait time of `tCHANNEL` should be applied before high-accuracy readings.
     ///
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error.
-    /// Setting a window period too long for the current clock frequency will result in an error.
+    /// Setting a window period too long for the current clock frequency or equal to zero will result in an error.
     pub fn set_measurement_window(
         &mut self,
         configuration: &MeasurementWindowConfiguration<ThreeLedsMode>,
@@ -64,17 +65,18 @@ where
 
         let clk_div = ((*configuration.period() * self.clock).value / 65536.0).ceil() as u8;
         let clk_div: (f32, u8) = match clk_div {
+            0 => return Err(AfeError::WindowPeriodOutsideAllowedRange),
             1 => (1.0, 0), // (division ratio, register value).
             2 => (2.0, 4),
             d if d <= 4 => (4.0, 5),
             d if d <= 8 => (8.0, 6),
             d if d <= 16 => (16.0, 7),
-            _ => return Err(AfeError::WindowPeriodTooLong),
+            _ => return Err(AfeError::WindowPeriodOutsideAllowedRange),
         };
         let period_clk: Time = 1.0 / self.clock;
         let period_clk_div: Time = period_clk * clk_div.0;
         let counter: f32 = (*configuration.period() / period_clk_div).value;
-        let counter_max_value: u16 = counter.round() as u16 - 1;
+        let counter_max_value: u16 = (counter - 1.0).round() as u16;
         let quantisation: Time = *configuration.period() / counter;
 
         let active_values: alloc::vec::Vec<QuantisedValues> = [
@@ -392,12 +394,13 @@ where
     /// # Notes
     ///
     /// This function automatically enables the timer engine.
+    /// Negative timings will be rounded to zero.
     /// After calling this function, a wait time of `tCHANNEL` should be applied before high-accuracy readings.
     ///
     /// # Errors
     ///
     /// This function returns an error if the I2C bus encounters an error.
-    /// Setting a window period too long for the current clock frequency will result in an error.
+    /// Setting a window period too long for the current clock frequency or equal to zero will result in an error.
     pub fn set_measurement_window(
         &mut self,
         configuration: &MeasurementWindowConfiguration<TwoLedsMode>,
@@ -417,17 +420,18 @@ where
 
         let clk_div = ((*configuration.period() * self.clock).value / 65536.0).ceil() as u8;
         let clk_div: (f32, u8) = match clk_div {
+            0 => return Err(AfeError::WindowPeriodOutsideAllowedRange),
             1 => (1.0, 0), // (division ratio, register value).
             2 => (2.0, 4),
             d if d <= 4 => (4.0, 5),
             d if d <= 8 => (8.0, 6),
             d if d <= 16 => (16.0, 7),
-            _ => return Err(AfeError::WindowPeriodTooLong),
+            _ => return Err(AfeError::WindowPeriodOutsideAllowedRange),
         };
         let period_clk: Time = 1.0 / self.clock;
         let period_clk_div: Time = period_clk * clk_div.0;
         let counter: f32 = (*configuration.period() / period_clk_div).value;
-        let counter_max_value: u16 = counter.round() as u16 - 1;
+        let counter_max_value: u16 = (counter - 1.0).round() as u16;
         let quantisation: Time = *configuration.period() / counter;
 
         let active_values: alloc::vec::Vec<QuantisedValues> = [

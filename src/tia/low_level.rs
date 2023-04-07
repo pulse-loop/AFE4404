@@ -11,6 +11,9 @@ use uom::si::{
 
 use crate::{device::AFE4404, errors::AfeError, modes::LedMode};
 
+use super::values::CapacitorValue;
+use super::values::ResistorValue;
+
 impl<I2C, MODE> AFE4404<I2C, MODE>
 where
     I2C: I2c<SevenBitAddress>,
@@ -120,6 +123,31 @@ where
         Ok(value.0)
     }
 
+    /// Sets the tia resistor1 value given a `ResistorValue`.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn set_tia_resistor1_enum(
+        &mut self,
+        resistor: ResistorValue<I2C>,
+    ) -> Result<(), AfeError<I2C::Error>> {
+        let r20h_prev = self.registers.r20h.read()?;
+        let r21h_prev = self.registers.r21h.read()?;
+
+        let value = resistor.try_into()?;
+
+        let separate_resistor: bool =
+            (value != r20h_prev.tia_gain_sep()) || (r21h_prev.tia_cf() != r20h_prev.tia_cf_sep());
+
+        self.registers
+            .r20h
+            .write(r20h_prev.with_ensepgain(separate_resistor))?;
+        self.registers.r21h.write(r21h_prev.with_tia_gain(value))?;
+
+        Ok(())
+    }
+
     /// Sets the tia resistor2 value.
     ///
     /// # Notes
@@ -151,6 +179,32 @@ where
         Ok(value.0)
     }
 
+    /// Sets the tia resistor2 value given a `ResistorValue`.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn set_tia_resistor2_enum(
+        &mut self,
+        resistor: ResistorValue<I2C>,
+    ) -> Result<(), AfeError<I2C::Error>> {
+        let r20h_prev = self.registers.r20h.read()?;
+        let r21h_prev = self.registers.r21h.read()?;
+
+        let value = resistor.try_into()?;
+
+        let separate_resistor: bool =
+            (r21h_prev.tia_gain() != value) || (r21h_prev.tia_cf() != r20h_prev.tia_cf_sep());
+
+        self.registers.r20h.write(
+            r20h_prev
+                .with_ensepgain(separate_resistor)
+                .with_tia_gain_sep(value),
+        )?;
+
+        Ok(())
+    }
+
     /// Gets the tia resistor1 value.
     ///
     /// # Errors
@@ -164,6 +218,19 @@ where
         Ok(value)
     }
 
+    /// Gets the tia resistor1 value as a `ResistorValue`.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn get_tia_resistor1_enum(&mut self) -> Result<ResistorValue<I2C>, AfeError<I2C::Error>> {
+        let r21h_prev = self.registers.r21h.read()?;
+
+        let value = r21h_prev.tia_gain().try_into()?;
+
+        Ok(value)
+    }
+
     /// Gets the tia resistor2 value.
     ///
     /// # Errors
@@ -173,6 +240,19 @@ where
         let r20h_prev = self.registers.r20h.read()?;
 
         let value = Self::into_resistor(r20h_prev.tia_gain_sep(), 0x20)?;
+
+        Ok(value)
+    }
+
+    /// Gets the tia resistor2 value as a `ResistorValue`.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn get_tia_resistor2_enum(&mut self) -> Result<ResistorValue<I2C>, AfeError<I2C::Error>> {
+        let r20h_prev = self.registers.r20h.read()?;
+
+        let value = r20h_prev.tia_gain_sep().try_into()?;
 
         Ok(value)
     }
@@ -207,6 +287,31 @@ where
         Ok(value.0)
     }
 
+    /// Sets the tia capacitor1 value given a `CapacitorValue`.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn set_tia_capacitor1_enum(
+        &mut self,
+        capacitor: CapacitorValue<I2C>,
+    ) -> Result<(), AfeError<I2C::Error>> {
+        let r20h_prev = self.registers.r20h.read()?;
+        let r21h_prev = self.registers.r21h.read()?;
+
+        let value = capacitor.try_into()?;
+
+        let separate_capacitor: bool =
+            (r21h_prev.tia_gain() != r20h_prev.tia_gain_sep()) || (value != r20h_prev.tia_cf_sep());
+
+        self.registers
+            .r20h
+            .write(r20h_prev.with_ensepgain(separate_capacitor))?;
+        self.registers.r21h.write(r21h_prev.with_tia_cf(value))?;
+
+        Ok(())
+    }
+
     /// Sets the tia capacitor2 value.
     ///
     /// # Notes
@@ -237,6 +342,31 @@ where
         Ok(value.0)
     }
 
+    /// Sets the tia capacitor2 value given a `CapacitorValue`.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn set_tia_capacitor2_enum(
+        &mut self,
+        capacitor: CapacitorValue<I2C>,
+    ) -> Result<(), AfeError<I2C::Error>> {
+        let r20h_prev = self.registers.r20h.read()?;
+        let r21h_prev = self.registers.r21h.read()?;
+
+        let value = capacitor.try_into()?;
+
+        let separate_capacitor: bool =
+            (r21h_prev.tia_gain() != r20h_prev.tia_gain_sep()) || (r21h_prev.tia_cf() != value);
+
+        self.registers
+            .r20h
+            .write(r20h_prev.with_ensepgain(separate_capacitor))?;
+        self.registers.r21h.write(r21h_prev.with_tia_cf(value))?;
+
+        Ok(())
+    }
+
     /// Gets the tia capacitor1 value.
     ///
     /// # Errors
@@ -250,6 +380,19 @@ where
         Ok(value)
     }
 
+    /// Gets the tia capacitor1 value as a `CapacitorValue`.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn get_tia_capacitor1_enum(&mut self) -> Result<CapacitorValue<I2C>, AfeError<I2C::Error>> {
+        let r21h_prev = self.registers.r21h.read()?;
+
+        let value = r21h_prev.tia_cf().try_into()?;
+
+        Ok(value)
+    }
+
     /// Gets the tia capacitor2 value.
     ///
     /// # Errors
@@ -259,6 +402,19 @@ where
         let r20h_prev = self.registers.r20h.read()?;
 
         let value = Self::into_capacitor(r20h_prev.tia_cf_sep(), 0x20)?;
+
+        Ok(value)
+    }
+
+    /// Gets the tia capacitor2 value as a `CapacitorValue`.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if the I2C bus encounters an error.
+    pub fn get_tia_capacitor2_enum(&mut self) -> Result<CapacitorValue<I2C>, AfeError<I2C::Error>> {
+        let r20h_prev = self.registers.r20h.read()?;
+
+        let value = r20h_prev.tia_cf_sep().try_into()?;
 
         Ok(value)
     }
